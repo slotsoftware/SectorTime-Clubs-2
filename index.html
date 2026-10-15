@@ -6,6 +6,7 @@
     <title>KRONOS SLOT PRO OS v6.0 // Widescreen Race Director & Mobile Pit-Wall</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap');
 
@@ -53,29 +54,33 @@
             color: #fef3c7 !important;
         }
 
-        /* Semáforo Gantry F1 */
+        /* SemÃ¡foro Gantry F1 */
         .f1-light {
-            width: 28px;
-            height: 28px;
+            width: 38px;
+            height: 38px;
             border-radius: 9999px;
-            background: #18181b;
-            border: 2px solid #27272a;
+            background: #141418;
+            border: 3px solid #2e2e36;
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.85);
             transition: all 0.06s ease;
         }
         .f1-light.red-on {
-            background: #ef4444;
-            border-color: #fca5a5;
-            box-shadow: 0 0 20px #ef4444, inset 0 0 6px #ffffff;
+            background: radial-gradient(circle at 35% 35%, #fca5a5 0%, #ef4444 45%, #991b1b 100%);
+            border-color: #fecaca;
+            box-shadow: 0 0 28px #ef4444, 0 0 12px #f87171, inset 0 0 8px #ffffff;
+            transform: scale(1.06);
         }
         .f1-light.green-on {
-            background: #10b981;
-            border-color: #6ee7b7;
-            box-shadow: 0 0 20px #10b981, inset 0 0 6px #ffffff;
+            background: radial-gradient(circle at 35% 35%, #a7f3d0 0%, #10b981 45%, #065f46 100%);
+            border-color: #d1fae5;
+            box-shadow: 0 0 28px #10b981, 0 0 12px #34d399, inset 0 0 8px #ffffff;
+            transform: scale(1.06);
         }
         .f1-light.amber-on {
-            background: #f59e0b;
-            border-color: #fde047;
-            box-shadow: 0 0 20px #f59e0b, inset 0 0 6px #ffffff;
+            background: radial-gradient(circle at 35% 35%, #fef08a 0%, #f59e0b 45%, #92400e 100%);
+            border-color: #fef9c3;
+            box-shadow: 0 0 28px #f59e0b, 0 0 12px #fbbf24, inset 0 0 8px #ffffff;
+            transform: scale(1.06);
         }
 
         @keyframes trackCallPulse {
@@ -87,42 +92,51 @@
         }
 
         .pos-p1-gold {
-            background: linear-gradient(135deg, #fde047 0%, #eab308 55%, #ca8a04 100%) !important;
+            background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #a16207 100%) !important;
             color: #090d16 !important;
-            border: 1px solid #fef08a !important;
-            box-shadow: 0 0 14px rgba(234, 179, 8, 0.65);
+            border: 2px solid #ffffff !important;
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.85);
         }
         .pos-p2-silver {
-            background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 55%, #64748b 100%) !important;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 55%, #475569 100%) !important;
             color: #090d16 !important;
-            border: 1px solid #ffffff !important;
-            box-shadow: 0 0 12px rgba(203, 213, 225, 0.5);
+            border: 2px solid #ffffff !important;
+            box-shadow: 0 0 18px rgba(226, 232, 240, 0.75);
         }
         .pos-p3-bronze {
-            background: linear-gradient(135deg, #fdba74 0%, #ea580c 60%, #9a3412 100%) !important;
-            color: #ffffff !important;
-            border: 1px solid #fed7aa !important;
-            box-shadow: 0 0 12px rgba(234, 88, 12, 0.5);
+            background: linear-gradient(135deg, #fed7aa 0%, #f97316 55%, #9a3412 100%) !important;
+            color: #090d16 !important;
+            border: 2px solid #ffedd5 !important;
+            box-shadow: 0 0 18px rgba(249, 115, 22, 0.75);
         }
         .pos-last-lantern {
-            background: rgba(239, 68, 68, 0.22) !important;
-            color: #fca5a5 !important;
-            border: 1px dashed #ef4444 !important;
+            background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%) !important;
+            color: #ffffff !important;
+            border: 2px dashed #fca5a5 !important;
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.75);
         }
         .card-p1-glow {
-            box-shadow: 0 0 22px -4px rgba(250, 204, 21, 0.38), inset 0 0 12px rgba(250, 204, 21, 0.08) !important;
-            border-top-color: rgba(250, 204, 21, 0.7) !important;
+            background: linear-gradient(145deg, rgba(234, 179, 8, 0.20) 0%, rgba(15, 23, 42, 0.96) 55%, rgba(234, 179, 8, 0.08) 100%) !important;
+            box-shadow: 0 0 28px -3px rgba(250, 204, 21, 0.55), inset 0 0 18px rgba(250, 204, 21, 0.14) !important;
+            border-color: rgba(250, 204, 21, 0.85) !important;
         }
         .card-p2-glow {
-            box-shadow: 0 0 18px -5px rgba(226, 232, 240, 0.3) !important;
-            border-top-color: rgba(226, 232, 240, 0.6) !important;
+            background: linear-gradient(145deg, rgba(203, 213, 225, 0.18) 0%, rgba(15, 23, 42, 0.96) 55%, rgba(148, 163, 184, 0.08) 100%) !important;
+            box-shadow: 0 0 24px -4px rgba(226, 232, 240, 0.45), inset 0 0 15px rgba(226, 232, 240, 0.10) !important;
+            border-color: rgba(226, 232, 240, 0.75) !important;
         }
         .card-p3-glow {
-            box-shadow: 0 0 18px -5px rgba(249, 115, 22, 0.3) !important;
-            border-top-color: rgba(249, 115, 22, 0.6) !important;
+            background: linear-gradient(145deg, rgba(249, 115, 22, 0.20) 0%, rgba(15, 23, 42, 0.96) 55%, rgba(234, 88, 12, 0.08) 100%) !important;
+            box-shadow: 0 0 24px -4px rgba(249, 115, 22, 0.45), inset 0 0 15px rgba(249, 115, 22, 0.12) !important;
+            border-color: rgba(251, 146, 60, 0.75) !important;
+        }
+        .card-last-glow {
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.20) 0%, rgba(15, 23, 42, 0.96) 60%, rgba(153, 27, 27, 0.12) 100%) !important;
+            box-shadow: 0 0 24px -4px rgba(239, 68, 68, 0.45), inset 0 0 14px rgba(239, 68, 68, 0.12) !important;
+            border-color: rgba(239, 68, 68, 0.7) !important;
         }
 
-        /* Bloqueo y optimización para formato Horizontal (Tablet Landscape, PC y Mac) */
+        /* Bloqueo y optimizaciÃ³n para formato Horizontal (Tablet Landscape, PC y Mac) */
         #portraitWarningOverlay {
             display: none;
         }
@@ -137,173 +151,179 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
     </style>
 </head>
+
 <body class="h-screen w-screen overflow-hidden flex flex-col justify-between p-2 md:px-3.5 md:py-2.5 bg-[#04070f]">
 
-    <!-- AVISO AUTOMÁTICO SI LA TABLET SE PONE EN VERTICAL -->
+    <!-- AVISO AUTOMÃTICO SI LA TABLET SE PONE EN VERTICAL -->
     <div id="portraitWarningOverlay" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex-col items-center justify-center p-6 text-center">
         <div class="w-16 h-16 rounded-2xl bg-sky-500/20 border border-sky-400 flex items-center justify-center text-3xl mb-4 animate-bounce">
-            🔄
+            ðŸ”„
         </div>
         <h2 class="text-xl font-black text-white uppercase tracking-tight">Modo Horizontal Requerido</h2>
         <p class="text-xs font-mono text-slate-300 max-w-xs mt-2">
-            APEX SLOT OS está diseñado para formato panorámico de competición en Tablet, PC y Mac. Gira tu dispositivo en horizontal para ver los carriles y sectores.
+            APEX SLOT OS estÃ¡ diseÃ±ado para formato panorÃ¡mico de competiciÃ³n en Tablet, PC y Mac. Gira tu dispositivo en horizontal para ver los carriles y sectores.
         </p>
     </div>
 
-    <!-- BARRA SUPERIOR DE DIRECCIÓN DE CARRERA + SELECTORES RÁPIDOS DE CARRILES Y SECTORES -->
-    <header id="topRaceBar" class="glass-panel rounded-2xl px-3 py-2 mb-2 flex items-center justify-between gap-2 shrink-0">
-        <!-- Logo + Marca Oficial SLOTING PLUS & SLOT SOFTWARE + Selectores en Vivo -->
-        <div class="flex flex-wrap items-center gap-2.5">
-            <!-- Bloque de Logo y Branding Oficial -->
-            <div class="flex items-center gap-2 bg-slate-950/90 pr-3 pl-1.5 py-1 rounded-xl border border-sky-500/30 shadow-lg shrink-0">
-                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500 via-sky-600 to-indigo-700 flex flex-col items-center justify-center shadow border border-amber-300/50 shrink-0">
-                    <span class="text-[8px] font-black tracking-tighter leading-none text-white" id="brandShortLogo">SLOTING</span>
-                    <span class="text-[8px] font-mono font-extrabold text-amber-300 leading-none mt-0.5">+ PLUS</span>
-                </div>
-                <div class="leading-tight">
-                    <div class="text-[11px] md:text-xs font-black tracking-wider text-amber-400 uppercase flex items-center gap-1">
-                        <span>SLOTING PLUS</span>
-                        <span class="text-slate-500">&amp;</span>
-                        <span class="text-sky-400">SLOT SOFTWARE</span>
+    <!-- BARRA SUPERIOR DE DIRECCIÃ“N DE CARRERA: ORGANIZADA EN 3 ZONAS CLARAS (CONFIGURACIÃ“N | GRAN SEMÃFORO CENTRAL | MANDOS DE CARRERA) -->
+    <header id="topRaceBar" class="glass-panel rounded-2xl px-3.5 py-2 mb-2 grid grid-cols-12 items-center gap-3 shrink-0">
+        
+        <!-- ZONA 1 (IZQUIERDA): MARCA + SELECTORES CLAROS DE MODO, CARRILES Y SECTORES -->
+        <div class="col-span-5 flex flex-col gap-1.5">
+            <div class="flex items-center justify-between gap-2">
+                <!-- Identidad Oficial -->
+                <div class="flex items-center gap-2 bg-slate-950/95 px-2.5 py-1 rounded-xl border border-sky-500/30 shadow shrink-0">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 via-sky-600 to-indigo-700 flex flex-col items-center justify-center shadow border border-amber-300/50 shrink-0">
+                        <span class="text-[7px] font-black tracking-tighter leading-none text-white" id="brandShortLogo">SLOTING</span>
+                        <span class="text-[7px] font-mono font-extrabold text-amber-300 leading-none mt-0.5">+ PLUS</span>
                     </div>
-                    <div class="flex items-center gap-1.5 mt-0.5">
-                        <h1 id="appMainTitle" onclick="promptCustomTitle()" class="text-[10px] font-bold tracking-tight text-white uppercase cursor-pointer hover:text-sky-300 transition flex items-center gap-1" title="Haz clic para personalizar el nombre del Campeonato o Evento">
-                            <span>GRAN PREMIO OFICIAL // KRONOS PRO</span>
-                            <span class="text-[9px] text-slate-400 font-normal">✏️</span>
-                        </h1>
-                        <span id="raceStateBadge" class="px-1.5 py-0.2 text-[9px] font-mono font-bold uppercase rounded bg-slate-800 text-slate-300 border border-slate-700">
-                            STANDBY
-                        </span>
+                    <div class="leading-tight">
+                        <div class="text-[10px] font-black tracking-wider text-amber-400 uppercase flex items-center gap-1">
+                            <span>SLOTING PLUS</span>
+                            <span class="text-slate-500">&amp;</span>
+                            <span class="text-sky-400">SLOT SW</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <h1 id="appMainTitle" onclick="promptCustomTitle()" class="text-[10px] font-bold tracking-tight text-white uppercase cursor-pointer hover:text-sky-300 transition flex items-center gap-1" title="Clic para personalizar el nombre del Campeonato">
+                                <span>GRAN PREMIO OFICIAL // KRONOS PRO</span>
+                                <span class="text-[9px] text-slate-400 font-normal">âœï¸</span>
+                            </h1>
+                            <span id="raceStateBadge" class="px-1.5 py-0.5 text-[9px] font-mono font-black uppercase rounded bg-slate-800 text-slate-300 border border-slate-700">
+                                STANDBY
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- SELECTOR DE MODO DE CARRERA + ENTRADA RÁPIDA DE TIEMPO (5 MIN A 1 HORA) Y VUELTAS -->
-            <div class="flex items-center gap-1.5 bg-slate-950/90 px-2.5 py-1 rounded-xl border border-slate-800">
-                <button onclick="setRaceFormat('TIME')" id="btnMode-TIME" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-amber-500 text-slate-950 cursor-pointer" title="Carrera por Tiempo (De 5 min a 1 Hora o libre)">⏱️ TIEMPO</button>
-                <button onclick="setRaceFormat('LAPS')" id="btnMode-LAPS" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer" title="Carrera a número fijo de vueltas">🏁 VUELTAS</button>
-                <button onclick="setRaceFormat('QUALY')" id="btnMode-QUALY" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer" title="Clasificación Super-Pole">🟣 POLE</button>
-
-                <span class="text-slate-700">|</span>
-
-                <!-- Selector Rápido de Duración (5 min a 60 min / 1 Hora + Personalizado) -->
-                <div id="quickTimeSelectorBox" class="flex items-center gap-1">
-                    <span class="text-[9px] font-mono text-slate-400">DURACIÓN:</span>
-                    <select id="headerTimePreset" onchange="applyQuickTimeMinutes(this.value)" class="bg-slate-900 border border-amber-500/40 rounded px-1.5 py-0.5 text-[10px] font-mono font-bold text-amber-300 focus:outline-none cursor-pointer">
-                        <option value="3">3 min (Sprint)</option>
-                        <option value="5" selected>5 min (Manga Club)</option>
-                        <option value="10">10 min</option>
-                        <option value="15">15 min</option>
-                        <option value="20">20 min</option>
-                        <option value="30">30 min (Media Hora)</option>
-                        <option value="45">45 min</option>
-                        <option value="60">60 min (1 Hora Resistencia)</option>
-                    </select>
-                </div>
-
-                <!-- Entrada Directa de Número de Vueltas -->
-                <div id="quickLapsSelectorBox" class="flex items-center gap-1">
-                    <span class="text-[9px] font-mono text-slate-400">VUELTAS:</span>
-                    <input id="headerTargetLapsInput" type="number" min="1" max="9999" value="25" onchange="applyQuickTargetLaps(this.value)" class="w-14 bg-slate-900 border border-emerald-500/40 rounded px-1.5 py-0.5 text-[10px] font-mono font-bold text-emerald-300 text-center focus:outline-none" title="Introducir número de vueltas objetivo"/>
+                <!-- Selector RÃ¡pido de Carriles y Sectores -->
+                <div class="flex items-center gap-1.5 bg-slate-950/95 px-2.5 py-1.5 rounded-xl border border-slate-800">
+                    <span class="text-[9px] font-mono font-bold text-sky-400 uppercase">PISTA:</span>
+                    <button onclick="setSystemTopology(2, null)" id="btnLane-2" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-sky-600 text-white cursor-pointer">2</button>
+                    <button onclick="setSystemTopology(4, null)" id="btnLane-4" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">4</button>
+                    <button onclick="setSystemTopology(6, null)" id="btnLane-6" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">6</button>
+                    <button onclick="setSystemTopology(8, null)" id="btnLane-8" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">8</button>
+                    <button onclick="setSystemTopology(10, null)" id="btnLane-10" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">10</button>
+                    <span class="text-slate-700">|</span>
+                    <span class="text-[9px] font-mono font-bold text-emerald-400 uppercase">SEC:</span>
+                    <button onclick="setSystemTopology(null, 1)" id="btnSec-1" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">1</button>
+                    <button onclick="setSystemTopology(null, 2)" id="btnSec-2" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">2</button>
+                    <button onclick="setSystemTopology(null, 3)" id="btnSec-3" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-emerald-600 text-white cursor-pointer">3</button>
                 </div>
             </div>
 
-            <!-- CONMUTADOR INSTANTÁNEO DE CARRILES (2, 4, 6, 8, 10) Y SECTORES (1, 2, 3) -->
-            <div class="flex items-center gap-2 bg-slate-950/90 px-2.5 py-1 rounded-xl border border-slate-800">
+            <!-- Sub-barra de Modo de CompeticiÃ³n, Minutos y Vueltas -->
+            <div class="flex items-center justify-between gap-2 bg-slate-950/95 px-2.5 py-1 rounded-xl border border-slate-800">
                 <div class="flex items-center gap-1">
-                    <span class="text-[9px] font-mono text-slate-400 uppercase">CH:</span>
-                    <button onclick="setSystemTopology(2, null)" id="btnLane-2" class="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-sky-600 text-white cursor-pointer">2</button>
-                    <button onclick="setSystemTopology(4, null)" id="btnLane-4" class="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">4</button>
-                    <button onclick="setSystemTopology(6, null)" id="btnLane-6" class="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">6</button>
-                    <button onclick="setSystemTopology(8, null)" id="btnLane-8" class="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">8</button>
-                    <button onclick="setSystemTopology(10, null)" id="btnLane-10" class="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">10</button>
+                    <button onclick="setRaceFormat('TIME')" id="btnMode-TIME" class="px-2.5 py-0.5 text-[10px] font-mono font-black rounded bg-amber-500 text-slate-950 cursor-pointer">â±ï¸ TIEMPO</button>
+                    <button onclick="setRaceFormat('LAPS')" id="btnMode-LAPS" class="px-2.5 py-0.5 text-[10px] font-mono font-black rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">ðŸ VUELTAS</button>
+                    <button onclick="setRaceFormat('QUALY')" id="btnMode-QUALY" class="px-2.5 py-0.5 text-[10px] font-mono font-black rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">ðŸŸ£ POLE</button>
                 </div>
-                <span class="text-slate-700">|</span>
-                <div class="flex items-center gap-1">
-                    <span class="text-[9px] font-mono text-slate-400 uppercase">SEC:</span>
-                    <button onclick="setSystemTopology(null, 1)" id="btnSec-1" class="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer" title="1 Sector: Solo línea de Meta">1</button>
-                    <button onclick="setSystemTopology(null, 2)" id="btnSec-2" class="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer" title="2 Sectores: Intermedio S1 + Meta">2</button>
-                    <button onclick="setSystemTopology(null, 3)" id="btnSec-3" class="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-emerald-600 text-white cursor-pointer" title="3 Sectores: S1 + S2 + Meta">3</button>
-                </div>
-                <span class="hidden 2xl:inline text-[9px] font-mono text-sky-400 font-bold ml-1" id="headerConfigSummary">2 CH · 3 SEC</span>
-            </div>
-        </div>
 
-        <!-- PUENTE DE SEMÁFOROS F1 + RELOJ MAESTRO / CONTADOR DE VUELTAS OBJETIVO -->
-        <div class="flex items-center gap-3 bg-slate-950/90 px-3 py-1.5 rounded-xl border border-slate-800">
-            <div class="flex items-center gap-1.5" id="f1Gantry">
-                <div class="f1-light" id="f1L1"></div>
-                <div class="f1-light" id="f1L2"></div>
-                <div class="f1-light" id="f1L3"></div>
-                <div class="f1-light" id="f1L4"></div>
-                <div class="f1-light" id="f1L5"></div>
-            </div>
-            <div class="border-l border-slate-800 pl-3 text-right">
-                <div id="masterClockLabel" class="text-[8px] font-mono uppercase tracking-widest text-amber-400 font-bold">CRONO MANGA</div>
-                <div id="masterClock" class="text-xl md:text-2xl font-mono-num font-black text-white tracking-tight leading-none">
-                    03:00.0
+                <div class="flex items-center gap-2">
+                    <div id="quickTimeSelectorBox" class="flex items-center gap-1">
+                        <span class="text-[9px] font-mono text-amber-400 font-bold">MANGA:</span>
+                        <select id="headerTimePreset" onchange="applyQuickTimeMinutes(this.value)" class="bg-slate-900 border border-amber-500/40 rounded px-1.5 py-0.5 text-[10px] font-mono font-bold text-amber-300 focus:outline-none cursor-pointer">
+                            <option value="3">3 min</option>
+                            <option value="5" selected>5 min</option>
+                            <option value="10">10 min</option>
+                            <option value="15">15 min</option>
+                            <option value="20">20 min</option>
+                            <option value="30">30 min</option>
+                            <option value="45">45 min</option>
+                            <option value="60">60 min (1h)</option>
+                        </select>
+                    </div>
+                    <div id="quickLapsSelectorBox" class="flex items-center gap-1">
+                        <span class="text-[9px] font-mono text-emerald-400 font-bold">META:</span>
+                        <input id="headerTargetLapsInput" type="number" min="1" max="9999" value="25" onchange="applyQuickTargetLaps(this.value)" class="w-14 bg-slate-900 border border-emerald-500/40 rounded px-1.5 py-0.5 text-[10px] font-mono font-bold text-emerald-300 text-center focus:outline-none"/>
+                        <span class="text-[9px] font-mono text-slate-400">V.</span>
+                    </div>
+                    <span class="hidden xl:inline text-[9px] font-mono text-sky-400 font-bold" id="headerConfigSummary">2 CH Â· 3 SEC</span>
                 </div>
             </div>
         </div>
 
-        <!-- BOTONERA DE CONTROL TÁCTIL -->
-        <div class="flex items-center flex-wrap gap-1.5">
-            <button onclick="startF1Sequence()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-mono font-bold text-xs rounded-xl shadow-lg border border-emerald-400/40 transition flex items-center gap-1 cursor-pointer">
-                <span>🚦</span> SALIDA F1
-            </button>
-            <button onclick="toggleTrackCall()" class="px-3 py-2 bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-mono font-extrabold text-xs rounded-xl shadow-lg border border-amber-300 transition flex items-center gap-1 cursor-pointer">
-                <span>⚠️</span> TRACK CALL
-            </button>
-            <button onclick="toggleAutoDemo()" id="btnAutoDemo" class="px-2.5 py-2 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 font-mono font-bold text-xs rounded-xl border border-purple-400/40 transition flex items-center gap-1 cursor-pointer">
-                <span>🤖</span> AUTO-SIM
-            </button>
-            <button onclick="switchTab('mobile')" class="px-2.5 py-2 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 font-mono font-bold text-xs rounded-xl border border-emerald-500/40 transition cursor-pointer" title="Enviar Tiempos al Móvil de los Pilotos">
-                📲 MÓVIL
-            </button>
-            <button onclick="announceFullStandingsWithHumor()" class="px-2.5 py-2 bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 font-mono font-bold text-xs rounded-xl border border-amber-400/40 transition cursor-pointer flex items-center gap-1" title="Cantar Líder, Podio (1º, 2º, 3º) y Último con cachondeo">
-                🎙️ PODIO
-            </button>
-            <button onclick="toggleVoiceSpotter()" id="btnVoice" class="px-2 py-2 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 font-mono font-bold text-xs rounded-xl border border-indigo-400/40 transition cursor-pointer" title="Spotter por Voz">
-                <span id="voiceIcon">🔊</span>
-            </button>
-            <button onclick="connectArduinoUSB()" class="px-2 py-2 bg-sky-600/20 hover:bg-sky-600/40 text-sky-300 font-mono font-bold text-xs rounded-xl border border-sky-500/40 transition cursor-pointer" title="Conectar Cable USB OTG">
-                🔌 USB
-            </button>
-            <button onclick="resetRaceSession()" class="px-2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-xs rounded-xl border border-slate-700 transition cursor-pointer" title="Reiniciar Tiempos">
-                🔄
-            </button>
-            <button onclick="toggleFullScreenMode()" id="btnFullscreen" class="px-2 py-2 bg-slate-800 hover:bg-sky-600 text-sky-300 hover:text-white font-mono font-bold text-xs rounded-xl border border-slate-700 transition cursor-pointer" title="Pantalla Completa (Tablet / PC / Mac)">
-                ⛶
-            </button>
+        <!-- ZONA 2 (CENTRO PROTAGONISTA): PUENTE DE SEMÃFOROS F1 GIGANTE + CRONÃ“METRO OFICIAL -->
+        <div class="col-span-4 flex items-center justify-center gap-4 bg-gradient-to-b from-slate-900 via-slate-950 to-black px-4 py-2 rounded-2xl border-2 border-slate-700/90 shadow-2xl">
+            <div class="flex flex-col items-center">
+                <span class="text-[8px] font-mono uppercase tracking-widest text-slate-400 font-bold mb-1">FIA START GANTRY</span>
+                <div class="flex items-center gap-2.5 bg-black/80 px-3 py-1.5 rounded-xl border border-slate-800" id="f1Gantry">
+                    <div class="f1-light" id="f1L1"></div>
+                    <div class="f1-light" id="f1L2"></div>
+                    <div class="f1-light" id="f1L3"></div>
+                    <div class="f1-light" id="f1L4"></div>
+                    <div class="f1-light" id="f1L5"></div>
+                </div>
+            </div>
+            <div class="border-l-2 border-slate-800 pl-4 text-right">
+                <div id="masterClockLabel" class="text-[9px] font-mono uppercase tracking-widest text-amber-400 font-black">CRONO MANGA</div>
+                <div id="masterClock" class="text-2xl xl:text-3xl font-mono-num font-black text-white tracking-tight leading-none mt-0.5 drop-shadow-[0_0_10px_rgba(255,255,255,0.25)]">
+                    05:00.0
+                </div>
+            </div>
+        </div>
+
+        <!-- ZONA 3 (DERECHA): BOTONERA DE DIRECCIÃ“N DE CARRERA EN 2 FILAS GRANDES Y CLARAS -->
+        <div class="col-span-3 flex flex-col gap-1.5">
+            <!-- Fila Superior: Acciones Principales de Carrera -->
+            <div class="grid grid-cols-3 gap-1.5">
+                <button onclick="startF1Sequence()" class="py-2 px-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 active:scale-95 text-white font-mono font-black text-xs rounded-xl shadow-lg border border-emerald-300/50 transition flex items-center justify-center gap-1 cursor-pointer">
+                    <span>ðŸš¦</span> SALIDA F1
+                </button>
+                <button onclick="toggleTrackCall()" class="py-2 px-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 active:scale-95 text-slate-950 font-mono font-black text-xs rounded-xl shadow-lg border border-amber-200 transition flex items-center justify-center gap-1 cursor-pointer">
+                    <span>âš ï¸</span> PAUSA
+                </button>
+                <button onclick="toggleAutoDemo()" id="btnAutoDemo" class="py-2 px-2 bg-purple-600/35 hover:bg-purple-600/60 text-purple-100 font-mono font-black text-xs rounded-xl border border-purple-400/50 transition flex items-center justify-center gap-1 cursor-pointer">
+                    <span>ðŸ¤–</span> AUTO-SIM
+                </button>
+            </div>
+            <!-- Fila Inferior: Utilidades, Voz de Podio, USB y Reinicio -->
+            <div class="grid grid-cols-5 gap-1.5">
+                <button onclick="announceFullStandingsWithHumor()" class="py-1.5 bg-amber-500/25 hover:bg-amber-500/45 text-amber-300 font-mono font-bold text-[10px] rounded-lg border border-amber-400/40 transition cursor-pointer flex items-center justify-center gap-1" title="Cantar Podio y Ãšltimo con cachondeo">
+                    ðŸŽ™ï¸ PODIO
+                </button>
+                <button onclick="toggleVoiceSpotter()" id="btnVoice" class="py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 font-mono font-bold text-[10px] rounded-lg border border-indigo-400/40 transition cursor-pointer flex items-center justify-center" title="Activar/Silenciar Voz">
+                    <span id="voiceIcon">ðŸ”Š VOZ</span>
+                </button>
+                <button onclick="connectArduinoUSB()" class="py-1.5 bg-sky-600/25 hover:bg-sky-600/45 text-sky-300 font-mono font-bold text-[10px] rounded-lg border border-sky-500/40 transition cursor-pointer flex items-center justify-center" title="Conectar Cable USB OTG">
+                    ðŸ”Œ USB
+                </button>
+                <button onclick="resetRaceSession()" class="py-1.5 bg-slate-800 hover:bg-red-900/60 text-slate-200 font-mono font-bold text-[10px] rounded-lg border border-slate-700 transition cursor-pointer flex items-center justify-center" title="Reiniciar Carrera">
+                    ðŸ”„ RESET
+                </button>
+                <button onclick="toggleFullScreenMode()" id="btnFullscreen" class="py-1.5 bg-slate-800 hover:bg-sky-600 text-sky-300 hover:text-white font-mono font-bold text-[10px] rounded-lg border border-slate-700 transition cursor-pointer flex items-center justify-center" title="Pantalla Completa">
+                    â›¶ FULL
+                </button>
+            </div>
         </div>
     </header>
 
-    <!-- NAVEGACIÓN DE MÓDULOS + BANCO DE DISPARO MANUAL DE SECTORES -->
-    <nav class="flex items-center justify-between gap-2 mb-2 shrink-0">
-        <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 overflow-x-auto">
-            <button onclick="switchTab('live')" id="tabBtn-live" class="px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold bg-sky-600 text-white transition cursor-pointer shrink-0">
-                🏁 PARRILLA EN VIVO
+    <!-- NAVEGACIÃ“N DE PANTALLAS TIPO PESTAÃ‘AS GRANDES + BOTONES DE PASO POR META -->
+    <nav class="flex items-center justify-between gap-2 mb-2 shrink-0 bg-slate-950/90 p-1.5 rounded-2xl border border-slate-800/90">
+        <div class="flex items-center gap-1.5 overflow-x-auto">
+            <button onclick="switchTab('live')" id="tabBtn-live" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-black bg-sky-600 text-white shadow-lg shadow-sky-600/30 border border-sky-400 transition cursor-pointer shrink-0">
+                ðŸ 1. PARRILLA EN VIVO
             </button>
-            <button onclick="switchTab('sectors')" id="tabBtn-sectors" class="px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold text-slate-400 hover:text-white transition cursor-pointer shrink-0">
-                🟣 MICRO-SECTORES F1
+            <button onclick="switchTab('sectors')" id="tabBtn-sectors" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">
+                ðŸŸ£ 2. SECTORES F1 &amp; Ã“PTIMA
             </button>
-            <button onclick="switchTab('analytics')" id="tabBtn-analytics" class="px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold text-slate-400 hover:text-white transition cursor-pointer shrink-0">
-                📊 ESTADÍSTICAS PILOTO
+            <button onclick="switchTab('analytics')" id="tabBtn-analytics" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">
+                ðŸ“Š 3. TELEMETRÃA PILOTO
             </button>
-            <button onclick="switchTab('rotation')" id="tabBtn-rotation" class="px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold text-slate-400 hover:text-white transition cursor-pointer shrink-0">
-                👥 PILOTOS, CLUBS &amp; MANGAS
+            <button onclick="switchTab('rotation')" id="tabBtn-rotation" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">
+                ðŸ‘¥ 4. PILOTOS, CLUBS &amp; SORTEO
             </button>
-            <button onclick="switchTab('mobile')" id="tabBtn-mobile" class="px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold text-slate-400 hover:text-white transition cursor-pointer shrink-0">
-                📲 TIEMPOS AL MÓVIL (QR / WHATSAPP)
+            <button onclick="switchTab('mobile')" id="tabBtn-mobile" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-emerald-300 hover:text-white border border-emerald-500/30 transition cursor-pointer shrink-0">
+                ðŸ“² 5. ENVIAR AL MÃ“VIL (QR)
             </button>
-            <button onclick="switchTab('config')" id="tabBtn-config" class="px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold text-slate-400 hover:text-white transition cursor-pointer shrink-0">
-                ⚙️ REGLAMENTO & HARDWARE
+            <button onclick="switchTab('config')" id="tabBtn-config" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">
+                âš™ï¸ 6. REGLAMENTO &amp; USB
             </button>
         </div>
 
-        <!-- Simulador Rápido de Paso por el Siguiente Sector para cada Carril -->
-        <div class="flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1 rounded-xl border border-slate-800 overflow-x-auto max-w-full">
-            <span class="text-[9px] font-mono text-slate-400 uppercase shrink-0">PASO SECTOR/META:</span>
+        <!-- Simulador RÃ¡pido de Paso por el Siguiente Sector para cada Carril -->
+        <div class="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1 rounded-xl border border-slate-700/80 overflow-x-auto max-w-full">
+            <span class="text-[9px] font-mono font-bold text-amber-400 uppercase shrink-0">âš¡ PULSAR CARRIL:</span>
             <div id="quickSimButtons" class="flex items-center gap-1"></div>
         </div>
     </nav>
@@ -312,32 +332,32 @@
          VISTA 1: PARRILLA EN VIVO MULTICARRIL + RADAR GPS + REGISTRO DE TIEMPOS EN TIEMPO REAL
          ======================================================================================== -->
     <section id="view-live" class="flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
-        <!-- Tarjetas Dinámicas de los 2, 4, 6, 8 ó 10 Carriles -->
+        <!-- Tarjetas DinÃ¡micas de los 2, 4, 6, 8 Ã³ 10 Carriles -->
         <div id="lanesGridContainer" class="col-span-9 grid grid-cols-2 grid-rows-1 gap-3 h-full min-h-0"></div>
 
-        <!-- Columna Lateral: Radar GPS del Circuito + Récords Morados + Feed en Vivo -->
+        <!-- Columna Lateral: Radar GPS del Circuito + RÃ©cords Morados + Feed en Vivo -->
         <div class="col-span-3 flex flex-col gap-2.5 h-full min-h-0">
             <!-- Radar GPS y Estado de Regletas PCB -->
             <div class="glass-panel rounded-2xl p-3 flex flex-col justify-between shrink-0">
                 <div class="flex justify-between items-center mb-1">
-                    <span class="text-[10px] font-mono font-bold text-sky-400 uppercase" id="mapTopologyLabel">TOPOLOGÍA: 3 REGLETAS PCB · 2 CH</span>
+                    <span class="text-[10px] font-mono font-bold text-sky-400 uppercase" id="mapTopologyLabel">TOPOLOGÃA: 3 REGLETAS PCB Â· 2 CH</span>
                     <span class="text-[10px] font-mono font-black text-purple-300" id="overallPurpleLap">LAP: --.---s</span>
                 </div>
 
-                <!-- Pista Virtual Multicarril (Se adapta en vivo a 2, 4, 6, 8 ó 10 carriles paralelos) -->
+                <!-- Pista Virtual Multicarril (Se adapta en vivo a 2, 4, 6, 8 Ã³ 10 carriles paralelos) -->
                 <div class="bg-slate-950 rounded-xl border border-slate-800 p-1.5 mb-2">
                     <svg viewBox="0 0 320 135" class="w-full h-28">
                         <!-- Borde exterior de asfalto cuyo grosor se adapta a 2, 4, 6, 8 o 10 carriles -->
                         <path id="radarTrackAsphalt" d="M 60 98 L 250 98 C 295 98 295 34 250 34 L 180 34 C 155 34 145 62 120 62 L 60 62 C 25 62 25 98 60 98 Z"
                               fill="none" stroke="#1e293b" stroke-width="18" stroke-linejoin="round"/>
-                        <!-- Ruta maestra matemática para el cálculo de vectores normales -->
+                        <!-- Ruta maestra matemÃ¡tica para el cÃ¡lculo de vectores normales -->
                         <path id="radarTrackPath" d="M 60 98 L 250 98 C 295 98 295 34 250 34 L 180 34 C 155 34 145 62 120 62 L 60 62 C 25 62 25 98 60 98 Z"
                               fill="none" stroke="transparent" stroke-width="1"/>
 
-                        <!-- Capa donde se dibujan los 2, 4, 6, 8 ó 10 surcos individuales con el color de cada carril -->
+                        <!-- Capa donde se dibujan los 2, 4, 6, 8 Ã³ 10 surcos individuales con el color de cada carril -->
                         <g id="virtualTrackLanesGroup"></g>
 
-                        <!-- Línea de Meta -->
+                        <!-- LÃ­nea de Meta -->
                         <g id="svgGateMeta">
                             <line x1="165" y1="80" x2="165" y2="116" stroke="#10b981" stroke-width="3"/>
                             <text x="165" y="129" text-anchor="middle" fill="#10b981" font-size="8" font-family="monospace" font-weight="bold">META</text>
@@ -358,45 +378,45 @@
                     </svg>
                 </div>
 
-                <!-- Récords Absolutos por Sector -->
+                <!-- RÃ©cords Absolutos por Sector -->
                 <div id="purpleSectorsSummary" class="grid grid-cols-3 gap-1.5 text-center font-mono-num text-[10px]"></div>
             </div>
 
             <!-- Feed de Cronometraje e Ingeniero de Voz -->
             <div class="glass-panel rounded-2xl p-3 flex-1 min-h-0 flex flex-col justify-between">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-1.5 mb-1.5 shrink-0">
-                    <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase">⏱️ CRONO &amp; SECTORES EN VIVO</span>
+                    <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase">â±ï¸ CRONO &amp; SECTORES EN VIVO</span>
                     <button onclick="exportCSV()" class="text-[9px] font-mono px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 cursor-pointer">
-                        📥 CSV
+                        ðŸ“¥ CSV
                     </button>
                 </div>
                 <div class="overflow-y-auto flex-1 min-h-0 pr-1">
                     <table class="w-full text-left font-mono-num text-[10px]">
                         <tbody id="liveLogBody" class="divide-y divide-slate-800/60">
-                            <tr><td colspan="4" class="py-6 text-center text-slate-500 font-mono">Listo para salida F1 o simulación...</td></tr>
+                            <tr><td colspan="4" class="py-6 text-center text-slate-500 font-mono">Listo para salida F1 o simulaciÃ³n...</td></tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="mt-2 pt-1.5 border-t border-slate-800 flex items-center justify-between text-[10px] font-mono text-slate-400 shrink-0">
                     <span id="spotterMessage" class="truncate text-sky-300">Spotter IA en espera de salida...</span>
-                    <span id="usbText" class="text-[9px] text-emerald-400 shrink-0 ml-2">● SIM/USB</span>
+                    <span id="usbText" class="text-[9px] text-emerald-400 shrink-0 ml-2">â— SIM/USB</span>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- ========================================================================================
-         VISTA 4: INSCRIPCIÓN DE PILOTOS POR CLUBS, MANGAS ALEATORIAS Y CLASIFICACIÓN DE CLUBS
+         VISTA 4: INSCRIPCIÃ“N DE PILOTOS POR CLUBS, MANGAS ALEATORIAS Y CLASIFICACIÃ“N DE CLUBS
          ======================================================================================== -->
     <section id="view-rotation" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
         <!-- Columna Izquierda: Alta de Pilotos + Club y Lista de Inscritos -->
         <div class="col-span-5 glass-panel rounded-2xl p-3.5 flex flex-col justify-between min-h-0">
             <div class="space-y-2 min-h-0 flex-1 flex flex-col">
                 <div class="flex justify-between items-center shrink-0">
-                    <h2 class="text-sm font-bold text-amber-400 font-mono uppercase">👥 INSCRIPCIÓN DE PILOTOS Y CLUBS</h2>
+                    <h2 class="text-sm font-bold text-amber-400 font-mono uppercase">ðŸ‘¥ INSCRIPCIÃ“N DE PILOTOS Y CLUBS</h2>
                     <span class="text-[10px] font-mono text-sky-400 font-bold">Pista: <strong id="rotLaneCountLabel">2 carriles</strong></span>
                 </div>
-                <p class="text-[11px] text-slate-400 shrink-0">Introduce el <strong>Nombre del Piloto</strong> y su <strong>Club / Escudería</strong>. Puedes asignarlos directamente a pista o generar mangas por rotación o sorteo aleatorio.</p>
+                <p class="text-[11px] text-slate-400 shrink-0">Introduce el <strong>Nombre del Piloto</strong> y su <strong>Club / EscuderÃ­a</strong>. Puedes asignarlos directamente a pista o generar mangas por rotaciÃ³n o sorteo aleatorio.</p>
                 
                 <!-- Formulario de alta de Piloto + Club -->
                 <div class="grid grid-cols-12 gap-1.5 shrink-0 bg-slate-950 p-2 rounded-xl border border-slate-800">
@@ -413,37 +433,37 @@
 
             <div class="grid grid-cols-3 gap-1.5 mt-2 shrink-0">
                 <button onclick="assignRosterToActiveLanes()" class="py-2 bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 hover:text-white font-mono font-bold text-[10px] rounded-xl border border-emerald-500/40 cursor-pointer">
-                    🏎️ Enviar a Pista
+                    ðŸŽï¸ Enviar a Pista
                 </button>
                 <button onclick="generateChampionshipHeats(false)" class="py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-mono font-bold text-[10px] rounded-xl border border-slate-600 cursor-pointer">
-                    🔄 Rotación Club
+                    ðŸ”„ RotaciÃ³n Club
                 </button>
                 <button onclick="generateChampionshipHeats(true)" class="py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-mono font-black text-[10px] rounded-xl shadow-lg cursor-pointer">
-                    🎲 Sorteo Azar
+                    ðŸŽ² Sorteo Azar
                 </button>
             </div>
         </div>
 
-        <!-- Columna Derecha: Cuadro de Mangas + Clasificación General por Clubes -->
+        <!-- Columna Derecha: Cuadro de Mangas + ClasificaciÃ³n General por Clubes -->
         <div class="col-span-7 flex flex-col gap-2.5 min-h-0">
             <div class="glass-panel rounded-2xl p-3.5 flex-1 min-h-0 flex flex-col justify-between">
                 <div class="flex justify-between items-center shrink-0 mb-2">
                     <div>
-                        <h2 class="text-sm font-bold text-white font-mono uppercase">📋 CUADRO DE MANGAS DEL TORNEO (CON CLUBS)</h2>
-                        <p class="text-[10px] text-slate-400">Pulsa "Cargar en Pista" en cualquier manga para colocar automáticamente los nombres y sus clubs en los carriles.</p>
+                        <h2 class="text-sm font-bold text-white font-mono uppercase">ðŸ“‹ CUADRO DE MANGAS DEL TORNEO (CON CLUBS)</h2>
+                        <p class="text-[10px] text-slate-400">Pulsa "Cargar en Pista" en cualquier manga para colocar automÃ¡ticamente los nombres y sus clubs en los carriles.</p>
                     </div>
                     <button onclick="recordCurrentHeatToStandings()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-[10px] rounded-xl cursor-pointer shrink-0">
-                        💾 Guardar Manga en Torneo
+                        ðŸ’¾ Guardar Manga en Torneo
                     </button>
                 </div>
                 <div id="heatsContainer" class="space-y-1.5 overflow-y-auto flex-1 min-h-0 font-mono text-xs pr-1"></div>
             </div>
 
-            <!-- Clasificación por Clubs / Escuderías -->
+            <!-- ClasificaciÃ³n por Clubs / EscuderÃ­as -->
             <div class="glass-panel rounded-2xl p-3 h-36 shrink-0 flex flex-col justify-between">
                 <div class="flex justify-between items-center">
-                    <span class="text-xs font-mono font-bold text-amber-400 uppercase">🏆 COPA DE CLUBS / ESCUDERÍAS (VUELTAS ACUMULADAS)</span>
-                    <span class="text-[10px] font-mono text-slate-400">Suma automática de todos los pilotos de cada club</span>
+                    <span class="text-xs font-mono font-bold text-amber-400 uppercase">ðŸ† COPA DE CLUBS / ESCUDERÃAS (VUELTAS ACUMULADAS)</span>
+                    <span class="text-[10px] font-mono text-slate-400">Suma automÃ¡tica de todos los pilotos de cada club</span>
                 </div>
                 <div id="clubStandingsContainer" class="grid grid-cols-2 md:grid-cols-4 gap-2 overflow-y-auto my-auto py-1 font-mono text-xs"></div>
             </div>
@@ -451,13 +471,13 @@
     </section>
 
     <!-- ========================================================================================
-         VISTA 2: TABLA OFICIAL F1 DE MICRO-SECTORES Y VUELTA ÓPTIMA TEÓRICA
+         VISTA 2: TABLA OFICIAL F1 DE MICRO-SECTORES Y VUELTA Ã“PTIMA TEÃ“RICA
          ======================================================================================== -->
     <section id="view-sectors" class="hidden flex-1 min-h-0 flex flex-col glass-panel rounded-2xl p-4 overflow-hidden">
         <div class="flex justify-between items-center mb-3 shrink-0">
             <div>
-                <h2 class="text-sm font-bold text-purple-300 font-mono uppercase">🟣 TABLA F1 DE MICRO-SECTORES, RÉCORDS PARCIALES Y VUELTA ÓPTIMA TEÓRICA</h2>
-                <p class="text-xs text-slate-400">Calcula la Vuelta Ideal Teórica sumando los mejores sectores reales (S1 + S2 + S3) de cada piloto y el margen de mejora potencial.</p>
+                <h2 class="text-sm font-bold text-purple-300 font-mono uppercase">ðŸŸ£ TABLA F1 DE MICRO-SECTORES, RÃ‰CORDS PARCIALES Y VUELTA Ã“PTIMA TEÃ“RICA</h2>
+                <p class="text-xs text-slate-400">Calcula la Vuelta Ideal TeÃ³rica sumando los mejores sectores reales (S1 + S2 + S3) de cada piloto y el margen de mejora potencial.</p>
             </div>
         </div>
         <div class="overflow-y-auto flex-1 min-h-0 rounded-xl border border-slate-800 bg-slate-950">
@@ -471,7 +491,7 @@
                         <th class="p-2.5" id="thSector2">SECTOR 2 (S2)</th>
                         <th class="p-2.5" id="thSector3">SECTOR 3 (META)</th>
                         <th class="p-2.5">MEJOR VUELTA REAL</th>
-                        <th class="p-2.5">VUELTA ÓPTIMA (IDEAL)</th>
+                        <th class="p-2.5">VUELTA Ã“PTIMA (IDEAL)</th>
                         <th class="p-2.5 text-right">MARGEN MEJORA</th>
                     </tr>
                 </thead>
@@ -481,16 +501,16 @@
     </section>
 
     <!-- ========================================================================================
-         VISTA 3: CENTRO ESTADÍSTICO GRÁFICO POR PILOTO Y COMPARATIVA MULTICARRIL
+         VISTA 3: CENTRO ESTADÃSTICO GRÃFICO POR PILOTO Y COMPARATIVA MULTICARRIL
          ======================================================================================== -->
     <section id="view-analytics" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
-        <!-- Gráfica General Multicarril + Histograma de Distribución del Piloto Seleccionado -->
+        <!-- GrÃ¡fica General Multicarril + Histograma de DistribuciÃ³n del Piloto Seleccionado -->
         <div class="col-span-8 flex flex-col gap-2.5 min-h-0">
             <div class="glass-panel rounded-2xl p-3 flex-1 min-h-0 flex flex-col justify-between">
                 <div class="flex justify-between items-center mb-1.5 shrink-0">
                     <div>
-                        <h2 class="text-xs md:text-sm font-bold text-white font-mono uppercase">📈 EVOLUCIÓN DE RITMO EN CARRERA (TODOS LOS CARRILES)</h2>
-                        <p class="text-[10px] text-slate-400">Curva comparativa vuelta a vuelta para detectar desgaste o fatiga de concentración.</p>
+                        <h2 class="text-xs md:text-sm font-bold text-white font-mono uppercase">ðŸ“ˆ EVOLUCIÃ“N DE RITMO EN CARRERA (TODOS LOS CARRILES)</h2>
+                        <p class="text-[10px] text-slate-400">Curva comparativa vuelta a vuelta para detectar desgaste o fatiga de concentraciÃ³n.</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-[10px] font-mono text-slate-400">ANALIZAR PILOTO:</span>
@@ -503,116 +523,116 @@
                 </div>
             </div>
 
-            <!-- Sub-gráfica Inferior: Histograma de Tiempos y Sectores del Piloto Seleccionado -->
+            <!-- Sub-grÃ¡fica Inferior: Histograma de Tiempos y Sectores del Piloto Seleccionado -->
             <div class="glass-panel rounded-2xl p-3 h-44 shrink-0 grid grid-cols-12 gap-3">
                 <div class="col-span-7 flex flex-col justify-between h-full">
-                    <div class="text-[10px] font-mono font-bold text-amber-400 uppercase" id="singleDriverChartTitle">📊 DISTRIBUCIÓN DE VUELTAS DEL PILOTO (CONSISTENCIA)</div>
+                    <div class="text-[10px] font-mono font-bold text-amber-400 uppercase" id="singleDriverChartTitle">ðŸ“Š DISTRIBUCIÃ“N DE VUELTAS DEL PILOTO (CONSISTENCIA)</div>
                     <div class="w-full flex-1 min-h-0 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
                         <canvas id="driverHistogramChart"></canvas>
                     </div>
                 </div>
                 <div class="col-span-5 bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between font-mono text-[11px]" id="singleDriverKpiBox">
-                    <!-- KPIs biométricos del piloto -->
+                    <!-- KPIs biomÃ©tricos del piloto -->
                 </div>
             </div>
         </div>
 
         <div class="col-span-4 glass-panel rounded-2xl p-3.5 flex flex-col justify-between min-h-0">
             <div class="shrink-0 mb-2">
-                <h2 class="text-sm font-bold text-sky-400 font-mono uppercase">🧠 RANKING DE REGULARIDAD & RITMO</h2>
+                <h2 class="text-sm font-bold text-sky-400 font-mono uppercase">ðŸ§  RANKING DE REGULARIDAD & RITMO</h2>
                 <p class="text-[10px] text-slate-400">Haz clic en cualquier piloto para ver su histograma detallado a la izquierda.</p>
             </div>
             <div id="consistencyCardsContainer" class="space-y-1.5 overflow-y-auto flex-1 min-h-0 font-mono text-xs pr-1">
-                <!-- Generado dinámicamente para los N carriles -->
+                <!-- Generado dinÃ¡micamente para los N carriles -->
             </div>
         </div>
     </section>
 
     <!-- ========================================================================================
-         VISTA 5: ENVÍO DE TIEMPOS Y TELEMETRÍA A LOS MÓVILES DE LOS PILOTOS (MOBILE PIT-WALL)
+         VISTA 5: ENVÃO DE TIEMPOS Y TELEMETRÃA A LOS MÃ“VILES DE LOS PILOTOS (MOBILE PIT-WALL)
          ======================================================================================== -->
     <section id="view-mobile" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
-        <!-- Generador QR Dinámico y Enlaces por WhatsApp / Telegram / Copia -->
+        <!-- Generador QR DinÃ¡mico y Enlaces por WhatsApp / Telegram / Copia -->
         <div class="col-span-5 glass-panel rounded-2xl p-4 flex flex-col justify-between min-h-0">
             <div class="space-y-2">
-                <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-[10px] font-mono uppercase rounded border border-emerald-500/30 font-bold">TELEMETRÍA PERSONAL EN EL BOLSILLO</span>
-                <h2 class="text-base font-black text-white uppercase">📲 Envío de Tiempos a los Móviles de los Pilotos</h2>
-                <p class="text-xs text-slate-400">Selecciona un piloto (o el resumen completo de la manga) para generar al instante su <strong>Tarjeta Móvil QR</strong> y el <strong>Informe Oficial para enviar por WhatsApp / Telegram</strong> con todos sus sectores y vuelta óptima.</p>
+                <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-[10px] font-mono uppercase rounded border border-emerald-500/30 font-bold">TELEMETRÃA PERSONAL EN EL BOLSILLO</span>
+                <h2 class="text-base font-black text-white uppercase">ðŸ“² EnvÃ­o de Tiempos a los MÃ³viles de los Pilotos</h2>
+                <p class="text-xs text-slate-400">Selecciona un piloto (o el resumen completo de la manga) para generar al instante su <strong>Tarjeta MÃ³vil QR</strong> y el <strong>Informe Oficial para enviar por WhatsApp / Telegram</strong> con todos sus sectores y vuelta Ã³ptima.</p>
 
                 <div class="pt-1">
-                    <label class="block text-[10px] font-mono text-slate-400 mb-1">SELECCIONAR PILOTO PARA ENVIAR A SU MÓVIL:</label>
+                    <label class="block text-[10px] font-mono text-slate-400 mb-1">SELECCIONAR PILOTO PARA ENVIAR A SU MÃ“VIL:</label>
                     <select id="mobileDriverSelect" onchange="updateMobilePitWallView()" class="w-full bg-slate-950 border border-emerald-500/50 rounded-xl px-3 py-2 text-xs font-mono font-bold text-white">
                     </select>
                 </div>
             </div>
 
-            <!-- QR Dinámico SVG + Botones de Envío Instantáneo -->
+            <!-- QR DinÃ¡mico SVG + Botones de EnvÃ­o InstantÃ¡neo -->
             <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-4 my-auto">
                 <div id="dynamicQrContainer" class="w-28 h-28 bg-white p-2 rounded-xl shrink-0 flex items-center justify-center shadow-lg">
-                    <!-- Código QR SVG generado en vivo con los datos del piloto -->
+                    <!-- CÃ³digo QR SVG generado en vivo con los datos del piloto -->
                 </div>
                 <div class="space-y-1.5 text-xs font-mono">
-                    <div class="text-emerald-400 font-bold">ESCANEAR CON CÁMARA DEL MÓVIL</div>
-                    <p class="text-[10px] text-slate-400 leading-relaxed">El piloto apunta con su móvil a la pantalla de tu Samsung Tab A9+ y se lleva su hoja completa de tiempos, sectores y consistencia.</p>
+                    <div class="text-emerald-400 font-bold">ESCANEAR CON CÃMARA DEL MÃ“VIL</div>
+                    <p class="text-[10px] text-slate-400 leading-relaxed">El piloto apunta con su mÃ³vil a la pantalla de tu Samsung Tab A9+ y se lleva su hoja completa de tiempos, sectores y consistencia.</p>
                     <div class="flex flex-wrap gap-1.5 pt-1">
                         <button onclick="shareViaWhatsApp()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] rounded-lg cursor-pointer flex items-center gap-1">
-                            <span>💬</span> WhatsApp
+                            <span>ðŸ’¬</span> WhatsApp
                         </button>
                         <button onclick="copyMobileReportToClipboard()" id="btnCopyMobile" class="px-2.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-[10px] rounded-lg cursor-pointer flex items-center gap-1">
-                            <span>📋</span> Copiar Informe
+                            <span>ðŸ“‹</span> Copiar Informe
                         </button>
                     </div>
                 </div>
             </div>
 
             <div class="text-[10px] font-mono text-slate-500 flex justify-between border-t border-slate-800 pt-2">
-                <span>ID SESIÓN: #KRN-2026-PRO</span>
-                <span class="text-emerald-400">● SINCRONIZACIÓN INSTANTÁNEA</span>
+                <span>ID SESIÃ“N: #KRN-2026-PRO</span>
+                <span class="text-emerald-400">â— SINCRONIZACIÃ“N INSTANTÃNEA</span>
             </div>
         </div>
 
-        <!-- Previsualización del Smartphone del Piloto + Texto del Mensaje -->
+        <!-- PrevisualizaciÃ³n del Smartphone del Piloto + Texto del Mensaje -->
         <div class="col-span-7 glass-panel rounded-2xl p-4 grid grid-cols-12 gap-4 min-h-0 overflow-hidden">
-            <!-- Mockup de cómo lo ve el piloto en su teléfono móvil -->
+            <!-- Mockup de cÃ³mo lo ve el piloto en su telÃ©fono mÃ³vil -->
             <div class="col-span-6 bg-slate-950 rounded-3xl p-3 border-2 border-slate-700 flex flex-col justify-between shadow-2xl min-h-0">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                     <span class="text-[9px] font-mono text-sky-400 font-bold" id="mobPreviewClub">KRONOS SLOT PRO</span>
                     <span class="text-[9px] font-mono bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">LIVE PASS</span>
                 </div>
                 <div id="mobilePhoneScreenContent" class="my-auto space-y-2 font-mono text-xs overflow-y-auto py-2">
-                    <!-- Contenido dinámico de la pantalla del móvil del piloto -->
+                    <!-- Contenido dinÃ¡mico de la pantalla del mÃ³vil del piloto -->
                 </div>
                 <div class="border-t border-slate-800 pt-1.5 text-center text-[9px] font-mono text-slate-500">
-                    TARJETA OFICIAL DE TELEMETRÍA MÓVIL
+                    TARJETA OFICIAL DE TELEMETRÃA MÃ“VIL
                 </div>
             </div>
 
             <!-- Texto listo para enviar por WhatsApp / Telegram -->
             <div class="col-span-6 flex flex-col justify-between min-h-0">
-                <div class="text-xs font-mono font-bold text-white uppercase mb-1.5">📄 MENSAJE FORMATEADO PARA MÓVIL:</div>
+                <div class="text-xs font-mono font-bold text-white uppercase mb-1.5">ðŸ“„ MENSAJE FORMATEADO PARA MÃ“VIL:</div>
                 <textarea id="mobileReportTextarea" readonly class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono text-[11px] text-emerald-300 focus:outline-none resize-none"></textarea>
             </div>
         </div>
     </section>
 
     <!-- ========================================================================================
-         VISTA 6: CONFIGURACIÓN DE MODOS DE CARRERA, TÍTULO DE LA APP Y HARDWARE PCB USB
+         VISTA 6: CONFIGURACIÃ“N DE MODOS DE CARRERA, TÃTULO DE LA APP Y HARDWARE PCB USB
          ======================================================================================== -->
     <section id="view-config" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
         <div class="col-span-6 glass-panel rounded-2xl p-4 space-y-3 overflow-y-auto min-h-0">
-            <h2 class="text-sm font-bold text-sky-400 font-mono uppercase">⚙️ PERSONALIZACIÓN DEL CLUB, MODO DE CARRERA Y PISTA</h2>
+            <h2 class="text-sm font-bold text-sky-400 font-mono uppercase">âš™ï¸ PERSONALIZACIÃ“N DEL CLUB, MODO DE CARRERA Y PISTA</h2>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs font-mono">
                 <div class="sm:col-span-2">
-                    <label class="block text-amber-400 font-bold mb-1">TÍTULO DE LA APLICACIÓN / NOMBRE DEL CAMPEONATO O CLUB</label>
+                    <label class="block text-amber-400 font-bold mb-1">TÃTULO DE LA APLICACIÃ“N / NOMBRE DEL CAMPEONATO O CLUB</label>
                     <input id="cfgAppTitle" type="text" value="KRONOS SLOT PRO // GRAN PREMIO CLUB" oninput="saveTrackConfig()" class="w-full bg-slate-950 border border-amber-500/50 rounded-xl px-3 py-2 text-white font-bold"/>
                 </div>
                 <div>
-                    <label class="block text-slate-400 mb-1">MODO DE COMPETICIÓN</label>
+                    <label class="block text-slate-400 mb-1">MODO DE COMPETICIÃ“N</label>
                     <select id="cfgRaceModeSelect" onchange="setRaceFormat(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold">
-                        <option value="TIME" selected>⏱️ Por Tiempo (Al límite de reloj)</option>
-                        <option value="LAPS">🏁 Por Vueltas (Meta a N vueltas)</option>
-                        <option value="QUALY">🟣 Clasificación Pole (Mejor Vuelta)</option>
+                        <option value="TIME" selected>â±ï¸ Por Tiempo (Al lÃ­mite de reloj)</option>
+                        <option value="LAPS">ðŸ Por Vueltas (Meta a N vueltas)</option>
+                        <option value="QUALY">ðŸŸ£ ClasificaciÃ³n Pole (Mejor Vuelta)</option>
                     </select>
                 </div>
                 <div>
@@ -620,7 +640,7 @@
                     <input id="cfgTargetLaps" type="number" step="5" min="1" value="25" onchange="saveTrackConfig()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-bold"/>
                 </div>
                 <div>
-                    <label class="block text-slate-400 mb-1">DURACIÓN DE MANGA (5 MIN A 1 HORA)</label>
+                    <label class="block text-slate-400 mb-1">DURACIÃ“N DE MANGA (5 MIN A 1 HORA)</label>
                     <div class="flex gap-1.5">
                         <select id="cfgHeatMinutesPreset" onchange="setConfigMinutesPreset(this.value)" class="bg-slate-950 border border-amber-500/50 rounded-xl px-2 py-2 text-amber-300 font-bold w-1/2">
                             <option value="5" selected>5 Minutos</option>
@@ -636,13 +656,13 @@
                     <input id="cfgHeatSeconds" type="hidden" value="300"/>
                 </div>
                 <div>
-                    <label class="block text-slate-400 mb-1">NÚMERO DE CARRILES EN PISTA</label>
+                    <label class="block text-slate-400 mb-1">NÃšMERO DE CARRILES EN PISTA</label>
                     <select id="cfgLanesSelect" onchange="setSystemTopology(parseInt(this.value), null)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold">
                         <option value="2">2 Carriles (Casa / Test Bench)</option>
                         <option value="4">4 Carriles (Club Compacto)</option>
-                        <option value="6">6 Carriles (Competición Club)</option>
+                        <option value="6">6 Carriles (CompeticiÃ³n Club)</option>
                         <option value="8">8 Carriles (Campeonato Nacional)</option>
-                        <option value="10">10 Carriles (Máxima Capacidad)</option>
+                        <option value="10">10 Carriles (MÃ¡xima Capacidad)</option>
                     </select>
                 </div>
                 <div>
@@ -672,7 +692,7 @@
             </div>
 
             <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5 text-xs font-mono">
-                <div class="text-amber-400 font-bold">DISTRIBUCIÓN DE CUERDA POR SECTOR (% DEL CIRCUITO)</div>
+                <div class="text-amber-400 font-bold">DISTRIBUCIÃ“N DE CUERDA POR SECTOR (% DEL CIRCUITO)</div>
                 <div class="grid grid-cols-3 gap-2">
                     <div>
                         <span class="text-[10px] text-slate-400">TRAMO S1 (%)</span>
@@ -692,13 +712,13 @@
 
         <div class="lg:col-span-6 glass-panel rounded-2xl p-4 space-y-3 flex flex-col justify-between">
             <div class="space-y-2">
-                <h2 class="text-sm font-bold text-emerald-400 font-mono uppercase">🔌 PROTOCOLO UNIVERSAL USB / CAN RJ45 (1 A 3 SECTORES · 2 A 10 CARRILES)</h2>
+                <h2 class="text-sm font-bold text-emerald-400 font-mono uppercase">ðŸ”Œ PROTOCOLO UNIVERSAL USB / CAN RJ45 (1 A 3 SECTORES Â· 2 A 10 CARRILES)</h2>
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    El motor de serie de <strong>APEX SLOT OS v5.0</strong> reconoce automáticamente tanto tu prototipo básico de 2 carriles como la red completa de 10 carriles y 3 regletas PCB:
+                    El motor de serie de <strong>APEX SLOT OS v5.0</strong> reconoce automÃ¡ticamente tanto tu prototipo bÃ¡sico de 2 carriles como la red completa de 10 carriles y 3 regletas PCB:
                 </p>
                 <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] space-y-1.5">
-                    <div><span class="text-sky-400 font-bold">• Modo 1 Sector (Solo Meta):</span> <code class="text-amber-300">L1,3842</code> ó <code class="text-amber-300">M,L8,3842,19</code> (Carril 8, 3842 ms, 19 mm ToF)</div>
-                    <div><span class="text-sky-400 font-bold">• Modo 2 ó 3 Sectores:</span> <code class="text-emerald-300">S1,L1,1320</code> (Corte en Regleta Sector 1) → <code class="text-emerald-300">S2,L1,1410</code> (Corte en Regleta Sector 2) → <code class="text-purple-300">M,L1,1112</code> (Corte en Meta: suma vuelta total o recibe tiempo directo).</div>
+                    <div><span class="text-sky-400 font-bold">â€¢ Modo 1 Sector (Solo Meta):</span> <code class="text-amber-300">L1,3842</code> Ã³ <code class="text-amber-300">M,L8,3842,19</code> (Carril 8, 3842 ms, 19 mm ToF)</div>
+                    <div><span class="text-sky-400 font-bold">â€¢ Modo 2 Ã³ 3 Sectores:</span> <code class="text-emerald-300">S1,L1,1320</code> (Corte en Regleta Sector 1) â†’ <code class="text-emerald-300">S2,L1,1410</code> (Corte en Regleta Sector 2) â†’ <code class="text-purple-300">M,L1,1112</code> (Corte en Meta: suma vuelta total o recibe tiempo directo).</div>
                 </div>
             </div>
 
@@ -711,7 +731,7 @@
             </div>
 
             <div id="serialRawConsole" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-40 overflow-y-auto font-mono text-[10px] text-emerald-400 space-y-1">
-                <div>[BOOT] APEX SLOT OS v5.0 — Motor Multisector (1-3) y Multicarril (2-10) inicializado.</div>
+                <div>[BOOT] APEX SLOT OS v5.0 â€” Motor Multisector (1-3) y Multicarril (2-10) inicializado.</div>
             </div>
         </div>
     </section>
@@ -747,12 +767,12 @@
         ];
 
         const FRASES_CACHONDEO_ULTIMO = [
-            "y cerrando la procesión en última posición va {name}, ¡que parece que lleva el coche atado con goma elástica!",
-            "y de farolillo rojo tenemos a {name}, ¡alguien que le diga que el gatillo es para apretarlo a fondo!",
-            "y en última posición {name}, que hoy ha salido a pasear el coche y mirar el paisaje del club.",
-            "y último va {name}, ¡pide pista que te va a doblar hasta el coche de seguridad!",
-            "y en la cola del pelotón está {name}, ¡échale tres en uno a esas trencillas que te pesan los neumáticos!",
-            "y cerrando el grupo va {name}, ¡con ese ritmo tan tranquilo no vas a gastar neumáticos en todo el año!"
+            "y cerrando la procesiÃ³n en Ãºltima posiciÃ³n va {name}, Â¡que parece que lleva el coche atado con goma elÃ¡stica!",
+            "y de farolillo rojo tenemos a {name}, Â¡alguien que le diga que el gatillo es para apretarlo a fondo!",
+            "y en Ãºltima posiciÃ³n {name}, que hoy ha salido a pasear el coche y mirar el paisaje del club.",
+            "y Ãºltimo va {name}, Â¡pide pista que te va a doblar hasta el coche de seguridad!",
+            "y en la cola del pelotÃ³n estÃ¡ {name}, Â¡Ã©chale tres en uno a esas trencillas que te pesan los neumÃ¡ticos!",
+            "y cerrando el grupo va {name}, Â¡con ese ritmo tan tranquilo no vas a gastar neumÃ¡ticos en todo el aÃ±o!"
         ];
 
         const appState = {
@@ -855,12 +875,12 @@
 
         function toggleVoiceSpotter() {
             appState.voiceEnabled = !appState.voiceEnabled;
-            document.getElementById('voiceIcon').textContent = appState.voiceEnabled ? '🔊' : '🔇';
+            document.getElementById('voiceIcon').textContent = appState.voiceEnabled ? 'ðŸ”Š VOZ' : 'ðŸ”‡ MUTE';
             if (appState.voiceEnabled) speakSpotter("Ingeniero de pista activado.", true);
         }
 
         // ============================================================================
-        // GESTIÓN DEL TÍTULO DE LA APLICACIÓN Y MODOS DE CARRERA (TIEMPO / VUELTAS / POLE)
+        // GESTIÃ“N DEL TÃTULO DE LA APLICACIÃ“N Y MODOS DE CARRERA (TIEMPO / VUELTAS / POLE)
         // ============================================================================
         function promptCustomTitle() {
             const tabCfg = document.getElementById('cfgAppTitle');
@@ -896,10 +916,10 @@
                 ? `${mins} MIN`
                 : (appState.raceFormat === 'LAPS' ? `${appState.targetLaps} VUELTAS` : 'POLE');
             const summaryEl = document.getElementById('headerConfigSummary');
-            if (summaryEl) summaryEl.textContent = `${appState.activeLanes} CH · ${secDesc} · ${modeDesc}`;
+            if (summaryEl) summaryEl.textContent = `${appState.activeLanes} CH Â· ${secDesc} Â· ${modeDesc}`;
         }
 
-        // Selección rápida de minutos (de 5 min a 60 min / 1 hora) desde la barra superior
+        // SelecciÃ³n rÃ¡pida de minutos (de 5 min a 60 min / 1 hora) desde la barra superior
         function applyQuickTimeMinutes(minsVal) {
             const mins = Math.max(1, parseInt(minsVal, 10) || 5);
             appState.heatTotalSeconds = mins * 60;
@@ -920,7 +940,7 @@
             applyQuickTimeMinutes(minsVal);
         }
 
-        // Entrada rápida de Número de Vueltas desde la barra superior
+        // Entrada rÃ¡pida de NÃºmero de Vueltas desde la barra superior
         function applyQuickTargetLaps(lapsVal) {
             const laps = Math.max(1, parseInt(lapsVal, 10) || 25);
             appState.targetLaps = laps;
@@ -934,7 +954,7 @@
         }
 
         // ============================================================================
-        // CAMBIO DINÁMICO DE TOPOLOGÍA (2, 4, 6, 8, 10 CARRILES Y 1, 2, 3 SECTORES)
+        // CAMBIO DINÃMICO DE TOPOLOGÃA (2, 4, 6, 8, 10 CARRILES Y 1, 2, 3 SECTORES)
         // ============================================================================
         function setSystemTopology(newLanes, newSectors) {
             if (newLanes !== null) appState.activeLanes = newLanes;
@@ -960,13 +980,13 @@
                 }
             });
 
-            // Sincronizar desplegables de configuración
+            // Sincronizar desplegables de configuraciÃ³n
             document.getElementById('cfgLanesSelect').value = String(appState.activeLanes);
             document.getElementById('cfgSectorsSelect').value = String(appState.numSectors);
             document.getElementById('rotLaneCountLabel').textContent = `${appState.activeLanes} carriles`;
 
             updateHeaderSummaryText();
-            document.getElementById('mapTopologyLabel').textContent = `TOPOLOGÍA: ${appState.numSectors} REGLETA${appState.numSectors > 1 ? 'S' : ''} PCB · ${appState.activeLanes} CH`;
+            document.getElementById('mapTopologyLabel').textContent = `TOPOLOGÃA: ${appState.numSectors} REGLETA${appState.numSectors > 1 ? 'S' : ''} PCB Â· ${appState.activeLanes} CH`;
 
             // Mostrar/Ocultar puertas S1 y S2 en el radar SVG
             document.getElementById('svgGateS1').style.display = appState.numSectors >= 2 ? 'block' : 'none';
@@ -989,7 +1009,37 @@
             updateMobilePitWallView();
         }
 
-        // Renderiza las tarjetas de los 2, 4, 6, 8 o 10 carriles adaptando el tamaño automáticamente
+        function buildLaneLapHistoryHTML(laneId) {
+            const lane = appState.lanes[laneId];
+            if (!lane || !lane.history || lane.history.length === 0) {
+                return `<span class="text-[10px] font-mono text-slate-500 italic">Esperando paso por meta para registrar vueltas...</span>`;
+            }
+            // Mostramos todas las vueltas ordenadas de la mÃ¡s reciente a la primera para verlas al instante
+            let chips = '';
+            for (let idx = lane.history.length - 1; idx >= 0; idx--) {
+                const t = lane.history[idx];
+                const lapNum = idx + 1;
+                const isOverallPurple = Math.abs(t - appState.overallBestLap) < 0.0005;
+                const isPersonalBest = Math.abs(t - lane.bestLap) < 0.0005;
+
+                let chipStyle = 'bg-slate-900/95 text-amber-200 border-slate-700';
+                if (isOverallPurple) {
+                    chipStyle = 'bg-purple-600/35 text-purple-200 border-purple-400 font-black shadow-[0_0_8px_rgba(168,85,247,0.45)]';
+                } else if (isPersonalBest) {
+                    chipStyle = 'bg-emerald-600/30 text-emerald-200 border-emerald-400 font-black';
+                }
+
+                chips += `
+                    <div class="px-2 py-0.5 rounded-lg border text-[10px] font-mono-num flex items-center gap-1 shrink-0 ${chipStyle}">
+                        <span class="opacity-70 font-bold">V${lapNum}:</span>
+                        <span class="font-extrabold">${t.toFixed(3)}s</span>
+                    </div>
+                `;
+            }
+            return chips;
+        }
+
+        // Renderiza las tarjetas de los 2, 4, 6, 8 o 10 carriles adaptando el tamaÃ±o automÃ¡ticamente
         function renderLanesGrid() {
             const container = document.getElementById('lanesGridContainer');
             const n = appState.activeLanes;
@@ -1015,7 +1065,10 @@
                 const isUltraCompact = n >= 8;
                 const isMedium = n === 4 || n === 6;
 
-                // Construir cajas de micro-sectores (1, 2 o 3 según configuración)
+                const meanLap = getDriverMeanLap(lane);
+                const optLap = getDriverOptimalLap(lane);
+
+                // Construir cajas de micro-sectores con alto contraste y colorido
                 let sectorsHtml = '';
                 if (sCount >= 2) {
                     const s1Val = lane.lastSectors[1] !== null ? lane.lastSectors[1].toFixed(3) + 's' : '--.---';
@@ -1023,94 +1076,118 @@
                     const s3Val = lane.lastSectors[3] !== null ? lane.lastSectors[3].toFixed(3) + 's' : '--.---';
 
                     sectorsHtml = `
-                        <div class="grid grid-cols-${sCount} gap-1 mt-auto pt-1">
-                            <div id="secBox-${i}-1" class="bg-slate-950/90 px-1.5 py-1 rounded-lg border border-slate-800 flex justify-between items-center ${isUltraCompact ? 'text-[9px]' : 'text-[10px]'} font-mono-num ${lane.sectorColors[1]}">
-                                <span class="opacity-75 font-bold">S1</span>
-                                <span id="secVal-${i}-1" class="font-bold">${s1Val}</span>
+                        <div class="grid grid-cols-${sCount} gap-1.5 shrink-0">
+                            <div id="secBox-${i}-1" class="bg-indigo-950/70 px-2.5 py-1 rounded-xl border border-indigo-500/40 flex justify-between items-center ${isUltraCompact ? 'text-[10px]' : 'text-xs'} font-mono-num ${lane.sectorColors[1]}">
+                                <span class="text-indigo-300 font-black">SECTOR 1</span>
+                                <span id="secVal-${i}-1" class="font-black text-white">${s1Val}</span>
                             </div>
-                            <div id="secBox-${i}-2" class="bg-slate-950/90 px-1.5 py-1 rounded-lg border border-slate-800 flex justify-between items-center ${isUltraCompact ? 'text-[9px]' : 'text-[10px]'} font-mono-num ${lane.sectorColors[2]}">
-                                <span class="opacity-75 font-bold">${sCount === 2 ? 'M' : 'S2'}</span>
-                                <span id="secVal-${i}-2" class="font-bold">${s2Val}</span>
+                            <div id="secBox-${i}-2" class="bg-indigo-950/70 px-2.5 py-1 rounded-xl border border-indigo-500/40 flex justify-between items-center ${isUltraCompact ? 'text-[10px]' : 'text-xs'} font-mono-num ${lane.sectorColors[2]}">
+                                <span class="text-indigo-300 font-black">${sCount === 2 ? 'META' : 'SECTOR 2'}</span>
+                                <span id="secVal-${i}-2" class="font-black text-white">${s2Val}</span>
                             </div>
                             ${sCount === 3 ? `
-                            <div id="secBox-${i}-3" class="bg-slate-950/90 px-1.5 py-1 rounded-lg border border-slate-800 flex justify-between items-center ${isUltraCompact ? 'text-[9px]' : 'text-[10px]'} font-mono-num ${lane.sectorColors[3]}">
-                                <span class="opacity-75 font-bold">S3</span>
-                                <span id="secVal-${i}-3" class="font-bold">${s3Val}</span>
+                            <div id="secBox-${i}-3" class="bg-indigo-950/70 px-2.5 py-1 rounded-xl border border-indigo-500/40 flex justify-between items-center ${isUltraCompact ? 'text-[10px]' : 'text-xs'} font-mono-num ${lane.sectorColors[3]}">
+                                <span class="text-indigo-300 font-black">SECTOR 3</span>
+                                <span id="secVal-${i}-3" class="font-black text-white">${s3Val}</span>
                             </div>` : ''}
                         </div>
                     `;
                 }
 
                 html += `
-                <div id="laneCard-${i}" class="glass-panel rounded-2xl ${isUltraCompact ? 'p-2' : (isMedium ? 'p-2.5' : 'p-3.5')} border-l-8 ${pal.border} flex flex-col justify-between h-full min-h-0 transition-all">
-                    <!-- Cabecera del Carril con Nombre Editable y Club editable -->
-                    <div class="flex justify-between items-center gap-1 border-b border-slate-800/80 pb-1 shrink-0">
-                        <div class="flex items-center gap-1.5 min-w-0">
-                            <span class="px-1.5 py-0.5 rounded-md border font-mono-num font-black ${isUltraCompact ? 'text-[9px]' : 'text-xs'} shrink-0 ${pal.badge}">
+                <div id="laneCard-${i}" style="border-left-color: ${pal.hex};" class="glass-panel rounded-2xl ${isUltraCompact ? 'p-2' : (isMedium ? 'p-2.5' : 'p-3.5')} border-2 border-slate-700/80 border-l-[10px] flex flex-col gap-1.5 h-full min-h-0 transition-all relative overflow-hidden">
+                    
+                    <!-- 1. CABECERA DEL CARRIL: Dorsal grande, Piloto + Club y Medalla de PosiciÃ³n -->
+                    <div class="flex justify-between items-center gap-2 border-b border-slate-700/80 pb-1.5 shrink-0">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span style="background:${pal.hex}; color:#04070f;" class="px-2.5 py-1 rounded-xl font-mono-num font-black ${isUltraCompact ? 'text-xs' : 'text-sm'} shrink-0 shadow-md">
                                 CH${i}
                             </span>
                             <div class="flex flex-col min-w-0">
                                 <input id="driverName-${i}" type="text" value="${lane.name}" onchange="updateDriverName(${i}, this.value)" title="Clic para editar nombre del piloto"
-                                       class="bg-transparent text-white font-black ${isUltraCompact ? 'text-[11px] w-20' : (isMedium ? 'text-xs w-28' : 'text-base w-40')} tracking-tight truncate leading-tight focus:outline-none focus:border-b border-sky-500"/>
-                                <input id="driverClub-${i}" type="text" value="${lane.club || 'CLUB INDEPENDIENTE'}" onchange="updateDriverClub(${i}, this.value)" title="Clic para editar Club o Escudería"
-                                       class="bg-transparent text-amber-400/90 font-mono font-bold ${isUltraCompact ? 'text-[8px] w-20' : 'text-[9px] w-36'} tracking-wider uppercase truncate leading-none mt-0.5 focus:outline-none focus:border-b border-amber-400"/>
+                                       class="bg-transparent text-white font-black ${isUltraCompact ? 'text-xs w-20' : (isMedium ? 'text-sm w-32' : 'text-lg w-44')} tracking-tight truncate leading-tight focus:outline-none focus:border-b border-sky-400"/>
+                                <input id="driverClub-${i}" type="text" value="${lane.club || 'CLUB INDEPENDIENTE'}" onchange="updateDriverClub(${i}, this.value)" title="Clic para editar Club o EscuderÃ­a"
+                                       class="bg-transparent text-amber-300 font-mono font-bold ${isUltraCompact ? 'text-[8px] w-20' : 'text-[10px] w-40'} tracking-wider uppercase truncate leading-none mt-0.5 focus:outline-none focus:border-b border-amber-400"/>
                             </div>
-                            <span id="posBadge-${i}" class="px-1 py-0.5 text-[9px] font-mono font-black rounded bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
-                                P${i}
-                            </span>
                         </div>
 
-                        <!-- Botón de disparo de sector/vuelta directo en la tarjeta + Combustible -->
-                        <div class="flex items-center gap-1 shrink-0">
-                            ${!isUltraCompact ? `
-                            <div class="hidden xl:flex items-center gap-1 bg-slate-950 px-1.5 py-0.5 rounded-md border border-slate-800">
-                                <span class="text-[8px] font-mono text-slate-400">⛽</span>
-                                <div class="w-8 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                                    <div id="fuelBar-${i}" class="h-full bg-emerald-400" style="width: ${lane.fuel}%"></div>
-                                </div>
-                                <button onclick="refuelCar(${i})" class="text-[8px] font-mono text-sky-300 hover:text-white cursor-pointer" title="Repostar en Boxes">BOX</button>
-                            </div>` : ''}
-                            <button onclick="triggerNextCheckpoint(${i})" id="btnStep-${i}" class="px-1.5 py-0.5 bg-slate-800 hover:bg-sky-600 text-sky-300 hover:text-white font-mono font-bold text-[9px] rounded-md border border-slate-700 transition cursor-pointer">
-                                ⚡ ${sCount === 1 ? 'META' : 'S' + lane.nextExpectedSector}
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <span id="posBadge-${i}" class="px-2.5 py-1 ${isUltraCompact ? 'text-[10px]' : 'text-xs'} font-mono font-black rounded-xl bg-slate-800 text-slate-200 border border-slate-600 shrink-0 shadow">
+                                P${i}
+                            </span>
+                            <button onclick="triggerNextCheckpoint(${i})" id="btnStep-${i}" class="px-2.5 py-1 bg-sky-600/35 hover:bg-sky-500 text-sky-200 hover:text-white font-mono font-black ${isUltraCompact ? 'text-[9px]' : 'text-[10px]'} rounded-lg border border-sky-400/50 transition cursor-pointer shadow">
+                                âš¡ ${sCount === 1 ? 'META' : 'S' + lane.nextExpectedSector}
                             </button>
                         </div>
                     </div>
 
-                    <!-- Cuerpo de Métricas del Carril -->
-                    <div class="grid grid-cols-4 gap-1.5 my-auto py-1">
-                        <div class="bg-slate-950/90 p-1.5 rounded-xl border border-slate-800/90 flex flex-col justify-between">
-                            <div class="text-[8px] font-mono text-slate-400">VUELTAS</div>
-                            <div id="laps-${i}" class="${isUltraCompact ? 'text-lg' : (isMedium ? 'text-2xl' : 'text-4xl')} font-mono-num font-black text-white leading-none my-0.5">${lane.laps}</div>
-                            <div id="gap-${i}" class="text-[8px] font-mono text-emerald-400 truncate">PARRILLA</div>
+                    <!-- 2. BLOQUES GRANDES DE DATOS PRINCIPALES (Aprovechan el ancho y alto con nÃºmeros gigantes) -->
+                    <div class="grid grid-cols-12 gap-2 shrink-0">
+                        <!-- BLOQUE VUELTAS Y GAP (Azul Cian Intenso) -->
+                        <div class="col-span-3 bg-gradient-to-br from-sky-950 via-slate-950 to-slate-950 p-2 rounded-xl border-2 border-sky-500/50 flex flex-col justify-between shadow-inner">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-mono font-black text-sky-300 uppercase">ðŸ VUELTAS</span>
+                            </div>
+                            <div id="laps-${i}" class="${isUltraCompact ? 'text-2xl' : (isMedium ? 'text-4xl' : 'text-5xl')} font-mono-num font-black text-white leading-none my-1 drop-shadow-[0_2px_8px_rgba(56,189,248,0.35)]">
+                                ${lane.laps}
+                            </div>
+                            <div id="gap-${i}" class="text-[9px] font-mono font-black text-amber-300 truncate bg-slate-900/95 px-1.5 py-0.5 rounded border border-slate-700 text-center">
+                                EN PARRILLA
+                            </div>
                         </div>
 
-                        <div id="lastLapBox-${i}" class="bg-slate-950/90 p-1.5 rounded-xl border border-slate-800/90 col-span-2 flex flex-col justify-between">
-                            <div class="flex justify-between items-center text-[8px] font-mono">
-                                <span class="opacity-80">ÚLTIMA</span>
-                                <span id="deltaBadge-${i}" class="px-1 rounded bg-slate-800 text-slate-300">Δ 0.000s</span>
+                        <!-- BLOQUE ÃšLTIMA VUELTA, DELTA Y MEDIA (Color DinÃ¡mico FIA: Morado/Verde/Ãmbar) -->
+                        <div id="lastLapBox-${i}" class="col-span-5 bg-gradient-to-br from-amber-950/60 via-slate-950 to-slate-950 p-2 rounded-xl border-2 border-amber-500/50 flex flex-col justify-between shadow-inner">
+                            <div class="flex justify-between items-center text-[9px] font-mono">
+                                <span class="font-black text-amber-300 uppercase">â±ï¸ ÃšLTIMA VUELTA</span>
+                                <span id="deltaBadge-${i}" class="px-1.5 py-0.5 rounded font-black bg-slate-900 text-white border border-slate-700">Î” 0.000s</span>
                             </div>
-                            <div id="lastLap-${i}" class="${isUltraCompact ? 'text-base' : (isMedium ? 'text-2xl' : 'text-4xl')} font-mono-num font-black tracking-tight leading-none my-0.5">
+                            <div id="lastLap-${i}" class="${isUltraCompact ? 'text-xl' : (isMedium ? 'text-3xl' : 'text-5xl')} font-mono-num font-black text-white tracking-tight leading-none my-1 drop-shadow">
                                 ${lane.lastLap > 0 ? lane.lastLap.toFixed(3) + 's' : '0.000s'}
                             </div>
-                            <div class="flex justify-between text-[8px] font-mono opacity-80 truncate">
-                                <span id="optimalLapTag-${i}">Ópt: --.---s</span>
-                                <span id="tofStatus-${i}">${lane.tofMm}mm</span>
+                            <div class="flex justify-between items-center text-[9px] font-mono font-bold bg-slate-950/90 px-2 py-0.5 rounded border border-slate-800">
+                                <span id="optimalLapTag-${i}" class="text-purple-300 truncate">${optLap < Infinity ? 'ðŸŸ£ Ã“pt: ' + optLap.toFixed(3) + 's' : 'ðŸ“Š Media: ' + (meanLap > 0 ? meanLap.toFixed(3) + 's' : '--.---s')}</span>
+                                <span id="tofStatus-${i}" class="text-sky-300 ml-1">ToF ${lane.tofMm}mm</span>
                             </div>
                         </div>
 
-                        <div class="bg-slate-950/90 p-1.5 rounded-xl border border-slate-800/90 flex flex-col justify-between">
-                            <div class="text-[8px] font-mono text-slate-400">RÉCORD</div>
-                            <div id="bestLap-${i}" class="${isUltraCompact ? 'text-xs' : (isMedium ? 'text-base' : 'text-2xl')} font-mono-num font-black text-emerald-400 leading-none my-0.5">
-                                ${lane.bestLap < Infinity ? lane.bestLap.toFixed(3) + 's' : '--.---'}
+                        <!-- BLOQUE MEJOR VUELTA PERSONAL, VELOCIDAD Y COMBUSTIBLE (Verde Esmeralda Intenso) -->
+                        <div class="col-span-4 bg-gradient-to-br from-emerald-950 via-slate-950 to-slate-950 p-2 rounded-xl border-2 border-emerald-500/50 flex flex-col justify-between shadow-inner">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-mono font-black text-emerald-300 uppercase">âš¡ MEJOR VUELTA</span>
+                                ${!isUltraCompact ? `
+                                <button onclick="refuelCar(${i})" class="text-[8px] font-mono font-black px-1.5 py-0.5 bg-sky-500/25 text-sky-200 rounded border border-sky-400/50 hover:bg-sky-500 hover:text-white cursor-pointer" title="Repostar Combustible">â›½ BOX</button>
+                                ` : ''}
                             </div>
-                            <div id="speed-${i}" class="text-[8px] font-mono-num font-bold text-sky-400 truncate">0.0 km/h</div>
+                            <div id="bestLap-${i}" class="${isUltraCompact ? 'text-lg' : (isMedium ? 'text-2xl' : 'text-4xl')} font-mono-num font-black text-emerald-400 leading-none my-1 drop-shadow-[0_2px_8px_rgba(16,185,129,0.35)]">
+                                ${lane.bestLap < Infinity ? lane.bestLap.toFixed(3) + 's' : '--.---s'}
+                            </div>
+                            <div class="flex justify-between items-center bg-slate-950/90 px-2 py-0.5 rounded border border-slate-800">
+                                <span id="speed-${i}" class="text-[10px] font-mono-num font-black text-sky-300 truncate">0.0 km/h</span>
+                                <div class="w-12 h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700 ml-1" title="Nivel de Combustible">
+                                    <div id="fuelBar-${i}" class="h-full bg-gradient-to-r from-emerald-500 to-lime-400" style="width: ${lane.fuel}%"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- 3. MICRO-SECTORES EN VIVO -->
                     ${sectorsHtml}
+
+                    <!-- 4. REGISTRO COMPLETO DE TODAS LAS VUELTAS DEL PILOTO DENTRO DE SU CUADRO (Ocupa el resto del recuadro) -->
+                    <div class="flex-1 min-h-0 bg-slate-950/95 rounded-xl border border-slate-800/90 p-2 flex flex-col justify-between overflow-hidden">
+                        <div class="flex justify-between items-center border-b border-slate-800/80 pb-1 mb-1 shrink-0">
+                            <span class="text-[9px] font-mono font-black text-sky-400 uppercase tracking-wider">ðŸ“‹ HISTORIAL DE TODAS LAS VUELTAS (${lane.history.length})</span>
+                            <span id="meanLapTag-${i}" class="text-[9px] font-mono font-bold text-amber-300">Media: ${meanLap > 0 ? meanLap.toFixed(3) + 's' : '--.---s'}</span>
+                        </div>
+                        <div id="lapHistoryList-${i}" class="flex flex-wrap content-start gap-1 overflow-y-auto flex-1 min-h-0 pr-1">
+                            ${buildLaneLapHistoryHTML(i)}
+                        </div>
+                    </div>
                 </div>`;
             }
             container.innerHTML = html;
+            updateMultiLaneStandings();
         }
 
         function renderQuickSimButtons() {
@@ -1134,7 +1211,7 @@
                 box.className = 'grid grid-cols-1 gap-1.5 text-center font-mono-num text-[10px]';
                 box.innerHTML = `
                     <div class="bg-slate-950 p-1.5 rounded-lg border border-slate-800 text-slate-400">
-                        MODO 1 SECTOR ACTIVO (DETECCIÓN ÍNTEGRA EN LÍNEA DE META)
+                        MODO 1 SECTOR ACTIVO (DETECCIÃ“N ÃNTEGRA EN LÃNEA DE META)
                     </div>
                 `;
                 return;
@@ -1146,7 +1223,7 @@
                 const drv = appState.overallBestSectorDrivers[s];
                 html += `
                     <div class="bg-slate-950 p-1.5 rounded-lg border border-purple-500/30">
-                        <div class="text-[9px] text-purple-300 font-bold">RÉCORD S${s}</div>
+                        <div class="text-[9px] text-purple-300 font-bold">RÃ‰CORD S${s}</div>
                         <div class="text-xs font-black text-white">${bestVal < Infinity ? bestVal.toFixed(3) + 's' : '--.---s'}</div>
                         <div class="text-[8px] text-slate-400 truncate">${drv || '---'}</div>
                     </div>
@@ -1169,7 +1246,7 @@
             if (!lanesGroup || !carsLayer || !masterPath) return;
 
             const n = appState.activeLanes;
-            // Ajustar anchura visual del asfalto según si la pista es de 2, 4, 6, 8 o 10 carriles
+            // Ajustar anchura visual del asfalto segÃºn si la pista es de 2, 4, 6, 8 o 10 carriles
             const asphaltWidth = n === 2 ? 16 : (n === 4 ? 20 : (n === 6 ? 23 : (n === 8 ? 26 : 29)));
             if (asphaltPath) asphaltPath.setAttribute('stroke-width', String(asphaltWidth));
 
@@ -1215,7 +1292,7 @@
         }
 
         // ============================================================================
-        // MOTOR CENTRAL MULTISECTOR (SOPORTA 1, 2 Ó 3 SECTORES Y 2..10 CARRILES)
+        // MOTOR CENTRAL MULTISECTOR (SOPORTA 1, 2 Ã“ 3 SECTORES Y 2..10 CARRILES)
         // ============================================================================
         // Avanza el coche por el siguiente punto de control esperado (S1 -> S2 -> Meta)
         function triggerNextCheckpoint(laneId) {
@@ -1239,7 +1316,7 @@
             // Detectar Salida Falsa (Jump Start) durante la secuencia roja F1
             if (appState.raceStatus === 'COUNTDOWN') {
                 playTone(190, 450, 'sawtooth', 0.28);
-                speakSpotter(`Salida falsa en carril ${laneId}, ${lane.name}. Penalización de una vuelta.`, true);
+                speakSpotter(`Salida falsa en carril ${laneId}, ${lane.name}. PenalizaciÃ³n de una vuelta.`, true);
                 lane.laps = Math.max(-1, lane.laps - 1);
                 const lapEl = document.getElementById(`laps-${laneId}`);
                 if (lapEl) lapEl.textContent = lane.laps;
@@ -1248,7 +1325,7 @@
 
             if (appState.raceStatus === 'STANDBY') {
                 appState.raceStatus = 'RACING';
-                updateRaceBadge('🟢 ENTRENAMIENTOS / LIBRES', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
+                updateRaceBadge('ðŸŸ¢ ENTRENAMIENTOS / LIBRES', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
                 startMasterClock();
             }
 
@@ -1265,7 +1342,7 @@
             // CASO A: MODO 1 SECTOR (SOLO META)
             if (sCount === 1 || sectorIndex >= sCount) {
                 if (sCount > 1) {
-                    // Registrar el último sector (S2 en modo 2 sectores, o S3 en modo 3 sectores)
+                    // Registrar el Ãºltimo sector (S2 en modo 2 sectores, o S3 en modo 3 sectores)
                     processSingleSectorMetrics(laneId, sCount, secTime);
                     // Calcular tiempo total de vuelta como suma de los sectores de esta vuelta
                     let sumLap = 0;
@@ -1278,14 +1355,14 @@
                 }
                 lane.nextExpectedSector = 1;
             } else {
-                // CASO B: CORTE EN SECTOR INTERMEDIO (S1 ó S2 antes de Meta)
+                // CASO B: CORTE EN SECTOR INTERMEDIO (S1 Ã³ S2 antes de Meta)
                 processSingleSectorMetrics(laneId, sectorIndex, secTime);
                 lane.nextExpectedSector = sectorIndex + 1;
 
-                // Actualizar etiqueta del botón de paso en la tarjeta
+                // Actualizar etiqueta del botÃ³n de paso en la tarjeta
                 const btnStep = document.getElementById(`btnStep-${laneId}`);
                 if (btnStep) {
-                    btnStep.innerHTML = `⚡ ${lane.nextExpectedSector === sCount ? 'META' : 'S' + lane.nextExpectedSector}`;
+                    btnStep.innerHTML = `âš¡ ${lane.nextExpectedSector === sCount ? 'META' : 'S' + lane.nextExpectedSector}`;
                 }
             }
         }
@@ -1367,8 +1444,9 @@
             const deltaStr = (delta >= 0 ? '+' : '') + delta.toFixed(3) + 's';
             const speedScaleKmh = (appState.trackLengthMeters / lapSec) * 3.6 * appState.scaleFactor;
 
-            // Calcular Vuelta Óptima Teórica (Suma de sus mejores sectores personales)
+            // Calcular Vuelta Ã“ptima TeÃ³rica (Suma de sus mejores sectores personales)
             const optLap = getDriverOptimalLap(lane);
+            const meanLap = getDriverMeanLap(lane);
 
             // Actualizar DOM de la tarjeta
             const lapsEl = document.getElementById(`laps-${laneId}`);
@@ -1377,16 +1455,24 @@
                 document.getElementById(`lastLap-${laneId}`).textContent = `${lapSec.toFixed(3)}s`;
                 document.getElementById(`bestLap-${laneId}`).textContent = `${lane.bestLap.toFixed(3)}s`;
                 document.getElementById(`speed-${laneId}`).textContent = `${speedScaleKmh.toFixed(1)} km/h`;
-                document.getElementById(`deltaBadge-${laneId}`).textContent = `Δ ${deltaStr}`;
-                document.getElementById(`tofStatus-${laneId}`).textContent = `ToF: ${lane.tofMm}mm`;
+                document.getElementById(`deltaBadge-${laneId}`).textContent = `Î” ${deltaStr}`;
+                document.getElementById(`tofStatus-${laneId}`).textContent = `ToF ${lane.tofMm}mm`;
                 document.getElementById(`optimalLapTag-${laneId}`).textContent =
-                    optLap < Infinity ? `Óptima: ${optLap.toFixed(3)}s` : `Media: ${getDriverMeanLap(lane).toFixed(3)}s`;
+                    optLap < Infinity ? `ðŸŸ£ Ã“pt: ${optLap.toFixed(3)}s` : `ðŸ“Š Media: ${meanLap.toFixed(3)}s`;
+
+                const meanTag = document.getElementById(`meanLapTag-${laneId}`);
+                if (meanTag) meanTag.textContent = `Media: ${meanLap.toFixed(3)}s | Total: ${lane.history.length} V.`;
+
+                const historyBox = document.getElementById(`lapHistoryList-${laneId}`);
+                if (historyBox) {
+                    historyBox.innerHTML = buildLaneLapHistoryHTML(laneId);
+                }
 
                 const lastBox = document.getElementById(`lastLapBox-${laneId}`);
-                lastBox.className = `p-2 rounded-xl border col-span-2 flex flex-col justify-between transition-all ${lapColor}`;
+                lastBox.className = `col-span-5 p-2 rounded-xl border-2 flex flex-col justify-between transition-all shadow-inner ${lapColor}`;
 
                 const btnStep = document.getElementById(`btnStep-${laneId}`);
-                if (btnStep) btnStep.innerHTML = `⚡ ${appState.numSectors === 1 ? 'META' : 'S1'}`;
+                if (btnStep) btnStep.innerHTML = `âš¡ ${appState.numSectors === 1 ? 'META' : 'S1'}`;
             }
 
             const prevLeaderId = appState.currentLeaderId;
@@ -1398,7 +1484,7 @@
             updateSingleDriverAnalytics();
             updateMobilePitWallView();
 
-            // Si estamos en modo POR VUELTAS y este piloto alcanza el número de vueltas objetivo: ¡Bandera a cuadros!
+            // Si estamos en modo POR VUELTAS y este piloto alcanza el nÃºmero de vueltas objetivo: Â¡Bandera a cuadros!
             if (appState.raceFormat === 'LAPS') {
                 renderMasterClock();
                 if (lane.laps >= appState.targetLaps && appState.raceStatus === 'RACING') {
@@ -1406,7 +1492,7 @@
                     clearInterval(appState.clockInterval);
                     if (appState.autoDemoTimer) toggleAutoDemo();
                     playTone(1567.98, 550, 'triangle', 0.28);
-                    updateRaceBadge(`🏁 VICTORIA: ${lane.name}`, 'bg-purple-500/20 text-purple-300 border-purple-500/40');
+                    updateRaceBadge(`ðŸ VICTORIA: ${lane.name}`, 'bg-purple-500/20 text-purple-300 border-purple-500/40');
                     announceFullStandingsWithHumor(true);
                     return;
                 }
@@ -1417,29 +1503,29 @@
             const nowMs = performance.now();
             const newLeader = standings[0];
 
-            // 1. Si hay cambio de Líder en la carrera, cantarlo con emoción
+            // 1. Si hay cambio de LÃ­der en la carrera, cantarlo con emociÃ³n
             if (newLeader && newLeader.id !== prevLeaderId && newLeader.laps > 1) {
                 appState.currentLeaderId = newLeader.id;
-                speakSpotter(`¡Cambio de líder! ${newLeader.name} se pone primero en carrera. Segundo es ${standings[1]?.name || ''}.`, true);
+                speakSpotter(`Â¡Cambio de lÃ­der! ${newLeader.name} se pone primero en carrera. Segundo es ${standings[1]?.name || ''}.`, true);
                 return;
             }
 
-            // 2. Cada cierto tiempo o cada 4 vueltas del líder, cantar el Podio (1º, 2º, 3º) y el Último con cachondeo
+            // 2. Cada cierto tiempo o cada 4 vueltas del lÃ­der, cantar el Podio (1Âº, 2Âº, 3Âº) y el Ãšltimo con cachondeo
             if (newLeader && newLeader.id === laneId && newLeader.laps >= 2 && newLeader.laps % 4 === 0 && (nowMs - appState.lastStandingsCallTime > 11000)) {
                 appState.lastStandingsCallTime = nowMs;
                 announceFullStandingsWithHumor(false);
                 return;
             }
 
-            // 3. Cante normal de vuelta o récord morado
+            // 3. Cante normal de vuelta o rÃ©cord morado
             if (lapColor === 'sector-purple') {
-                speakSpotter(`Récord absoluto de pista para ${lane.name}: ${secInt} con ${dec}`);
+                speakSpotter(`RÃ©cord absoluto de pista para ${lane.name}: ${secInt} con ${dec}`);
             } else if (appState.activeLanes <= 4 || lapColor === 'sector-green') {
                 speakSpotter(`${lane.name}, ${secInt} con ${dec}`);
             }
         }
 
-        // Canta por voz el Líder (P1), Segundo (P2), Tercero (P3) y el Último con cachondeo de club
+        // Canta por voz el LÃ­der (P1), Segundo (P2), Tercero (P3) y el Ãšltimo con cachondeo de club
         function announceFullStandingsWithHumor(isFinalFlag = false) {
             const activeList = [];
             for (let i = 1; i <= appState.activeLanes; i++) {
@@ -1460,8 +1546,8 @@
             const bromaLast = bromaTemplate.replace('{name}', last.name);
 
             let speech = isFinalFlag
-                ? `¡Final de carrera! Victoria y medalla de oro para ${p1.name}. `
-                : `Repaso de carrera: Lidera ${p1.name} en primera posición. `;
+                ? `Â¡Final de carrera! Victoria y medalla de oro para ${p1.name}. `
+                : `Repaso de carrera: Lidera ${p1.name} en primera posiciÃ³n. `;
 
             if (p2) {
                 speech += `Segundo en plata es ${p2.name}. `;
@@ -1470,7 +1556,7 @@
                 speech += `Tercero en bronce rueda ${p3.name}, `;
                 speech += bromaLast;
             } else if (p3 && activeList.length === 3) {
-                speech += `Y en tercera y última posición, ` + bromaLast.replace(/^y /i, '');
+                speech += `Y en tercera y Ãºltima posiciÃ³n, ` + bromaLast.replace(/^y /i, '');
             } else if (activeList.length === 2 && last) {
                 speech += bromaLast;
             }
@@ -1508,7 +1594,7 @@
                 clearInterval(appState.autoDemoTimer);
                 appState.autoDemoTimer = null;
                 if (btn) btn.className = 'px-2.5 py-2 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 font-mono font-bold text-xs rounded-xl border border-purple-400/40 transition flex items-center gap-1 cursor-pointer';
-                speakSpotter("Simulación automática detenida.", true);
+                speakSpotter("SimulaciÃ³n automÃ¡tica detenida.", true);
             } else {
                 if (appState.raceStatus === 'STANDBY' || appState.raceStatus === 'FINISHED') {
                     appState.raceStatus = 'RACING';
@@ -1517,7 +1603,7 @@
                         appState.lanes[i].lastSectorPassTime = now;
                         appState.lanes[i].lastLapPassTime = now;
                     }
-                    updateRaceBadge('🟢 AUTO-SIM EN CURSO', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
+                    updateRaceBadge('ðŸŸ¢ AUTO-SIM EN CURSO', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
                     startMasterClock();
                 }
                 if (btn) btn.className = 'px-2.5 py-2 bg-purple-600 text-white font-mono font-bold text-xs rounded-xl border border-purple-300 shadow-lg transition flex items-center gap-1 cursor-pointer';
@@ -1526,7 +1612,7 @@
                     const randomLane = 1 + Math.floor(Math.random() * appState.activeLanes);
                     triggerNextCheckpoint(randomLane);
                 }, 480);
-                speakSpotter("Simulador automático multicarril activado.", true);
+                speakSpotter("Simulador automÃ¡tico multicarril activado.", true);
             }
         }
 
@@ -1559,7 +1645,7 @@
             }
         }
 
-        // Calcula posiciones (P1 a P10) según el Modo de Carrera (Tiempo, Vueltas o Clasificación Pole)
+        // Calcula posiciones (P1 a P10) segÃºn el Modo de Carrera (Tiempo, Vueltas o ClasificaciÃ³n Pole)
         function updateMultiLaneStandings() {
             const activeList = [];
             for (let i = 1; i <= appState.activeLanes; i++) {
@@ -1567,10 +1653,10 @@
             }
 
             if (appState.raceFormat === 'QUALY') {
-                // En modo Pole Position gana la vuelta rápida individual más baja
+                // En modo Pole Position gana la vuelta rÃ¡pida individual mÃ¡s baja
                 activeList.sort((a, b) => a.bestLap - b.bestLap);
             } else {
-                // En modo Tiempo o Vueltas gana quien lleve más vueltas en menor tiempo acumulado
+                // En modo Tiempo o Vueltas gana quien lleve mÃ¡s vueltas en menor tiempo acumulado
                 activeList.sort((a, b) => {
                     if (b.laps !== a.laps) return b.laps - a.laps;
                     return a.totalRaceTime - b.totalRaceTime;
@@ -1588,36 +1674,37 @@
                 if (!posBadge || !gapEl) return;
 
                 if (cardEl) {
-                    cardEl.classList.remove('card-p1-glow', 'card-p2-glow', 'card-p3-glow');
+                    cardEl.classList.remove('card-p1-glow', 'card-p2-glow', 'card-p3-glow', 'card-last-glow');
                 }
 
-                // Colores oficiales de Podio: P1 Oro, P2 Plata, P3 Bronce y Último Farolillo Rojo
+                // Colores oficiales de Podio muy vistosos: P1 Oro, P2 Plata, P3 Bronce y Ãšltimo Farolillo Rojo
                 if (posRank === 1) {
-                    posBadge.textContent = appState.raceFormat === 'QUALY' ? '🥇 P1 · POLE' : '👑 P1 · LÍDER';
-                    posBadge.className = 'px-1.5 py-0.5 text-[9px] font-mono font-black rounded shrink-0 pos-p1-gold';
+                    posBadge.textContent = appState.raceFormat === 'QUALY' ? 'ðŸ¥‡ 1Âº Â· POLE' : 'ðŸ‘‘ 1Âº Â· LÃDER ORO';
+                    posBadge.className = 'px-2.5 py-1 text-xs font-mono font-black rounded-xl shrink-0 pos-p1-gold';
                     if (cardEl) cardEl.classList.add('card-p1-glow');
                     gapEl.textContent = appState.raceFormat === 'LAPS'
-                        ? `FALTAN ${Math.max(0, appState.targetLaps - lane.laps)} V.`
-                        : (appState.raceFormat === 'QUALY' ? 'POLE PROVISIONAL' : '🥇 LÍDER EN PISTA');
-                    gapEl.className = 'text-[8px] font-mono font-bold text-amber-300 truncate';
-                } else if (posRank === 2) {
-                    posBadge.textContent = '🥈 P2 · PLATA';
-                    posBadge.className = 'px-1.5 py-0.5 text-[9px] font-mono font-black rounded shrink-0 pos-p2-silver';
+                        ? `ðŸŽ¯ FALTAN ${Math.max(0, appState.targetLaps - lane.laps)} V.`
+                        : (appState.raceFormat === 'QUALY' ? 'ðŸŸ£ POLE PROVISIONAL' : 'ðŸ¥‡ LÃDER DE CARRERA');
+                    gapEl.className = 'text-[9px] font-mono font-black text-slate-950 bg-amber-400 px-1.5 py-0.5 rounded truncate shadow';
+                } else if (posRank === 2 && totalActive > 2) {
+                    posBadge.textContent = 'ðŸ¥ˆ 2Âº Â· PLATA';
+                    posBadge.className = 'px-2.5 py-1 text-xs font-mono font-black rounded-xl shrink-0 pos-p2-silver';
                     if (cardEl) cardEl.classList.add('card-p2-glow');
-                    gapEl.className = 'text-[8px] font-mono font-bold text-slate-200 truncate';
-                } else if (posRank === 3) {
-                    posBadge.textContent = '🥉 P3 · BRONCE';
-                    posBadge.className = 'px-1.5 py-0.5 text-[9px] font-mono font-black rounded shrink-0 pos-p3-bronze';
+                    gapEl.className = 'text-[9px] font-mono font-black text-slate-950 bg-slate-200 px-1.5 py-0.5 rounded truncate';
+                } else if (posRank === 3 && totalActive > 3) {
+                    posBadge.textContent = 'ðŸ¥‰ 3Âº Â· BRONCE';
+                    posBadge.className = 'px-2.5 py-1 text-xs font-mono font-black rounded-xl shrink-0 pos-p3-bronze';
                     if (cardEl) cardEl.classList.add('card-p3-glow');
-                    gapEl.className = 'text-[8px] font-mono font-bold text-orange-300 truncate';
+                    gapEl.className = 'text-[9px] font-mono font-black text-slate-950 bg-orange-400 px-1.5 py-0.5 rounded truncate';
                 } else if (posRank === totalActive) {
-                    posBadge.textContent = `🐢 P${posRank} · COLA`;
-                    posBadge.className = 'px-1.5 py-0.5 text-[9px] font-mono font-black rounded shrink-0 pos-last-lantern';
-                    gapEl.className = 'text-[8px] font-mono font-bold text-red-400 truncate';
+                    posBadge.textContent = `ðŸ¢ ${posRank}Âº Â· FAROLILLO`;
+                    posBadge.className = 'px-2.5 py-1 text-xs font-mono font-black rounded-xl shrink-0 pos-last-lantern';
+                    if (cardEl) cardEl.classList.add('card-last-glow');
+                    gapEl.className = 'text-[9px] font-mono font-black text-white bg-red-600/90 px-1.5 py-0.5 rounded truncate';
                 } else {
-                    posBadge.textContent = `P${posRank}`;
-                    posBadge.className = 'px-1.5 py-0.5 text-[9px] font-mono font-black rounded bg-slate-800 text-slate-300 border border-slate-700 shrink-0';
-                    gapEl.className = 'text-[8px] font-mono text-emerald-400 truncate';
+                    posBadge.textContent = `${posRank}Âº POS`;
+                    posBadge.className = 'px-2.5 py-1 text-xs font-mono font-black rounded-xl bg-slate-800 text-slate-200 border border-slate-600 shrink-0';
+                    gapEl.className = 'text-[9px] font-mono font-bold text-emerald-300 bg-slate-900 px-1.5 py-0.5 rounded truncate';
                 }
 
                 // Calcular diferencias para P2..PN
@@ -1631,11 +1718,11 @@
                         const lapDiff = leader.laps - lane.laps;
                         if (lapDiff > 0) {
                             gapEl.textContent = posRank === totalActive
-                                ? `🐢 A +${lapDiff} V.`
+                                ? `ðŸ¢ COLA (+${lapDiff} V.)`
                                 : `A +${lapDiff} VUELTA${lapDiff > 1 ? 'S' : ''}`;
                         } else {
                             const timeDiff = Math.abs(lane.totalRaceTime - leader.totalRaceTime).toFixed(3);
-                            gapEl.textContent = `+${timeDiff}s`;
+                            gapEl.textContent = `A +${timeDiff}s`;
                         }
                     }
                 }
@@ -1645,7 +1732,7 @@
         }
 
         // ============================================================================
-        // TABLA COMPARATIVA DE MICRO-SECTORES Y VUELTA ÓPTIMA TEÓRICA
+        // TABLA COMPARATIVA DE MICRO-SECTORES Y VUELTA Ã“PTIMA TEÃ“RICA
         // ============================================================================
         function renderSectorAnalysisTable() {
             const tbody = document.getElementById('sectorAnalysisTableBody');
@@ -1693,6 +1780,7 @@
 
         function prependLiveLogRow(eventTag, laneId, driverName, timeSec, speedKmh, colorClass) {
             const tbody = document.getElementById('liveLogBody');
+            if (!tbody) return;
             if (tbody.querySelector('td[colspan]')) tbody.innerHTML = '';
 
             const pal = LANE_PALETTE[laneId];
@@ -1710,7 +1798,7 @@
         }
 
         // ============================================================================
-        // SECUENCIA DE SEMÁFORO F1, TRACK CALL Y RELOJ MAESTRO
+        // SECUENCIA DE SEMÃFORO F1, TRACK CALL Y RELOJ MAESTRO
         // ============================================================================
         let countdownTimeouts = [];
 
@@ -1728,7 +1816,7 @@
 
             appState.raceStatus = 'COUNTDOWN';
             updateRaceBadge('SECUENCIA F1', 'bg-red-500/20 text-red-300 border-red-500/40');
-            speakSpotter(`Atención a los ${appState.activeLanes} carriles. Secuencia de salida iniciada.`, true);
+            speakSpotter(`AtenciÃ³n a los ${appState.activeLanes} carriles. Secuencia de salida iniciada.`, true);
 
             for (let i = 1; i <= 5; i++) {
                 const t = setTimeout(() => {
@@ -1749,8 +1837,8 @@
                     appState.lanes[i].lastSectorPassTime = now;
                     appState.lanes[i].lastLapPassTime = now;
                 }
-                updateRaceBadge('🟢 EN CARRERA', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
-                speakSpotter("¡Verde, verde, verde!", true);
+                updateRaceBadge('ðŸŸ¢ EN CARRERA', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
+                speakSpotter("Â¡Verde, verde, verde!", true);
                 startMasterClock();
             }, randomDelay);
             countdownTimeouts.push(greenTimeout);
@@ -1764,7 +1852,7 @@
                 clearF1Lights();
                 for (let i = 1; i <= 5; i++) document.getElementById(`f1L${i}`).classList.add('amber-on');
                 playTone(310, 450, 'sawtooth', 0.25);
-                updateRaceBadge('⚠️ TRACK CALL (PAUSA)', 'bg-amber-500/20 text-amber-300 border-amber-500/40');
+                updateRaceBadge('âš ï¸ TRACK CALL (PAUSA)', 'bg-amber-500/20 text-amber-300 border-amber-500/40');
                 speakSpotter("Track Call. Carrera pausada.", true);
             } else if (appState.raceStatus === 'TRACK_CALL') {
                 topBar.classList.remove('track-call-active');
@@ -1774,7 +1862,7 @@
                 appState.raceStatus = 'RACING';
                 const now = performance.now();
                 for (let i = 1; i <= 10; i++) appState.lanes[i].lastSectorPassTime = now;
-                updateRaceBadge('🟢 EN CARRERA', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
+                updateRaceBadge('ðŸŸ¢ EN CARRERA', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
                 speakSpotter("Pista libre. Reanudamos carrera.", true);
             }
         }
@@ -1796,7 +1884,7 @@
                     appState.raceStatus = 'FINISHED';
                     clearInterval(appState.clockInterval);
                     if (appState.autoDemoTimer) toggleAutoDemo();
-                    updateRaceBadge('🏁 FINAL DE MANGA', 'bg-purple-500/20 text-purple-300 border-purple-500/40');
+                    updateRaceBadge('ðŸ FINAL DE MANGA', 'bg-purple-500/20 text-purple-300 border-purple-500/40');
                     announceFullStandingsWithHumor(true);
                 }
             }, 100);
@@ -1808,12 +1896,12 @@
             if (!clockEl) return;
 
             if (appState.raceFormat === 'LAPS') {
-                // Mostrar Vuelta del Líder / Vueltas Objetivo
+                // Mostrar Vuelta del LÃ­der / Vueltas Objetivo
                 let maxLaps = 0;
                 for (let i = 1; i <= appState.activeLanes; i++) {
                     if (appState.lanes[i].laps > maxLaps) maxLaps = appState.lanes[i].laps;
                 }
-                if (labelEl) labelEl.textContent = 'VUELTAS LÍDER / META';
+                if (labelEl) labelEl.textContent = 'VUELTAS LÃDER / META';
                 clockEl.textContent = `${maxLaps} / ${appState.targetLaps}`;
             } else {
                 if (labelEl) labelEl.textContent = appState.raceFormat === 'QUALY' ? 'CRONO SUPER-POLE' : 'CRONO MANGA';
@@ -1824,7 +1912,7 @@
         }
 
         // ============================================================================
-        // GRÁFICA MULTICARRIL, HISTOGRAMA POR PILOTO Y TARJETAS DE CONSISTENCIA
+        // GRÃFICA MULTICARRIL, HISTOGRAMA POR PILOTO Y TARJETAS DE CONSISTENCIA
         // ============================================================================
         let evolutionChart = null;
         let driverHistogramChart = null;
@@ -1849,9 +1937,9 @@
             driverHistogramChart = new Chart(ctxHist, {
                 type: 'bar',
                 data: {
-                    labels: ['Récord/Óptimas', 'Ritmo Verde (<+0.15s)', 'Estándar (+0.30s)', 'Tráfico/Error (>+0.30s)'],
+                    labels: ['RÃ©cord/Ã“ptimas', 'Ritmo Verde (<+0.15s)', 'EstÃ¡ndar (+0.30s)', 'TrÃ¡fico/Error (>+0.30s)'],
                     datasets: [{
-                        label: 'Nº de Vueltas',
+                        label: 'NÂº de Vueltas',
                         data: [0, 0, 0, 0],
                         backgroundColor: ['#a855f7', '#10b981', '#f59e0b', '#ef4444'],
                         borderRadius: 6
@@ -1881,7 +1969,7 @@
                 html += `<option value="${i}">CH${i} - ${l.name} (${l.club})</option>`;
             }
             if (selAnalytics) selAnalytics.innerHTML = html;
-            if (selMobile) selMobile.innerHTML = html + `<option value="ALL">🏆 TODOS LOS PILOTOS Y CLUBS (RESUMEN MANGA)</option>`;
+            if (selMobile) selMobile.innerHTML = html + `<option value="ALL">ðŸ† TODOS LOS PILOTOS Y CLUBS (RESUMEN MANGA)</option>`;
         }
 
         function updateSingleDriverAnalytics() {
@@ -1890,7 +1978,7 @@
             const lane = appState.lanes[laneId];
             if (!lane) return;
 
-            document.getElementById('singleDriverChartTitle').textContent = `📊 DISTRIBUCIÓN DE VUELTAS: CH${laneId} ${lane.name}`;
+            document.getElementById('singleDriverChartTitle').textContent = `ðŸ“Š DISTRIBUCIÃ“N DE VUELTAS: CH${laneId} ${lane.name}`;
 
             const h = lane.history;
             let bins = [0, 0, 0, 0];
@@ -1915,9 +2003,9 @@
             const kpiBox = document.getElementById('singleDriverKpiBox');
             if (kpiBox) {
                 kpiBox.innerHTML = `
-                    <div class="text-sky-400 font-bold border-b border-slate-800 pb-1">FICHA TÉCNICA: ${lane.name} (CH${laneId})</div>
+                    <div class="text-sky-400 font-bold border-b border-slate-800 pb-1">FICHA TÃ‰CNICA: ${lane.name} (CH${laneId})</div>
                     <div class="flex justify-between"><span>Mejor Vuelta Real:</span><strong class="text-emerald-400">${lane.bestLap < Infinity ? lane.bestLap.toFixed(3) + 's' : '--.---s'}</strong></div>
-                    <div class="flex justify-between"><span>Vuelta Óptima Teórica:</span><strong class="text-purple-300">${optLap < Infinity ? optLap.toFixed(3) + 's' : '--.---s'}</strong></div>
+                    <div class="flex justify-between"><span>Vuelta Ã“ptima TeÃ³rica:</span><strong class="text-purple-300">${optLap < Infinity ? optLap.toFixed(3) + 's' : '--.---s'}</strong></div>
                     <div class="flex justify-between"><span>Media por Vuelta:</span><strong class="text-white">${mean > 0 ? mean.toFixed(3) + 's' : '--.---s'}</strong></div>
                     <div class="flex justify-between"><span>Vel. Punta Escala:</span><strong class="text-amber-300">${topSpeed} km/h</strong></div>
                 `;
@@ -1929,7 +2017,7 @@
             logSerialConsole(`RX << ${line}`);
             const parts = line.toUpperCase().split(',');
 
-            // Formato 1: Trama Clásica Directa "L1,3890" o "L10,3890,21"
+            // Formato 1: Trama ClÃ¡sica Directa "L1,3890" o "L10,3890,21"
             if (parts[0].startsWith('L')) {
                 const laneId = parseInt(parts[0].substring(1), 10);
                 const timeMs = parseInt(parts[1], 10);
@@ -2003,13 +2091,13 @@
                 const lane = appState.lanes[i];
                 const pal = LANE_PALETTE[i];
                 const h = lane.history;
-                let sdStr = '±0.000s';
+                let sdStr = 'Â±0.000s';
                 let consPct = '100.0%';
                 if (h.length > 1) {
                     const mean = h.reduce((a, b) => a + b, 0) / h.length;
                     const sd = Math.sqrt(h.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / h.length);
                     const c = Math.max(0, Math.min(100, 100 - (sd / mean) * 180));
-                    sdStr = `±${sd.toFixed(3)}s`;
+                    sdStr = `Â±${sd.toFixed(3)}s`;
                     consPct = `${c.toFixed(1)}%`;
                 }
                 html += `
@@ -2037,7 +2125,7 @@
         }
 
         // ============================================================================
-        // INSCRIPCIÓN POR PILOTOS Y CLUBS, MANGAS ALEATORIAS Y COPA DE ESCUDERÍAS
+        // INSCRIPCIÃ“N POR PILOTOS Y CLUBS, MANGAS ALEATORIAS Y COPA DE ESCUDERÃAS
         // ============================================================================
         function renderRoster() {
             const list = document.getElementById('rosterList');
@@ -2055,7 +2143,7 @@
                     </div>
                     <div class="col-span-2 flex justify-end items-center gap-1.5">
                         <span class="text-[9px] text-emerald-400 font-bold">${pts}v</span>
-                        <button onclick="removeRosterDriver(${i})" class="text-red-400 hover:text-red-300 text-[10px] cursor-pointer" title="Eliminar piloto">✕</button>
+                        <button onclick="removeRosterDriver(${i})" class="text-red-400 hover:text-red-300 text-[10px] cursor-pointer" title="Eliminar piloto">âœ•</button>
                     </div>
                 </div>
             `}).join('');
@@ -2146,7 +2234,7 @@
                 container.innerHTML = appState.heats.map((heat, idx) => `
                     <div class="bg-slate-950 p-2 rounded-xl border ${heat.isRandom ? 'border-amber-500/40' : 'border-slate-800'} flex flex-wrap justify-between items-center gap-2">
                         <div class="flex flex-wrap items-center gap-1.5">
-                            <span class="text-amber-400 font-bold mr-1">${heat.isRandom ? '🎲' : '🔄'} MANGA #${heat.heatNum}:</span>
+                            <span class="text-amber-400 font-bold mr-1">${heat.isRandom ? 'ðŸŽ²' : 'ðŸ”„'} MANGA #${heat.heatNum}:</span>
                             ${heat.assignments.map(a => `<span class="px-1.5 py-0.5 rounded border text-[10px] ${LANE_PALETTE[a.laneId].badge}">CH${a.laneId}: <strong>${a.driver}</strong> <span class="opacity-75 text-[9px]">(${a.club})</span></span>`).join('')}
                         </div>
                         <button onclick="loadHeatToTrack(${idx})" class="px-2.5 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded-lg font-bold text-[10px] cursor-pointer shrink-0">
@@ -2175,7 +2263,7 @@
         function renderClubStandings() {
             const box = document.getElementById('clubStandingsContainer');
             if (!box) return;
-            // Agregar todos los clubs inscritos aunque tengan 0 vueltas todavía
+            // Agregar todos los clubs inscritos aunque tengan 0 vueltas todavÃ­a
             const map = { ...appState.clubScores };
             appState.roster.forEach(r => {
                 if (map[r.club] === undefined) map[r.club] = 0;
@@ -2205,7 +2293,7 @@
             rebuildChartDatasets();
             updateMobilePitWallView();
             switchTab('live');
-            speakSpotter(`Manga número ${heat.heatNum} cargada en pista.`, true);
+            speakSpotter(`Manga nÃºmero ${heat.heatNum} cargada en pista.`, true);
         }
 
         function updateDriverName(laneId, newName) {
@@ -2222,7 +2310,7 @@
         }
 
         // ============================================================================
-        // ENVÍO DE TIEMPOS A LOS MÓVILES DE LOS PILOTOS (QR DINÁMICO + WHATSAPP + CLIPBOARD)
+        // ENVÃO DE TIEMPOS A LOS MÃ“VILES DE LOS PILOTOS (QR DINÃMICO + WHATSAPP + CLIPBOARD)
         // ============================================================================
         function updateMobilePitWallView() {
             const sel = document.getElementById('mobileDriverSelect');
@@ -2235,13 +2323,13 @@
             let phoneHtml = '';
 
             if (val === 'ALL') {
-                reportText = `🏁 *SLOTING PLUS & SLOT SOFTWARE*\n🏆 *${clubTitle}*\n📊 *CLASIFICACIÓN OFICIAL DE MANGA*\n`;
+                reportText = `ðŸ *SLOTING PLUS & SLOT SOFTWARE*\nðŸ† *${clubTitle}*\nðŸ“Š *CLASIFICACIÃ“N OFICIAL DE MANGA*\n`;
                 for (let i = 1; i <= appState.activeLanes; i++) {
                     const l = appState.lanes[i];
                     const bestStr = l.bestLap < Infinity ? l.bestLap.toFixed(3) + 's' : '--.---s';
-                    reportText += `• CH${i} *${l.name}* [${l.club}]: ${l.laps} vueltas | Best: ${bestStr}\n`;
+                    reportText += `â€¢ CH${i} *${l.name}* [${l.club}]: ${l.laps} vueltas | Best: ${bestStr}\n`;
                 }
-                phoneHtml = `<div class="text-amber-400 font-bold">🏆 RESUMEN DE MANGA (PILOTOS Y CLUBS)</div>` +
+                phoneHtml = `<div class="text-amber-400 font-bold">ðŸ† RESUMEN DE MANGA (PILOTOS Y CLUBS)</div>` +
                     Array.from({ length: appState.activeLanes }, (_, idx) => {
                         const l = appState.lanes[idx + 1];
                         return `<div class="bg-slate-900 p-2 rounded-lg flex justify-between items-center"><div><span>CH${l.id} <strong>${l.name}</strong></span><div class="text-[9px] text-amber-400">${l.club}</div></div><span class="text-emerald-400 font-bold">${l.laps}v (${l.bestLap < Infinity ? l.bestLap.toFixed(3) + 's' : '--'})</span></div>`;
@@ -2258,21 +2346,21 @@
                 const s3 = l.bestSectors[3] < Infinity ? l.bestSectors[3].toFixed(3) + 's' : '--';
 
                 reportText =
-`🏎️ *SLOTING PLUS & SLOT SOFTWARE // ${clubTitle}*
-👤 *PILOTO:* ${l.name} (Carril ${laneId})
-🛡️ *CLUB / ESCUDERÍA:* ${l.club}
-🏁 *Vueltas Completadas:* ${l.laps}
-⚡ *Mejor Vuelta Real:* ${bestStr}
-🟣 *Vuelta Óptima (Ideal):* ${optStr}
-📈 *Ritmo Medio:* ${meanStr}
-🔹 *Mejores Sectores:* S1: ${s1} | S2: ${s2} | S3: ${s3}
-⏱️ *Últimas 5 vueltas:* ${l.history.slice(-5).map(t => t.toFixed(3) + 's').join(', ') || 'Sin vueltas'}`;
+`ðŸŽï¸ *SLOTING PLUS & SLOT SOFTWARE // ${clubTitle}*
+ðŸ‘¤ *PILOTO:* ${l.name} (Carril ${laneId})
+ðŸ›¡ï¸ *CLUB / ESCUDERÃA:* ${l.club}
+ðŸ *Vueltas Completadas:* ${l.laps}
+âš¡ *Mejor Vuelta Real:* ${bestStr}
+ðŸŸ£ *Vuelta Ã“ptima (Ideal):* ${optStr}
+ðŸ“ˆ *Ritmo Medio:* ${meanStr}
+ðŸ”¹ *Mejores Sectores:* S1: ${s1} | S2: ${s2} | S3: ${s3}
+â±ï¸ *Ãšltimas 5 vueltas:* ${l.history.slice(-5).map(t => t.toFixed(3) + 's').join(', ') || 'Sin vueltas'}`;
 
                 phoneHtml = `
                     <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
                         <div class="text-[10px] text-slate-400">PILOTO / CARRIL ${laneId}</div>
                         <div class="text-base font-black text-white">${l.name}</div>
-                        <div class="text-[10px] font-bold text-amber-400 mt-0.5">🛡️ ${l.club}</div>
+                        <div class="text-[10px] font-bold text-amber-400 mt-0.5">ðŸ›¡ï¸ ${l.club}</div>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div class="bg-slate-900 p-2 rounded-xl border border-slate-800">
@@ -2285,7 +2373,7 @@
                         </div>
                     </div>
                     <div class="bg-purple-950/40 p-2 rounded-xl border border-purple-500/40 flex justify-between items-center">
-                        <span class="text-[10px] text-purple-200">VUELTA ÓPTIMA:</span>
+                        <span class="text-[10px] text-purple-200">VUELTA Ã“PTIMA:</span>
                         <strong class="text-purple-300">${optStr}</strong>
                     </div>
                     <div class="grid grid-cols-3 gap-1 text-center text-[10px]">
@@ -2301,7 +2389,7 @@
             renderDynamicQrSvg(reportText);
         }
 
-        // Genera una matriz visual QR determinista en SVG con los datos de telemetría del piloto
+        // Genera una matriz visual QR determinista en SVG con los datos de telemetrÃ­a del piloto
         function renderDynamicQrSvg(payloadText) {
             const box = document.getElementById('dynamicQrContainer');
             if (!box) return;
@@ -2346,8 +2434,8 @@
             textarea.select();
             document.execCommand('copy');
             const btn = document.getElementById('btnCopyMobile');
-            btn.innerHTML = '<span>✅</span> ¡Copiado!';
-            setTimeout(() => { btn.innerHTML = '<span>📋</span> Copiar Informe'; }, 1800);
+            btn.innerHTML = '<span>âœ…</span> Â¡Copiado!';
+            setTimeout(() => { btn.innerHTML = '<span>ðŸ“‹</span> Copiar Informe'; }, 1800);
         }
 
         function refuelCar(laneId) {
@@ -2362,7 +2450,7 @@
             const customTitle = document.getElementById('cfgAppTitle').value.trim();
             if (customTitle) {
                 appState.appTitle = customTitle.toUpperCase();
-                document.getElementById('appMainTitle').innerHTML = `<span>${appState.appTitle}</span><span class="text-[10px] text-slate-400 font-normal">✏️</span>`;
+                document.getElementById('appMainTitle').innerHTML = `<span>${appState.appTitle}</span><span class="text-[10px] text-slate-400 font-normal">âœï¸</span>`;
                 document.title = appState.appTitle;
             }
             appState.targetLaps = Math.max(1, parseInt(document.getElementById('cfgTargetLaps').value, 10) || 25);
@@ -2383,10 +2471,10 @@
         function switchTab(tabId) {
             ['live', 'sectors', 'analytics', 'rotation', 'mobile', 'config'].forEach(id => {
                 document.getElementById(`view-${id}`).classList.add('hidden');
-                document.getElementById(`tabBtn-${id}`).className = 'px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold text-slate-400 hover:text-white transition cursor-pointer shrink-0';
+                document.getElementById(`tabBtn-${id}`).className = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0';
             });
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
-            document.getElementById(`tabBtn-${tabId}`).className = 'px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold bg-sky-600 text-white transition cursor-pointer shrink-0';
+            document.getElementById(`tabBtn-${tabId}`).className = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-black bg-sky-600 text-white shadow-lg shadow-sky-600/30 border border-sky-400 transition cursor-pointer shrink-0';
             if (tabId === 'sectors') renderSectorAnalysisTable();
             if (tabId === 'analytics') {
                 renderConsistencyCards();
@@ -2434,7 +2522,7 @@
             rebuildChartDatasets();
             updateSingleDriverAnalytics();
             updateMobilePitWallView();
-            document.getElementById('liveLogBody').innerHTML = '<tr><td colspan="4" class="py-6 text-center text-slate-500 font-mono">Sesión reiniciada. Listo para salida F1...</td></tr>';
+            document.getElementById('liveLogBody').innerHTML = '<tr><td colspan="4" class="py-6 text-center text-slate-500 font-mono">SesiÃ³n reiniciada. Listo para salida F1...</td></tr>';
         }
 
         function exportCSV() {
@@ -2461,7 +2549,7 @@
             }
         }
 
-        // Animación continua de los N coches sobre su propio carril paralelo en el mapa SVG
+        // AnimaciÃ³n continua de los N coches sobre su propio carril paralelo en el mapa SVG
         function animateRadarGPS() {
             const path = document.getElementById('radarTrackPath');
             if (path) {
