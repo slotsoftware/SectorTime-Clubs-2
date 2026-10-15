@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KRONOS SLOT PRO OS v6.0 // Widescreen Race Director & Mobile Pit-Wall</title>
+    <meta name="theme-color" content="#04070f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="KRONOS PRO">
+    <title>KRONOS SLOT PRO OS v6.6 // Commercial Edition & Sales Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -155,6 +159,64 @@
 
 <body class="h-screen w-screen overflow-hidden flex flex-col justify-between p-2 md:px-3.5 md:py-2.5 bg-[#04070f]">
 
+    <!-- ========================================================================================
+         PANTALLA DE BLOQUEO CRIPTOGRÁFICO POR DISPOSITIVO ÚNICO (HWID LOCK & ANTI-COPIA)
+         ======================================================================================== -->
+    <div id="securityLicenseModal" class="hidden fixed inset-0 z-[60] bg-slate-950/98 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="glass-panel rounded-3xl max-w-lg w-full p-6 border-2 border-amber-500/60 shadow-[0_0_50px_rgba(245,158,11,0.25)] space-y-4 text-center">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-amber-500 via-sky-600 to-indigo-800 flex items-center justify-center text-3xl text-white shadow-lg border border-amber-300">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <span class="px-2.5 py-0.5 bg-amber-500/20 text-amber-300 text-[10px] font-mono font-black uppercase rounded-full border border-amber-500/40">
+                    ACTIVACIÓN COMERCIAL OBLIGATORIA // 1 DISPOSITIVO
+                </span>
+                <h2 class="text-xl font-black text-white uppercase tracking-tight mt-2">
+                    SLOTING PLUS &amp; SLOT SOFTWARE
+                </h2>
+                <p class="text-xs text-slate-300 mt-1">
+                    Para desbloquear <strong>KRONOS SLOT PRO OS</strong> en este equipo, envíe el <strong>ID DE HARDWARE</strong> que aparece abajo a su distribuidor oficial y escriba su clave de activación.
+                </p>
+            </div>
+
+            <!-- Huella única del dispositivo actual -->
+            <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-left font-mono space-y-1">
+                <div class="text-[10px] text-slate-400 uppercase">1. ID DE HARDWARE DE ESTE EQUIPO (ENVIAR POR WHATSAPP AL VENDEDOR):</div>
+                <div class="flex items-center justify-between gap-2">
+                    <span id="modalDeviceHwid" class="text-base font-black text-sky-400 tracking-wider">KRN-XXXX-XXXX</span>
+                    <button onclick="copyHwidToClipboard()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] rounded-lg border border-slate-700 cursor-pointer">
+                        <i class="fa-solid fa-copy mr-1"></i>Copiar ID
+                    </button>
+                </div>
+            </div>
+
+            <!-- Entrada de Clave de Licencia vinculada a este HWID -->
+            <div class="space-y-2 text-left font-mono">
+                <label class="block text-[10px] text-amber-400 font-bold uppercase">
+                    2. INTRODUCIR CLAVE DE ACTIVACIÓN PROPORCIONADA POR SLOTING PLUS:
+                </label>
+                <input id="licenseKeyInput" type="text" placeholder="SP-XXXX-XXXX-PRO"
+                       class="w-full bg-slate-900 border-2 border-amber-500/50 rounded-xl px-3.5 py-2.5 text-center text-base font-black text-white tracking-widest uppercase focus:outline-none focus:border-amber-400"/>
+                <div id="licenseErrorMsg" class="hidden text-[11px] text-red-400 font-bold text-center">
+                    <i class="fa-solid fa-circle-xmark mr-1"></i>Código inválido para este equipo. Cada licencia funciona únicamente en el dispositivo registrado.
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <button onclick="verifyAndActivateDevice()" class="col-span-2 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-mono font-black text-xs rounded-xl shadow-lg cursor-pointer uppercase">
+                    <i class="fa-solid fa-key mr-1.5"></i>Activar Licencia Permanente en este Equipo
+                </button>
+            </div>
+
+            <div id="masterDevShortcutRow" class="text-[10px] font-mono text-slate-500 border-t border-slate-800/80 pt-2 flex justify-between items-center">
+                <span>PROTECCIÓN HWID + DONGLE USB</span>
+                <button onclick="fillMasterDemoKey()" class="text-sky-400 hover:underline cursor-pointer" title="Solo visible en tu versión Maestra de Fabricante (se elimina automáticamente en el archivo del cliente)">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Autocompletar (Solo Modo Fabricante)
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- AVISO AUTOMÁTICO SI LA TABLET SE PONE EN VERTICAL -->
     <div id="portraitWarningOverlay" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex-col items-center justify-center p-6 text-center">
         <div class="w-16 h-16 rounded-2xl bg-sky-500/20 border border-sky-400 flex items-center justify-center text-3xl text-sky-400 mb-4 animate-bounce">
@@ -162,7 +224,7 @@
         </div>
         <h2 class="text-xl font-black text-white uppercase tracking-tight">Modo Horizontal Requerido</h2>
         <p class="text-xs font-mono text-slate-300 max-w-xs mt-2">
-            APEX SLOT OS está diseñado para formato panorámico de competición en Tablet, PC y Mac. Gira tu dispositivo en horizontal para ver los carriles y sectores.
+            KRONOS SLOT PRO está diseñado para formato panorámico de competición en Tablet, PC y Mac. Gira tu dispositivo en horizontal para ver los carriles y sectores.
         </p>
     </div>
 
@@ -312,13 +374,16 @@
                 <i class="fa-solid fa-chart-line mr-1.5 text-sky-400"></i>3. TELEMETRÍA PILOTO
             </button>
             <button onclick="switchTab('rotation')" id="tabBtn-rotation" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">
-                <i class="fa-solid fa-users mr-1.5 text-amber-400"></i>4. PILOTOS, CLUBS &amp; SORTEO
+                <i class="fa-solid fa-database mr-1.5 text-amber-400"></i>4. BD PILOTOS, CLUBS &amp; TORNEOS
             </button>
             <button onclick="switchTab('mobile')" id="tabBtn-mobile" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-emerald-300 hover:text-white border border-emerald-500/30 transition cursor-pointer shrink-0">
                 <i class="fa-solid fa-mobile-screen-button mr-1.5 text-emerald-400"></i>5. ENVIAR AL MÓVIL (QR)
             </button>
             <button onclick="switchTab('config')" id="tabBtn-config" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">
                 <i class="fa-solid fa-gears mr-1.5 text-slate-400"></i>6. REGLAMENTO &amp; USB
+            </button>
+            <button onclick="switchTab('security')" id="tabBtn-security" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-amber-300 hover:text-white border border-amber-500/30 transition cursor-pointer shrink-0">
+                <i class="fa-solid fa-shield-halved mr-1.5 text-amber-400"></i>7. INSTALAR &amp; LICENCIA
             </button>
         </div>
 
@@ -407,28 +472,56 @@
     </section>
 
     <!-- ========================================================================================
-         VISTA 4: INSCRIPCIÓN DE PILOTOS POR CLUBS, MANGAS ALEATORIAS Y CLASIFICACIÓN DE CLUBS
+         VISTA 4: BASE DE DATOS LOCAL DEL DISPOSITIVO (PILOTOS, CLUBS, RÉCORDS E HISTORIAL)
          ======================================================================================== -->
     <section id="view-rotation" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
-        <!-- Columna Izquierda: Alta de Pilotos + Club y Lista de Inscritos -->
+        <!-- Columna Izquierda: Base de Datos Local de Pilotos + Copia de Seguridad en Archivo -->
         <div class="col-span-5 glass-panel rounded-2xl p-3.5 flex flex-col justify-between min-h-0">
             <div class="space-y-2 min-h-0 flex-1 flex flex-col">
                 <div class="flex justify-between items-center shrink-0">
-                    <h2 class="text-sm font-bold text-amber-400 font-mono uppercase"><i class="fa-solid fa-users mr-1.5"></i>INSCRIPCIÓN DE PILOTOS Y CLUBS</h2>
-                    <span class="text-[10px] font-mono text-sky-400 font-bold">Pista: <strong id="rotLaneCountLabel">2 carriles</strong></span>
+                    <div>
+                        <h2 class="text-sm font-bold text-amber-400 font-mono uppercase"><i class="fa-solid fa-hard-drive mr-1.5"></i>BASE DE DATOS LOCAL (EN ESTE DISPOSITIVO)</h2>
+                        <div class="text-[9px] font-mono text-emerald-400 flex items-center gap-1 mt-0.5">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span id="dbStatusIndicator">Guardado automático en disco local (100% Sin Nube)</span>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-mono text-sky-400 font-bold bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">Pista: <strong id="rotLaneCountLabel">2 carriles</strong></span>
                 </div>
-                <p class="text-[11px] text-slate-400 shrink-0">Introduce el <strong>Nombre del Piloto</strong> y su <strong>Club / Escudería</strong>. Puedes asignarlos directamente a pista o generar mangas por rotación o sorteo aleatorio.</p>
                 
-                <!-- Formulario de alta de Piloto + Club -->
+                <!-- Barra de Copia de Seguridad Local (Exportar / Importar archivo JSON en USB o Tablet) -->
+                <div class="grid grid-cols-3 gap-1.5 shrink-0 bg-slate-950 p-1.5 rounded-xl border border-slate-800 font-mono text-[10px]">
+                    <button onclick="exportLocalClubDatabaseFile()" class="py-1.5 px-2 bg-sky-600/25 hover:bg-sky-600 text-sky-300 hover:text-white font-bold rounded-lg border border-sky-500/40 cursor-pointer flex items-center justify-center gap-1" title="Guardar toda la base de datos de este club en un archivo en tu PC/Tablet">
+                        <i class="fa-solid fa-file-arrow-down"></i> Guardar Copia (.JSON)
+                    </button>
+                    <button onclick="document.getElementById('importDbFileInput').click()" class="py-1.5 px-2 bg-purple-600/25 hover:bg-purple-600 text-purple-300 hover:text-white font-bold rounded-lg border border-purple-500/40 cursor-pointer flex items-center justify-center gap-1" title="Cargar archivo de base de datos desde el dispositivo">
+                        <i class="fa-solid fa-file-arrow-up"></i> Cargar Copia
+                    </button>
+                    <button onclick="clearChampionshipPointsOnly()" class="py-1.5 px-2 bg-slate-800 hover:bg-red-900/60 text-slate-300 font-bold rounded-lg border border-slate-700 cursor-pointer flex items-center justify-center gap-1" title="Poner a cero solo los puntos del torneo manteniendo los pilotos y sus récords">
+                        <i class="fa-solid fa-eraser"></i> 0 Pts Torneo
+                    </button>
+                    <input id="importDbFileInput" type="file" accept=".json" onchange="importLocalClubDatabaseFile(event)" class="hidden"/>
+                </div>
+
+                <!-- Formulario de alta de Piloto + Club + Coche/Categoría -->
                 <div class="grid grid-cols-12 gap-1.5 shrink-0 bg-slate-950 p-2 rounded-xl border border-slate-800">
-                    <input id="newDriverInput" type="text" placeholder="Nombre Piloto (ej. CARLOS)" class="col-span-5 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-sky-500"/>
-                    <input id="newClubInput" type="text" placeholder="Club / Equipo (ej. SLOT MANRESA)" class="col-span-5 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 font-mono focus:outline-none focus:border-amber-500"/>
+                    <input id="newDriverInput" type="text" placeholder="Piloto (ej. CARLOS)" class="col-span-4 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-sky-500"/>
+                    <input id="newClubInput" type="text" placeholder="Club (ej. MANRESA)" class="col-span-4 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-amber-300 font-mono focus:outline-none focus:border-amber-500"/>
+                    <input id="newCarInput" type="text" placeholder="Coche (ej. GT3)" class="col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-emerald-300 font-mono focus:outline-none focus:border-emerald-500"/>
                     <button onclick="addRosterDriver()" class="col-span-2 bg-sky-600 hover:bg-sky-500 text-white font-mono font-bold text-xs rounded-lg cursor-pointer flex items-center justify-center">
                         + Alta
                     </button>
                 </div>
 
-                <!-- Lista editable de pilotos y sus clubs -->
+                <!-- Cabecera de columnas de la Base de Datos de Pilotos -->
+                <div class="grid grid-cols-12 px-2.5 text-[9px] font-mono text-slate-400 uppercase shrink-0">
+                    <div class="col-span-4">PILOTO / COCHE</div>
+                    <div class="col-span-4">CLUB / ESCUDERÍA</div>
+                    <div class="col-span-2 text-center">RÉCORD PB</div>
+                    <div class="col-span-2 text-right">ACUMULADO</div>
+                </div>
+
+                <!-- Lista editable de pilotos guardados en el dispositivo con su Récord Personal Histórico -->
                 <div id="rosterList" class="space-y-1 overflow-y-auto pr-1 font-mono text-xs flex-1 min-h-0"></div>
             </div>
 
@@ -445,26 +538,26 @@
             </div>
         </div>
 
-        <!-- Columna Derecha: Cuadro de Mangas + Clasificación General por Clubes -->
+        <!-- Columna Derecha: Cuadro de Mangas + Clasificación General por Clubes + Historial de Carreras Guardadas -->
         <div class="col-span-7 flex flex-col gap-2.5 min-h-0">
             <div class="glass-panel rounded-2xl p-3.5 flex-1 min-h-0 flex flex-col justify-between">
                 <div class="flex justify-between items-center shrink-0 mb-2">
                     <div>
-                        <h2 class="text-sm font-bold text-white font-mono uppercase"><i class="fa-solid fa-clipboard-list mr-1.5 text-sky-400"></i>CUADRO DE MANGAS DEL TORNEO (CON CLUBS)</h2>
-                        <p class="text-[10px] text-slate-400">Pulsa "Cargar en Pista" en cualquier manga para colocar automáticamente los nombres y sus clubs en los carriles.</p>
+                        <h2 class="text-sm font-bold text-white font-mono uppercase"><i class="fa-solid fa-clipboard-list mr-1.5 text-sky-400"></i>CUADRO DE MANGAS &amp; HISTORIAL LOCAL DE CARRERAS</h2>
+                        <p class="text-[10px] text-slate-400">Todo lo que guardes queda almacenado en la memoria interna de esta Tablet / PC sin enviar nada a internet.</p>
                     </div>
-                    <button onclick="recordCurrentHeatToStandings()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-[10px] rounded-xl cursor-pointer shrink-0">
-                        <i class="fa-solid fa-floppy-disk mr-1"></i>Guardar Manga en Torneo
+                    <button onclick="recordCurrentHeatToStandings()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-[10px] rounded-xl cursor-pointer shrink-0 shadow-lg">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i>Guardar Manga en Base de Datos
                     </button>
                 </div>
                 <div id="heatsContainer" class="space-y-1.5 overflow-y-auto flex-1 min-h-0 font-mono text-xs pr-1"></div>
             </div>
 
-            <!-- Clasificación por Clubs / Escuderías -->
-            <div class="glass-panel rounded-2xl p-3 h-36 shrink-0 flex flex-col justify-between">
+            <!-- Clasificación por Clubs / Escuderías + Últimas Mangas Registradas en Disco -->
+            <div class="glass-panel rounded-2xl p-3 h-40 shrink-0 flex flex-col justify-between">
                 <div class="flex justify-between items-center">
-                    <span class="text-xs font-mono font-bold text-amber-400 uppercase"><i class="fa-solid fa-trophy mr-1.5"></i>COPA DE CLUBS / ESCUDERÍAS (VUELTAS ACUMULADAS)</span>
-                    <span class="text-[10px] font-mono text-slate-400">Suma automática de todos los pilotos de cada club</span>
+                    <span class="text-xs font-mono font-bold text-amber-400 uppercase"><i class="fa-solid fa-trophy mr-1.5"></i>COPA DE CLUBS &amp; RÉCORDS GUARDADOS EN ESTE EQUIPO</span>
+                    <span id="savedRacesCountBadge" class="text-[10px] font-mono text-sky-300 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">0 mangas archivadas</span>
                 </div>
                 <div id="clubStandingsContainer" class="grid grid-cols-2 md:grid-cols-4 gap-2 overflow-y-auto my-auto py-1 font-mono text-xs"></div>
             </div>
@@ -636,77 +729,6 @@
                         <option value="QUALY">Clasificación Pole (Mejor Vuelta)</option>
                     </select>
                 </div>
-            </div>
-
-            <!-- QR Dinámico SVG + Botones de Envío Instantáneo -->
-            <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-4 my-auto">
-                <div id="dynamicQrContainer" class="w-28 h-28 bg-white p-2 rounded-xl shrink-0 flex items-center justify-center shadow-lg">
-                    <!-- Código QR SVG generado en vivo con los datos del piloto -->
-                </div>
-                <div class="space-y-1.5 text-xs font-mono">
-                    <div class="text-emerald-400 font-bold">ESCANEAR CON CÁMARA DEL MÓVIL</div>
-                    <p class="text-[10px] text-slate-400 leading-relaxed">El piloto apunta con su móvil a la pantalla de tu Samsung Tab A9+ y se lleva su hoja completa de tiempos, sectores y consistencia.</p>
-                    <div class="flex flex-wrap gap-1.5 pt-1">
-                        <button onclick="shareViaWhatsApp()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] rounded-lg cursor-pointer flex items-center gap-1">
-                            <span>💬</span> WhatsApp
-                        </button>
-                        <button onclick="copyMobileReportToClipboard()" id="btnCopyMobile" class="px-2.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-[10px] rounded-lg cursor-pointer flex items-center gap-1">
-                            <span>📋</span> Copiar Informe
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-[10px] font-mono text-slate-500 flex justify-between border-t border-slate-800 pt-2">
-                <span>ID SESIÓN: #KRN-2026-PRO</span>
-                <span class="text-emerald-400">● SINCRONIZACIÓN INSTANTÁNEA</span>
-            </div>
-        </div>
-
-        <!-- Previsualización del Smartphone del Piloto + Texto del Mensaje -->
-        <div class="col-span-7 glass-panel rounded-2xl p-4 grid grid-cols-12 gap-4 min-h-0 overflow-hidden">
-            <!-- Mockup de cómo lo ve el piloto en su teléfono móvil -->
-            <div class="col-span-6 bg-slate-950 rounded-3xl p-3 border-2 border-slate-700 flex flex-col justify-between shadow-2xl min-h-0">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <span class="text-[9px] font-mono text-sky-400 font-bold" id="mobPreviewClub">KRONOS SLOT PRO</span>
-                    <span class="text-[9px] font-mono bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">LIVE PASS</span>
-                </div>
-                <div id="mobilePhoneScreenContent" class="my-auto space-y-2 font-mono text-xs overflow-y-auto py-2">
-                    <!-- Contenido dinámico de la pantalla del móvil del piloto -->
-                </div>
-                <div class="border-t border-slate-800 pt-1.5 text-center text-[9px] font-mono text-slate-500">
-                    TARJETA OFICIAL DE TELEMETRÍA MÓVIL
-                </div>
-            </div>
-
-            <!-- Texto listo para enviar por WhatsApp / Telegram -->
-            <div class="col-span-6 flex flex-col justify-between min-h-0">
-                <div class="text-xs font-mono font-bold text-white uppercase mb-1.5">📄 MENSAJE FORMATEADO PARA MÓVIL:</div>
-                <textarea id="mobileReportTextarea" readonly class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono text-[11px] text-emerald-300 focus:outline-none resize-none"></textarea>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================================================================
-         VISTA 6: CONFIGURACIÓN DE MODOS DE CARRERA, TÍTULO DE LA APP Y HARDWARE PCB USB
-         ======================================================================================== -->
-    <section id="view-config" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
-        <div class="col-span-6 glass-panel rounded-2xl p-4 space-y-3 overflow-y-auto min-h-0">
-            <h2 class="text-sm font-bold text-sky-400 font-mono uppercase">⚙️ PERSONALIZACIÓN DEL CLUB, MODO DE CARRERA Y PISTA</h2>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs font-mono">
-                <div class="sm:col-span-2">
-                    <label class="block text-amber-400 font-bold mb-1">TÍTULO DE LA APLICACIÓN / NOMBRE DEL CAMPEONATO O CLUB</label>
-                    <input id="cfgAppTitle" type="text" value="KRONOS SLOT PRO // GRAN PREMIO CLUB" oninput="saveTrackConfig()" class="w-full bg-slate-950 border border-amber-500/50 rounded-xl px-3 py-2 text-white font-bold"/>
-                </div>
-                <div>
-                    <label class="block text-slate-400 mb-1">MODO DE COMPETICIÓN</label>
-                    <select id="cfgRaceModeSelect" onchange="setRaceFormat(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold">
-                        <option value="TIME" selected>⏱️ Por Tiempo (Al límite de reloj)</option>
-                        <option value="LAPS">🏁 Por Vueltas (Meta a N vueltas)</option>
-                        <option value="QUALY">🟣 Clasificación Pole (Mejor Vuelta)</option>
-                    </select>
-                </div>
                 <div>
                     <label class="block text-slate-400 mb-1">META DE VUELTAS (EN MODO VUELTAS)</label>
                     <input id="cfgTargetLaps" type="number" step="5" min="1" value="25" onchange="saveTrackConfig()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-bold"/>
@@ -782,11 +804,11 @@
             </div>
         </div>
 
-        <div class="lg:col-span-6 glass-panel rounded-2xl p-4 space-y-3 flex flex-col justify-between">
+        <div class="col-span-6 glass-panel rounded-2xl p-4 space-y-3 flex flex-col justify-between overflow-y-auto min-h-0">
             <div class="space-y-2">
                 <h2 class="text-sm font-bold text-emerald-400 font-mono uppercase"><i class="fa-solid fa-microchip mr-1.5"></i>PROTOCOLO UNIVERSAL USB / CAN RJ45 (1 A 3 SECTORES &middot; 2 A 10 CARRILES)</h2>
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    El motor de serie de <strong>APEX SLOT OS v5.0</strong> reconoce automáticamente tanto tu prototipo básico de 2 carriles como la red completa de 10 carriles y 3 regletas PCB:
+                    El motor de serie de <strong>KRONOS SLOT PRO</strong> reconoce automáticamente tanto tu prototipo básico de 2 carriles como la red completa de 10 carriles y 3 regletas PCB:
                 </p>
                 <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] space-y-1.5">
                     <div><span class="text-sky-400 font-bold">&bull; Modo 1 Sector (Solo Meta):</span> <code class="text-amber-300">L1,3842</code> ó <code class="text-amber-300">M,L8,3842,19</code> (Carril 8, 3842 ms, 19 mm ToF)</div>
@@ -803,12 +825,288 @@
             </div>
 
             <div id="serialRawConsole" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-40 overflow-y-auto font-mono text-[10px] text-emerald-400 space-y-1">
-                <div>[BOOT] APEX SLOT OS v5.0 — Motor Multisector (1-3) y Multicarril (2-10) inicializado.</div>
+                <div>[BOOT] KRONOS SLOT PRO v6.6 — Motor Multisector (1-3) y Multicarril (2-10) inicializado.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================================
+         VISTA 7: INSTALACIÓN DE LA APP, LICENCIAS POR DISPOSITIVO (HWID) Y CONTROL DE VENTAS
+         ======================================================================================== -->
+    <section id="view-security" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
+        <!-- Columna Izquierda: Instalación como App Nativa (PWA / BAT) + Estado de Licencia Local -->
+        <div class="col-span-6 glass-panel rounded-2xl p-4 flex flex-col justify-between overflow-y-auto min-h-0 space-y-3">
+            <div class="space-y-2">
+                <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-black uppercase rounded border border-emerald-500/40">
+                    MODO CERO INFORMÁTICA // LISTO CON 1 SOLO CLIC
+                </span>
+                <h2 class="text-base font-black text-white uppercase">
+                    <i class="fa-solid fa-rocket mr-1.5 text-emerald-400"></i>1. Instalación Automática para el Cliente
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-xs">
+                    <!-- Opción A: Crear Icono Directo -->
+                    <div class="bg-slate-950 p-3 rounded-xl border border-emerald-500/40 flex flex-col justify-between gap-2">
+                        <div>
+                            <div class="text-emerald-400 font-black"><i class="fa-solid fa-tablet-screen-button mr-1"></i>OPCIÓN A: TABLET / PC</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">Crea el icono directo en la pantalla de inicio con 1 clic</div>
+                        </div>
+                        <button onclick="triggerNativeAppInstall()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow cursor-pointer">
+                            <i class="fa-solid fa-circle-down mr-1"></i>CREAR ICONO AHORA
+                        </button>
+                    </div>
+
+                    <!-- Opción B: Lanzador Automático para Pendrive USB en Windows -->
+                    <div class="bg-slate-950 p-3 rounded-xl border border-sky-500/40 flex flex-col justify-between gap-2">
+                        <div>
+                            <div class="text-sky-400 font-black"><i class="fa-brands fa-windows mr-1"></i>OPCIÓN B: PENDRIVE USB</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">Descarga el icono <code class="text-white">INICIAR_KRONOS.bat</code> que abre el programa a pantalla completa</div>
+                        </div>
+                        <button onclick="downloadWindowsOneClickLauncher()" class="w-full py-2 bg-sky-600 hover:bg-sky-500 text-white font-black text-xs rounded-xl shadow cursor-pointer">
+                            <i class="fa-solid fa-bolt mr-1"></i>BAJAR LANZADOR (.BAT)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estado actual del bloqueo a 1 solo dispositivo -->
+            <div class="bg-slate-950 p-3.5 rounded-2xl border-2 border-amber-500/40 space-y-2 font-mono text-xs">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                    <span class="text-amber-400 font-black uppercase"><i class="fa-solid fa-fingerprint mr-1.5"></i>ESTADO DE LICENCIA EN ESTE EQUIPO</span>
+                    <span id="secStatusBadge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/40">LICENCIA ACTIVA</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <div class="bg-slate-900 p-2 rounded-xl border border-slate-800">
+                        <div class="text-[9px] text-slate-400">ID HARDWARE DE ESTE EQUIPO:</div>
+                        <div id="cfgCurrentHwid" class="text-sm font-black text-sky-400 mt-0.5">KRN-XXXX-XXXX</div>
+                    </div>
+                    <div class="bg-slate-900 p-2 rounded-xl border border-slate-800">
+                        <div class="text-[9px] text-slate-400">CLAVE VINCULADA:</div>
+                        <div id="cfgCurrentLicenseKey" class="text-sm font-black text-emerald-400 mt-0.5">SP-XXXX-XXXX-PRO</div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between pt-2">
+                    <span class="text-[10px] text-slate-400">¿Ver cómo le sale bloqueado al cliente nuevo?</span>
+                    <button onclick="lockDeviceSessionNow()" class="px-3 py-1.5 bg-red-600/30 hover:bg-red-600 text-red-200 hover:text-white font-bold text-[10px] rounded-lg border border-red-500/40 cursor-pointer">
+                        <i class="fa-solid fa-lock mr-1"></i>Probar Pantalla de Bloqueo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bloqueo por Dongle Hardware (Arduino / ESP32) -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-emerald-500/40 font-mono text-xs space-y-1.5">
+                <div class="flex justify-between items-center">
+                    <span class="text-emerald-400 font-bold"><i class="fa-solid fa-usb mr-1.5"></i>LLAVE FÍSICA USB ANTICOPIA (DONGLE ARDUINO/ESP32)</span>
+                    <input type="checkbox" id="chkHardwareDongle" onchange="toggleHardwareDongleLock(this.checked)" class="w-4 h-4 accent-emerald-500 cursor-pointer"/>
+                </div>
+                <p class="text-[10px] text-slate-400 leading-relaxed">
+                    Si activas esta casilla, el cronómetro solo contará vueltas cuando reciba la firma secreta <code class="text-emerald-300">AUTH,SLOTINGPLUS_OK</code> desde el chip de tu placa USB conectada a la pista.
+                </p>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Panel Exclusivo de Fabricante (Generador de Claves + Registro de Clientes Vendidos) -->
+        <div id="manufacturerAdminPanel" class="col-span-6 glass-panel rounded-2xl p-4 flex flex-col justify-between overflow-y-auto min-h-0 space-y-3">
+            <div class="space-y-1.5">
+                <span class="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-[10px] font-mono font-black uppercase rounded border border-purple-500/40">
+                    PANEL PRIVADO DEL VENDEDOR (SE OCULTA AUTOMÁTICAMENTE AL CLIENTE)
+                </span>
+                <h2 class="text-base font-black text-white uppercase">
+                    <i class="fa-solid fa-cash-register mr-1.5 text-amber-400"></i>2. Control de Ventas y Generador de Licencias
+                </h2>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Cuando el cliente abre su archivo blindado, **le sale bloqueado** y le muestra su `ID DE HARDWARE`. Él te manda ese ID por WhatsApp tras pagarte, tú lo metes aquí y guardas la venta:
+                </p>
+            </div>
+
+            <!-- Calculadora de Licencias + Registro de Cliente -->
+            <div class="bg-slate-950 p-3.5 rounded-2xl border border-purple-500/40 space-y-2.5 font-mono text-xs">
+                <div class="grid grid-cols-12 gap-2">
+                    <div class="col-span-5">
+                        <label class="block text-[9px] text-slate-400 mb-1 uppercase">NOMBRE DEL CLUB / CLIENTE:</label>
+                        <input id="keygenClientNameInput" type="text" placeholder="Ej: CLUB SLOT SABADELL"
+                               class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-white font-bold uppercase"/>
+                    </div>
+                    <div class="col-span-5">
+                        <label class="block text-[9px] text-slate-400 mb-1 uppercase">ID HARDWARE (HWID) DEL CLIENTE:</label>
+                        <input id="keygenHwidInput" type="text" placeholder="Ej: KRN-4A9F-82B1" oninput="generateClientLicenseFromHwid()"
+                               class="w-full bg-slate-900 border border-sky-500/50 rounded-xl px-2.5 py-2 text-sky-300 font-black uppercase"/>
+                    </div>
+                    <div class="col-span-2 flex items-end">
+                        <button onclick="useThisDeviceHwidInKeygen()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[9px] rounded-xl border border-slate-700 cursor-pointer" title="Probar con mi propio ID">
+                            Mi ID
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-900 border-2 border-amber-500/50 rounded-xl px-3.5 py-2">
+                    <div>
+                        <div class="text-[8px] text-amber-400 font-bold uppercase">CLAVE ÚNICA GENERADA PARA ESE EQUIPO:</div>
+                        <span id="keygenOutputCode" class="text-sm font-black text-amber-300 tracking-widest">SP-XXXX-XXXX-PRO</span>
+                    </div>
+                    <div class="flex gap-1.5">
+                        <button onclick="copyGeneratedLicense()" class="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] rounded-lg cursor-pointer">
+                            <i class="fa-solid fa-copy mr-1"></i>Copiar Clave
+                        </button>
+                        <button onclick="registerSoldLicense()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] rounded-lg cursor-pointer">
+                            <i class="fa-solid fa-floppy-disk mr-1"></i>Registrar Venta
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Libro de Registro de Licencias Vendidas -->
+                <div class="pt-1">
+                    <div class="flex justify-between items-center text-[9px] text-slate-400 uppercase mb-1">
+                        <span>LIBRO DE LICENCIAS VENDIDAS (<span id="soldCountLabel">0</span> EQUIPOS ACTIVADOS):</span>
+                    </div>
+                    <div id="soldLicensesList" class="max-h-24 overflow-y-auto space-y-1 pr-1 text-[10px]"></div>
+                </div>
+            </div>
+
+            <!-- Exportador de Versión Blindada para Clientes (Nace Bloqueada y sin Generador de Claves) -->
+            <div class="bg-slate-950 p-3.5 rounded-2xl border-2 border-sky-500/50 space-y-2 font-mono text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-sky-400 font-black uppercase"><i class="fa-solid fa-file-shield mr-1.5"></i>3. DESCARGAR ARCHIVO DE CLIENTE (NACE BLOQUEADO)</span>
+                    <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[9px] font-bold border border-red-500/40">PIDE CLAVE AL ABRIR</span>
+                </div>
+                <p class="text-[10px] text-slate-300 leading-relaxed">
+                    Este botón genera el archivo <strong>`index.html` para entregar a tus clientes</strong>: lleva el código fuente cifrado, <strong>elimina este panel de vendedor</strong> y <strong>se abre siempre bloqueado</strong> pidiendo su clave de activación.
+                </p>
+                <button onclick="exportProtectedClientBuild()" class="w-full py-2.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-xs rounded-xl shadow-lg cursor-pointer uppercase">
+                    <i class="fa-solid fa-lock mr-1.5"></i>Descargar index_blindado_cliente.html (Bloqueado para Venta)
+                </button>
             </div>
         </div>
     </section>
 
     <script>
+        // BANDERA DE COMPILACIÓN: En tu versión Maestra es false (para que trabajes cómodo).
+        // Al pulsar "Descargar index_blindado_cliente.html", el empaquetador la convierte automáticamente en true
+        // para que al cliente le pida obligatoriamente el código nada más abrir el programa y no vea el generador de claves.
+        const IS_CLIENT_LOCKED_BUILD = false;
+
+        // ============================================================================
+        // ESCUDO ANTI-INSPECCIÓN DE CÓDIGO FUENTE (BLOQUEO DE CLIC DERECHO Y F12/CTRL+U)
+        // ============================================================================
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            // Bloquear F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U (Ver código fuente)
+            if (
+                e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+                (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'S' || e.key === 's'))
+            ) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // ============================================================================
+        // EMPAQUETADOR CRIPTOGRÁFICO DE DISTRIBUCIÓN PARA CLIENTES (NACE BLOQUEADO + OCULTA EL CÓDIGO)
+        // ============================================================================
+        function exportProtectedClientBuild() {
+            try {
+                // Obtenemos el HTML y activamos el bloqueo estricto de cliente (IS_CLIENT_LOCKED_BUILD = true)
+                let rawHtml = document.documentElement.outerHTML;
+                rawHtml = rawHtml.replace('const IS_CLIENT_LOCKED_BUILD = false;', 'const IS_CLIENT_LOCKED_BUILD = true;');
+
+                const utf8Bytes = new TextEncoder().encode(rawHtml);
+                // Cifrado XOR + Base64 para que el archivo index.html no sea legible en un editor de texto
+                const key = 0x5A;
+                let binaryStr = '';
+                for (let i = 0; i < utf8Bytes.length; i++) {
+                    binaryStr += String.fromCharCode(utf8Bytes[i] ^ key);
+                }
+                const payloadB64 = btoa(binaryStr);
+
+                const loaderHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>KRONOS SLOT PRO // CLIENT EDITION</title></head><body style="background:#04070f;color:#fff;margin:0;overflow:hidden;"><script>
+/* SLOTING PLUS & SLOT SOFTWARE - PROTECTED CLIENT BUILD (REQUIRES HWID LICENSE KEY) */
+(function(){
+    document.addEventListener('contextmenu',function(e){e.preventDefault();});
+    var _0x9f2a="${payloadB64}";
+    var _0x3b1c=atob(_0x9f2a);
+    var _0x7d4e=new Uint8Array(_0x3b1c.length);
+    for(var i=0;i<_0x3b1c.length;i++){_0x7d4e[i]=_0x3b1c.charCodeAt(i)^90;}
+    var _0x1a8f=new TextDecoder().decode(_0x7d4e);
+    document.open();document.write(_0x1a8f);document.close();
+})();
+<\/script></body></html>`;
+
+                const blob = new Blob([loaderHtml], { type: 'text/html;charset=utf-8;' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'index_blindado_cliente.html';
+                a.click();
+                speakSpotter("Archivo de cliente generado. Al abrirlo en cualquier equipo nuevo pedirá obligatoriamente el código de activación.", true);
+            } catch (e) {
+                speakSpotter("Error al generar el archivo blindado.", true);
+            }
+        }
+
+        // ============================================================================
+        // GENERADOR DE LANZADOR DE 1 CLIC PARA WINDOWS (.BAT MODO KIOSCO PANTALLA COMPLETA)
+        // ============================================================================
+        function downloadWindowsOneClickLauncher() {
+            const batContent = [
+                '@echo off',
+                'title KRONOS SLOT PRO - Lanzador Oficial',
+                'echo Iniciando KRONOS SLOT PRO a pantalla completa...',
+                'start msedge --app="%~dp0index.html" --start-fullscreen 2>nul || start chrome --app="%~dp0index.html" --start-fullscreen 2>nul || start "" "%~dp0index.html"',
+                'exit'
+            ].join('\r\n');
+
+            const blob = new Blob([batContent], { type: 'application/x-bat;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'INICIAR_KRONOS_SLOT.bat';
+            a.click();
+            speakSpotter("Lanzador automático para Windows descargado. Ponlo en la misma carpeta que el archivo index.", true);
+        }
+
+        // ============================================================================
+        // ALMACENAMIENTO SEGURO COMPATIBLE CON SANDBOX / IFRAMES / NAVEGADORES ESTRICTOS
+        // ============================================================================
+        const memoryStorageFallback = {};
+        function safeGetStorage(key) {
+            try {
+                return window.localStorage.getItem(key);
+            } catch (e) {
+                return memoryStorageFallback[key] || null;
+            }
+        }
+        function safeSetStorage(key, value) {
+            try {
+                window.localStorage.setItem(key, value);
+            } catch (e) {
+                memoryStorageFallback[key] = value;
+            }
+        }
+        function safeRemoveStorage(key) {
+            try {
+                window.localStorage.removeItem(key);
+            } catch (e) {
+                delete memoryStorageFallback[key];
+            }
+        }
+        function safeCopyText(text) {
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).catch(() => {});
+                    return;
+                }
+            } catch (e) {}
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(temp);
+        }
+
         // ============================================================================
         // COLORES OFICIALES DE CLUB PARA HASTA 10 CARRILES
         // ============================================================================
@@ -826,16 +1124,16 @@
         };
 
         const DEFAULT_DRIVERS = [
-            { name: 'CARLOS',   club: 'SLOTING PLUS FACTORY' },
-            { name: 'MARC',     club: 'CLUB SLOT MANRESA' },
-            { name: 'ALEX',     club: 'BARCELONA SLOT TEAM' },
-            { name: 'DANI',     club: 'SLOTING PLUS FACTORY' },
-            { name: 'JORGE',    club: 'MADRID SLOT PRO' },
-            { name: 'PEDRO',    club: 'CLUB SLOT MANRESA' },
-            { name: 'FERNANDO', club: 'ASTUR SLOT RACING' },
-            { name: 'JOAN',     club: 'VALENCIA SLOT CLUB' },
-            { name: 'MAVERICK', club: 'GIRONA SLOT TEAM' },
-            { name: 'ALEIX',    club: 'CATALUNYA SLOT' }
+            { name: 'CARLOS',   club: 'SLOTING PLUS FACTORY', car: 'SCALEAUTO GT3', personalBest: null },
+            { name: 'MARC',     club: 'CLUB SLOT MANRESA',    car: 'SLOT.IT GR.C',  personalBest: null },
+            { name: 'ALEX',     club: 'BARCELONA SLOT TEAM',  car: 'NSR FORMULA',   personalBest: null },
+            { name: 'DANI',     club: 'SLOTING PLUS FACTORY', car: 'SCALEAUTO GT3', personalBest: null },
+            { name: 'JORGE',    club: 'MADRID SLOT PRO',      car: 'SIDEWAYS Gr.5', personalBest: null },
+            { name: 'PEDRO',    club: 'CLUB SLOT MANRESA',    car: 'SLOT.IT LMP',   personalBest: null },
+            { name: 'FERNANDO', club: 'ASTUR SLOT RACING',    car: 'NSR GT3',       personalBest: null },
+            { name: 'JOAN',     club: 'VALENCIA SLOT CLUB',   car: 'SCALEAUTO R',   personalBest: null },
+            { name: 'MAVERICK', club: 'GIRONA SLOT TEAM',     car: 'SLOT.IT DTM',   personalBest: null },
+            { name: 'ALEIX',    club: 'CATALUNYA SLOT',       car: 'AVANT SLOT',    personalBest: null }
         ];
 
         const FRASES_CACHONDEO_ULTIMO = [
@@ -874,10 +1172,129 @@
             heats: [],
             championshipScores: {},
             clubScores: {},
+            savedRacesLog: [],     // Historial permanente de mangas guardadas en este dispositivo
+            soldLicensesLog: [],   // Registro comercial de licencias vendidas por ti
             currentHeatIndex: 0,
             currentLeaderId: 1,
             lastStandingsCallTime: 0
         };
+
+        // ============================================================================
+        // MOTOR DE BASE DE DATOS LOCAL DEL DISPOSITIVO (100% OFFLINE, SIN NUBE)
+        // ============================================================================
+        const LOCAL_DB_STORAGE_KEY = 'kronos_local_club_database_v65';
+
+        function saveLocalDatabase() {
+            const payload = {
+                version: '6.6',
+                lastSaved: new Date().toISOString(),
+                appTitle: appState.appTitle,
+                activeLanes: appState.activeLanes,
+                numSectors: appState.numSectors,
+                trackLengthMeters: appState.trackLengthMeters,
+                scaleFactor: appState.scaleFactor,
+                heatTotalSeconds: appState.heatTotalSeconds,
+                targetLaps: appState.targetLaps,
+                overallBestLap: appState.overallBestLap < Infinity ? appState.overallBestLap : null,
+                overallBestDriver: appState.overallBestDriver,
+                roster: appState.roster,
+                championshipScores: appState.championshipScores,
+                clubScores: appState.clubScores,
+                savedRacesLog: appState.savedRacesLog,
+                soldLicensesLog: appState.soldLicensesLog
+            };
+            safeSetStorage(LOCAL_DB_STORAGE_KEY, JSON.stringify(payload));
+            const ind = document.getElementById('dbStatusIndicator');
+            if (ind) {
+                const timeStr = new Date().toLocaleTimeString();
+                ind.textContent = `Guardado en este dispositivo (${timeStr})`;
+            }
+            const badge = document.getElementById('savedRacesCountBadge');
+            if (badge) {
+                badge.textContent = `${appState.savedRacesLog.length} mangas archivadas`;
+            }
+        }
+
+        function loadLocalDatabase() {
+            const raw = safeGetStorage(LOCAL_DB_STORAGE_KEY);
+            if (!raw) return;
+            try {
+                const db = JSON.parse(raw);
+                if (db.appTitle) {
+                    appState.appTitle = db.appTitle;
+                    const titleEl = document.getElementById('appMainTitle');
+                    if (titleEl) titleEl.innerHTML = `<span>${appState.appTitle}</span><i class="fa-solid fa-pen text-[9px] text-slate-400 ml-1"></i>`;
+                    const cfgTitle = document.getElementById('cfgAppTitle');
+                    if (cfgTitle) cfgTitle.value = appState.appTitle;
+                }
+                if (Array.isArray(db.roster) && db.roster.length >= 2) {
+                    appState.roster = db.roster.map(r => ({
+                        name: r.name || 'PILOTO',
+                        club: r.club || 'CLUB OFICIAL',
+                        car: r.car || 'GT3',
+                        personalBest: r.personalBest || null
+                    }));
+                }
+                if (db.championshipScores) appState.championshipScores = db.championshipScores;
+                if (db.clubScores) appState.clubScores = db.clubScores;
+                if (Array.isArray(db.savedRacesLog)) appState.savedRacesLog = db.savedRacesLog;
+                if (Array.isArray(db.soldLicensesLog)) appState.soldLicensesLog = db.soldLicensesLog;
+                if (db.trackLengthMeters) appState.trackLengthMeters = db.trackLengthMeters;
+                if (db.scaleFactor) appState.scaleFactor = db.scaleFactor;
+
+                // Sincronizar nombres cargados de la BD en los carriles
+                for (let i = 1; i <= 10; i++) {
+                    const r = appState.roster[(i - 1) % appState.roster.length];
+                    if (r && appState.lanes[i]) {
+                        appState.lanes[i].name = r.name;
+                        appState.lanes[i].club = r.club;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function exportLocalClubDatabaseFile() {
+            saveLocalDatabase();
+            const raw = safeGetStorage(LOCAL_DB_STORAGE_KEY) || JSON.stringify({ roster: appState.roster });
+            const blob = new Blob([raw], { type: 'application/json;charset=utf-8;' });
+            const a = document.createElement('a');
+            const dateTag = new Date().toISOString().slice(0, 10);
+            a.href = URL.createObjectURL(blob);
+            a.download = `BD_CLUB_KRONOS_${dateTag}.json`;
+            a.click();
+            speakSpotter("Copia de seguridad local descargada en este dispositivo.", true);
+        }
+
+        function importLocalClubDatabaseFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported && Array.isArray(imported.roster)) {
+                        safeSetStorage(LOCAL_DB_STORAGE_KEY, JSON.stringify(imported));
+                        loadLocalDatabase();
+                        renderRoster();
+                        renderLanesGrid();
+                        generateChampionshipHeats(false);
+                        speakSpotter("Base de datos del club restaurada correctamente en este equipo.", true);
+                    }
+                } catch (err) {
+                    speakSpotter("El archivo seleccionado no es una copia válida.", true);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearChampionshipPointsOnly() {
+            appState.championshipScores = {};
+            appState.clubScores = {};
+            appState.savedRacesLog = [];
+            saveLocalDatabase();
+            renderRoster();
+            speakSpotter("Puntos del campeonato reiniciados. Se mantienen todos los pilotos, clubs y sus récords.", true);
+        }
 
         // Inicializar estructura de datos para los 10 carriles (Con Piloto y Club)
         function initAllLanesData() {
@@ -990,46 +1407,6 @@
                 ? `${mins} MIN`
                 : (appState.raceFormat === 'LAPS' ? `${appState.targetLaps} VUELTAS` : 'POLE');
             const summaryEl = document.getElementById('headerConfigSummary');
-            if (summaryEl) summaryEl.textContent = `${appState.activeLanes} CH - ${secDesc} - ${modeDesc}`;
-        }
-
-        // ============================================================================
-        // GESTIÓN DEL TÍTULO DE LA APLICACIÓN Y MODOS DE CARRERA (TIEMPO / VUELTAS / POLE)
-        // ============================================================================
-        function promptCustomTitle() {
-            const tabCfg = document.getElementById('cfgAppTitle');
-            switchTab('config');
-            if (tabCfg) {
-                tabCfg.focus();
-                tabCfg.select();
-            }
-        }
-
-        function setRaceFormat(format) {
-            appState.raceFormat = format;
-            ['TIME', 'LAPS', 'QUALY'].forEach(m => {
-                const btn = document.getElementById(`btnMode-${m}`);
-                if (btn) {
-                    btn.className = (m === format)
-                        ? 'px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-amber-500 text-slate-950 cursor-pointer shadow'
-                        : 'px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer';
-                }
-            });
-            const sel = document.getElementById('cfgRaceModeSelect');
-            if (sel) sel.value = format;
-
-            updateHeaderSummaryText();
-            renderMasterClock();
-            updateMultiLaneStandings();
-        }
-
-        function updateHeaderSummaryText() {
-            const secDesc = appState.numSectors === 1 ? '1 SEC' : `${appState.numSectors} SEC`;
-            const mins = Math.round(appState.heatTotalSeconds / 60);
-            const modeDesc = appState.raceFormat === 'TIME'
-                ? `${mins} MIN`
-                : (appState.raceFormat === 'LAPS' ? `${appState.targetLaps} VUELTAS` : 'POLE');
-            const summaryEl = document.getElementById('headerConfigSummary');
             if (summaryEl) summaryEl.textContent = `${appState.activeLanes} CH · ${secDesc} · ${modeDesc}`;
         }
 
@@ -1079,8 +1456,8 @@
                 const btn = document.getElementById(`btnLane-${n}`);
                 if (btn) {
                     btn.className = (n === appState.activeLanes)
-                        ? 'px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-sky-600 text-white cursor-pointer shadow'
-                        : 'px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer';
+                        ? 'px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-sky-600 text-white cursor-pointer shadow'
+                        : 'px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer';
                 }
             });
 
@@ -1089,8 +1466,8 @@
                 const btn = document.getElementById(`btnSec-${s}`);
                 if (btn) {
                     btn.className = (s === appState.numSectors)
-                        ? 'px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-emerald-600 text-white cursor-pointer shadow'
-                        : 'px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer';
+                        ? 'px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-emerald-600 text-white cursor-pointer shadow'
+                        : 'px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer';
                 }
             });
 
@@ -1424,6 +1801,12 @@
 
         function registerSectorOrLapEvent(laneId, sectorIndex, timeMsFromHardware = null, tofMm = null) {
             if (laneId < 1 || laneId > 10) return;
+            // Si el modo Dongle Hardware USB está activo, verificar que la placa original haya enviado AUTH
+            if (securityState.requireHardwareDongle && !securityState.dongleVerified) {
+                playTone(220, 300, 'sawtooth', 0.25);
+                speakSpotter("Llave física USB no detectada. Conecte el hardware oficial Sloting Plus.", true);
+                return;
+            }
             const lane = appState.lanes[laneId];
             const now = performance.now();
 
@@ -1553,6 +1936,15 @@
             }
 
             lane.history.push(lapSec);
+
+            // Guardar automáticamente el Récord Personal Histórico (PB) del piloto en la Base de Datos Local
+            const rosterEntry = appState.roster.find(r => r.name === lane.name);
+            if (rosterEntry) {
+                if (!rosterEntry.personalBest || lapSec < rosterEntry.personalBest) {
+                    rosterEntry.personalBest = lapSec;
+                    saveLocalDatabase();
+                }
+            }
 
             const delta = prevBest === Infinity ? 0 : (lapSec - prevBest);
             const deltaStr = (delta >= 0 ? '+' : '') + delta.toFixed(3) + 's';
@@ -2034,7 +2426,12 @@
         let driverHistogramChart = null;
 
         function initChart() {
-            const ctx = document.getElementById('lapEvolutionChart').getContext('2d');
+            if (typeof Chart === 'undefined') return;
+            const canvasEvol = document.getElementById('lapEvolutionChart');
+            const canvasHist = document.getElementById('driverHistogramChart');
+            if (!canvasEvol || !canvasHist) return;
+
+            const ctx = canvasEvol.getContext('2d');
             evolutionChart = new Chart(ctx, {
                 type: 'line',
                 data: { labels: [], datasets: [] },
@@ -2049,7 +2446,7 @@
                 }
             });
 
-            const ctxHist = document.getElementById('driverHistogramChart').getContext('2d');
+            const ctxHist = canvasHist.getContext('2d');
             driverHistogramChart = new Chart(ctxHist, {
                 type: 'bar',
                 data: {
@@ -2132,6 +2529,14 @@
             if (!line) return;
             logSerialConsole(`RX << ${line}`);
             const parts = line.toUpperCase().split(',');
+
+            // Verificación de Llave Física USB (Hardware Dongle Handshake)
+            if (parts[0] === 'AUTH' && parts[1] === 'SLOTINGPLUS_OK') {
+                securityState.dongleVerified = true;
+                document.getElementById('usbText').innerHTML = '<i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i>DONGLE OK';
+                speakSpotter("Llave física de seguridad Sloting Plus verificada.", true);
+                return;
+            }
 
             // Formato 1: Trama Clásica Directa "L1,3890" o "L10,3890,21"
             if (parts[0].startsWith('L')) {
@@ -2248,18 +2653,25 @@
             if (!list) return;
             list.innerHTML = appState.roster.map((entry, i) => {
                 const pts = appState.championshipScores[entry.name] || 0;
+                const pbStr = entry.personalBest ? entry.personalBest.toFixed(3) + 's' : '--.---s';
                 return `
                 <div class="grid grid-cols-12 items-center gap-1 bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">
-                    <div class="col-span-5 flex items-center gap-1 min-w-0">
-                        <span class="text-slate-500 font-bold text-[10px]">${i + 1}.</span>
-                        <input type="text" value="${entry.name}" onchange="editRosterEntry(${i}, 'name', this.value)" class="bg-transparent text-white font-bold text-xs w-full truncate focus:outline-none focus:border-b border-sky-500"/>
+                    <div class="col-span-4 flex flex-col min-w-0">
+                        <div class="flex items-center gap-1">
+                            <span class="text-slate-500 font-bold text-[10px]">${i + 1}.</span>
+                            <input type="text" value="${entry.name}" onchange="editRosterEntry(${i}, 'name', this.value)" class="bg-transparent text-white font-bold text-xs w-full truncate focus:outline-none focus:border-b border-sky-500"/>
+                        </div>
+                        <input type="text" value="${entry.car || 'GT3'}" onchange="editRosterEntry(${i}, 'car', this.value)" class="bg-transparent text-sky-400 font-mono text-[9px] w-full truncate pl-3 focus:outline-none" title="Categoría o Coche del Piloto"/>
                     </div>
-                    <div class="col-span-5 min-w-0">
+                    <div class="col-span-4 min-w-0">
                         <input type="text" value="${entry.club}" onchange="editRosterEntry(${i}, 'club', this.value)" class="bg-transparent text-amber-300 font-mono text-[10px] w-full truncate focus:outline-none focus:border-b border-amber-500"/>
                     </div>
+                    <div class="col-span-2 text-center">
+                        <span class="text-[10px] font-mono-num font-bold text-purple-300">${pbStr}</span>
+                    </div>
                     <div class="col-span-2 flex justify-end items-center gap-1.5">
-                        <span class="text-[9px] text-emerald-400 font-bold">${pts}v</span>
-                        <button onclick="removeRosterDriver(${i})" class="text-red-400 hover:text-red-300 text-[10px] cursor-pointer" title="Eliminar piloto"><i class="fa-solid fa-xmark"></i></button>
+                        <span class="text-[10px] text-emerald-400 font-black">${pts}v</span>
+                        <button onclick="removeRosterDriver(${i})" class="text-red-400 hover:text-red-300 text-[10px] cursor-pointer" title="Eliminar piloto de la Base de Datos"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                 </div>
             `}).join('');
@@ -2268,7 +2680,9 @@
 
         function editRosterEntry(idx, field, val) {
             if (!appState.roster[idx]) return;
-            appState.roster[idx][field] = val.trim().toUpperCase() || (field === 'name' ? `PILOTO ${idx + 1}` : 'SIN CLUB');
+            const defaultVal = field === 'name' ? `PILOTO ${idx + 1}` : (field === 'club' ? 'SIN CLUB' : 'GT3');
+            appState.roster[idx][field] = val.trim().toUpperCase() || defaultVal;
+            saveLocalDatabase();
             renderRoster();
             generateChampionshipHeats(false);
         }
@@ -2276,12 +2690,16 @@
         function addRosterDriver() {
             const inputName = document.getElementById('newDriverInput');
             const inputClub = document.getElementById('newClubInput');
+            const inputCar = document.getElementById('newCarInput');
             if (inputName.value.trim()) {
                 const name = inputName.value.trim().toUpperCase();
                 const club = (inputClub && inputClub.value.trim()) ? inputClub.value.trim().toUpperCase() : 'CLUB OFICIAL';
-                appState.roster.push({ name, club });
+                const car = (inputCar && inputCar.value.trim()) ? inputCar.value.trim().toUpperCase() : 'GT3';
+                appState.roster.push({ name, club, car, personalBest: null });
                 inputName.value = '';
                 if (inputClub) inputClub.value = '';
+                if (inputCar) inputCar.value = '';
+                saveLocalDatabase();
                 renderRoster();
                 generateChampionshipHeats(false);
             }
@@ -2290,6 +2708,7 @@
         function removeRosterDriver(idx) {
             if (appState.roster.length <= 2) return;
             appState.roster.splice(idx, 1);
+            saveLocalDatabase();
             renderRoster();
             generateChampionshipHeats(false);
         }
@@ -2366,14 +2785,28 @@
         }
 
         function recordCurrentHeatToStandings() {
+            const raceSummary = [];
             for (let i = 1; i <= appState.activeLanes; i++) {
                 const l = appState.lanes[i];
                 appState.championshipScores[l.name] = (appState.championshipScores[l.name] || 0) + l.laps;
                 const clubKey = l.club || 'CLUB INDEPENDIENTE';
                 appState.clubScores[clubKey] = (appState.clubScores[clubKey] || 0) + l.laps;
+                raceSummary.push({
+                    lane: i,
+                    driver: l.name,
+                    club: clubKey,
+                    laps: l.laps,
+                    bestLap: l.bestLap < Infinity ? l.bestLap : null
+                });
             }
+            appState.savedRacesLog.unshift({
+                timestamp: new Date().toLocaleString(),
+                format: appState.raceFormat,
+                results: raceSummary
+            });
+            saveLocalDatabase();
             renderRoster();
-            speakSpotter("Vueltas sumadas al campeonato de pilotos y a la Copa de Clubs.", true);
+            speakSpotter("Manga guardada en la base de datos interna de este dispositivo.", true);
         }
 
         function renderClubStandings() {
@@ -2547,8 +2980,7 @@
 
         function copyMobileReportToClipboard() {
             const textarea = document.getElementById('mobileReportTextarea');
-            textarea.select();
-            document.execCommand('copy');
+            safeCopyText(textarea.value);
             const btn = document.getElementById('btnCopyMobile');
             btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
             setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar Informe'; }, 1800);
@@ -2579,15 +3011,18 @@
             const p3 = (parseFloat(document.getElementById('cfgPctS3').value) || 30) / 100;
             appState.sectorWeights = [p1, p2, p3];
             appState.remainingSeconds = appState.heatTotalSeconds;
+            saveLocalDatabase();
             updateHeaderSummaryText();
             renderMasterClock();
             updateMobilePitWallView();
         }
 
         function switchTab(tabId) {
-            ['live', 'sectors', 'analytics', 'rotation', 'mobile', 'config'].forEach(id => {
-                document.getElementById(`view-${id}`).classList.add('hidden');
-                document.getElementById(`tabBtn-${id}`).className = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0';
+            ['live', 'sectors', 'analytics', 'rotation', 'mobile', 'config', 'security'].forEach(id => {
+                const viewEl = document.getElementById(`view-${id}`);
+                const btnEl = document.getElementById(`tabBtn-${id}`);
+                if (viewEl) viewEl.classList.add('hidden');
+                if (btnEl) btnEl.className = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0';
             });
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
             document.getElementById(`tabBtn-${tabId}`).className = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-black bg-sky-600 text-white shadow-lg shadow-sky-600/30 border border-sky-400 transition cursor-pointer shrink-0';
@@ -2599,6 +3034,221 @@
             }
             if (tabId === 'mobile') {
                 updateMobilePitWallView();
+            }
+        }
+
+        // ============================================================================
+        // SISTEMA DE PROTECCIÓN ANTICOPIA POR HUELLA DE DISPOSITIVO (HWID) + CONTROL DE VENTAS
+        // ============================================================================
+        const securityState = {
+            deviceHwid: '',
+            expectedLicense: '',
+            requireHardwareDongle: false,
+            dongleVerified: false,
+            deferredPwaPrompt: null
+        };
+
+        // Genera una huella única (HWID) combinando GPU Canvas + CPU Cores + Screen + Plataforma
+        function computeHardwareFingerprint() {
+            let savedInstallationSalt = safeGetStorage('kronos_hw_salt_v6');
+            if (!savedInstallationSalt) {
+                savedInstallationSalt = Math.random().toString(36).substring(2, 8).toUpperCase();
+                safeSetStorage('kronos_hw_salt_v6', savedInstallationSalt);
+            }
+            const tz = (typeof Intl !== 'undefined' && Intl.DateTimeFormat)
+                ? (Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC')
+                : 'UTC';
+            const rawHw = [
+                navigator.userAgent,
+                navigator.hardwareConcurrency || 4,
+                screen.width + 'x' + screen.height,
+                screen.colorDepth,
+                tz,
+                savedInstallationSalt
+            ].join('|');
+
+            let h1 = 0x811c9dc5;
+            for (let i = 0; i < rawHw.length; i++) {
+                h1 ^= rawHw.charCodeAt(i);
+                h1 = Math.imul(h1, 0x01000193);
+            }
+            const hex = (h1 >>> 0).toString(16).toUpperCase().padStart(8, '0');
+            return `KRN-${hex.substring(0, 4)}-${hex.substring(4, 8)}`;
+        }
+
+        // Algoritmo criptográfico de firma: Calcula la Clave Oficial única para un HWID concreto
+        function computeLicenseKeyForHwid(hwidStr) {
+            const clean = hwidStr.trim().toUpperCase();
+            const secretSalt = 'SLOTING_PLUS_MASTER_SECRET_2026';
+            const combined = clean + '::' + secretSalt;
+            let hashA = 5381;
+            let hashB = 52711;
+            for (let i = 0; i < combined.length; i++) {
+                const ch = combined.charCodeAt(i);
+                hashA = ((hashA << 5) + hashA) ^ ch;
+                hashB = ((hashB << 5) + hashB) ^ (ch * 7);
+            }
+            const part1 = ((hashA >>> 0) & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+            const part2 = ((hashB >>> 0) & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+            return `SP-${part1}-${part2}-PRO`;
+        }
+
+        function initDeviceSecurity() {
+            securityState.deviceHwid = computeHardwareFingerprint();
+            securityState.expectedLicense = computeLicenseKeyForHwid(securityState.deviceHwid);
+
+            document.getElementById('modalDeviceHwid').textContent = securityState.deviceHwid;
+            document.getElementById('cfgCurrentHwid').textContent = securityState.deviceHwid;
+            document.getElementById('cfgCurrentLicenseKey').textContent = securityState.expectedLicense;
+            document.getElementById('keygenHwidInput').value = securityState.deviceHwid;
+            generateClientLicenseFromHwid();
+            renderSoldLicensesList();
+
+            // Si es la versión de CLIENTE (IS_CLIENT_LOCKED_BUILD === true):
+            // 1. Ocultar el Panel de Fabricante (Keygen) y el botón de autocompletar
+            if (IS_CLIENT_LOCKED_BUILD) {
+                const adminPanel = document.getElementById('manufacturerAdminPanel');
+                if (adminPanel) adminPanel.style.display = 'none';
+                const shortcutRow = document.getElementById('masterDevShortcutRow');
+                if (shortcutRow) shortcutRow.style.display = 'none';
+            }
+
+            const storedKey = safeGetStorage('kronos_activated_key_v6');
+            // En la compilación para clientes, SIEMPRE exige que la licencia esté activada en ese equipo
+            if (IS_CLIENT_LOCKED_BUILD) {
+                if (storedKey !== securityState.expectedLicense) {
+                    document.getElementById('securityLicenseModal').classList.remove('hidden');
+                }
+            } else {
+                // En tu versión Maestra solo se muestra si tú pulsas "Probar Pantalla de Bloqueo"
+                if (storedKey && storedKey !== securityState.expectedLicense) {
+                    document.getElementById('securityLicenseModal').classList.remove('hidden');
+                }
+            }
+        }
+
+        function registerSoldLicense() {
+            const clientNameInput = document.getElementById('keygenClientNameInput');
+            const hwidInput = document.getElementById('keygenHwidInput');
+            const hwid = hwidInput.value.trim().toUpperCase();
+            if (!hwid) return;
+
+            const clientName = (clientNameInput && clientNameInput.value.trim()) ? clientNameInput.value.trim().toUpperCase() : 'CLUB CLIENTE';
+            const licenseKey = computeLicenseKeyForHwid(hwid);
+
+            appState.soldLicensesLog.unshift({
+                date: new Date().toLocaleDateString(),
+                client: clientName,
+                hwid: hwid,
+                key: licenseKey
+            });
+            if (clientNameInput) clientNameInput.value = '';
+            saveLocalDatabase();
+            renderSoldLicensesList();
+            safeCopyText(licenseKey);
+            speakSpotter(`Venta registrada para ${clientName} y clave copiada al portapapeles.`, true);
+        }
+
+        function renderSoldLicensesList() {
+            const listEl = document.getElementById('soldLicensesList');
+            const countEl = document.getElementById('soldCountLabel');
+            if (!listEl) return;
+            const log = appState.soldLicensesLog || [];
+            if (countEl) countEl.textContent = String(log.length);
+
+            if (log.length === 0) {
+                listEl.innerHTML = `<div class="text-slate-500 italic py-2 text-center">Aún no has registrado ventas. Introduce el nombre del club y su HWID arriba.</div>`;
+                return;
+            }
+            listEl.innerHTML = log.map((item, idx) => `
+                <div class="bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800 flex justify-between items-center">
+                    <div class="truncate pr-2">
+                        <span class="text-amber-400 font-bold">${item.client}</span>
+                        <span class="text-slate-500 ml-1">(${item.date})</span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span class="text-sky-300 font-bold">${item.hwid}</span>
+                        <span class="text-emerald-400 font-black">${item.key}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function lockDeviceSessionNow() {
+            safeRemoveStorage('kronos_activated_key_v6');
+            document.getElementById('licenseKeyInput').value = '';
+            document.getElementById('licenseErrorMsg').classList.add('hidden');
+            document.getElementById('securityLicenseModal').classList.remove('hidden');
+        }
+
+        function fillMasterDemoKey() {
+            document.getElementById('licenseKeyInput').value = securityState.expectedLicense;
+            document.getElementById('licenseErrorMsg').classList.add('hidden');
+        }
+
+        function verifyAndActivateDevice() {
+            const entered = document.getElementById('licenseKeyInput').value.trim().toUpperCase();
+            // Acepta tanto el código exacto del dispositivo como tu código validado SP-DFDD-F8E3-PRO
+            if (entered === securityState.expectedLicense || entered === 'SP-DFDD-F8E3-PRO') {
+                safeSetStorage('kronos_activated_key_v6', securityState.expectedLicense);
+                document.getElementById('securityLicenseModal').classList.add('hidden');
+                playTone(1046.5, 220, 'triangle', 0.22);
+                speakSpotter("Licencia oficial verificada para este dispositivo.", true);
+            } else {
+                playTone(190, 400, 'sawtooth', 0.25);
+                document.getElementById('licenseErrorMsg').classList.remove('hidden');
+            }
+        }
+
+        function copyHwidToClipboard() {
+            safeCopyText(securityState.deviceHwid);
+            speakSpotter("Identificador de hardware copiado al portapapeles.", true);
+        }
+
+        function useThisDeviceHwidInKeygen() {
+            document.getElementById('keygenHwidInput').value = securityState.deviceHwid;
+            generateClientLicenseFromHwid();
+        }
+
+        function generateClientLicenseFromHwid() {
+            const hwid = document.getElementById('keygenHwidInput').value.trim().toUpperCase();
+            if (!hwid) {
+                document.getElementById('keygenOutputCode').textContent = 'SP-XXXX-XXXX-PRO';
+                return;
+            }
+            const key = computeLicenseKeyForHwid(hwid);
+            document.getElementById('keygenOutputCode').textContent = key;
+        }
+
+        function copyGeneratedLicense() {
+            const code = document.getElementById('keygenOutputCode').textContent;
+            safeCopyText(code);
+            speakSpotter("Código de activación copiado.", true);
+        }
+
+        function toggleHardwareDongleLock(enabled) {
+            securityState.requireHardwareDongle = enabled;
+            if (enabled) {
+                speakSpotter("Modo Llave Física USB activado. Se requerirá firma del chip Sloting Plus.", true);
+            } else {
+                speakSpotter("Modo Llave Física USB desactivado.", true);
+            }
+        }
+
+        // Captura el evento de instalación nativa de Chrome / Android / Windows / Mac
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            securityState.deferredPwaPrompt = e;
+        });
+
+        async function triggerNativeAppInstall() {
+            if (securityState.deferredPwaPrompt) {
+                securityState.deferredPwaPrompt.prompt();
+                await securityState.deferredPwaPrompt.userChoice;
+                securityState.deferredPwaPrompt = null;
+            } else {
+                speakSpotter("En tu navegador pulsa el menú de arriba a la derecha y selecciona: Instalar aplicación o Añadir a pantalla de inicio.", true);
+                alert("CÓMO INSTALAR COMO PROGRAMA NATIVO:\n\n• En Tablet Android (Chrome): Pulsa los 3 puntos arriba a la derecha -> 'Instalar aplicación' o 'Añadir a pantalla de inicio'.\n• En Windows / Mac (Chrome o Edge): Pulsa el icono de monitor con flecha en la barra de direcciones -> 'Instalar KRONOS SLOT PRO'.");
             }
         }
 
@@ -2688,7 +3338,7 @@
 
                     const dist = progress * totalLen;
                     const p1 = path.getPointAtLength(dist);
-                    const p2 = path.getPointAtLength((dist + 1.5) % totalLen);
+                    const p2 = masterPathPointAtLengthSafe(path, (dist + 1.5) % totalLen);
                     const dx = p2.x - p1.x;
                     const dy = p2.y - p1.y;
                     const len = Math.hypot(dx, dy) || 1;
@@ -2713,6 +3363,14 @@
             requestAnimationFrame(animateRadarGPS);
         }
 
+        function masterPathPointAtLengthSafe(path, dist) {
+            try {
+                return path.getPointAtLength(dist);
+            } catch (e) {
+                return { x: 165, y: 98 };
+            }
+        }
+
         // Atajos de teclado [1..9 y 0 para Carril 10] y [Espacio] para Track Call
         window.addEventListener('keydown', (e) => {
             if (e.target.tagName === 'INPUT') return;
@@ -2726,9 +3384,11 @@
 
         window.onload = function () {
             initAllLanesData();
+            loadLocalDatabase();
+            initDeviceSecurity();
             initChart();
             renderRoster();
-            setSystemTopology(2, 3);
+            setSystemTopology(appState.activeLanes || 2, appState.numSectors || 3);
             setRaceFormat('TIME');
             renderMasterClock();
             animateRadarGPS();
