@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="KRONOS PRO">
-    <title>KRONOS SLOT PRO OS v6.6 // Commercial Edition & Sales Control</title>
+    <title>KRONOS SLOT PRO OS v6.8 // Official Race Report & Club Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -160,6 +160,85 @@
 <body class="h-screen w-screen overflow-hidden flex flex-col justify-between p-2 md:px-3.5 md:py-2.5 bg-[#04070f]">
 
     <!-- ========================================================================================
+         MODAL OFICIAL DE FIN DE CARRERA (ACTA COMPLETA DE TODOS LOS PILOTOS DEL 1º AL ÚLTIMO)
+         ======================================================================================== -->
+    <div id="postRaceReportModal" class="hidden fixed inset-0 z-[55] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-3 md:p-5">
+        <div class="glass-panel rounded-3xl w-full max-w-7xl h-[92vh] flex flex-col justify-between p-4 md:p-5 border-2 border-amber-500/60 shadow-[0_0_60px_rgba(245,158,11,0.25)] overflow-hidden">
+            
+            <!-- Cabecera del Acta Oficial -->
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center text-2xl text-slate-950 shadow-lg border border-amber-200">
+                        <i class="fa-solid fa-flag-checkered"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span id="reportModalBadge" class="px-2.5 py-0.5 bg-amber-500/20 text-amber-300 text-[10px] font-mono font-black uppercase rounded-full border border-amber-500/40">
+                                ACTA OFICIAL DE CARRERA // GUARDADA EN ARCHIVO DEL CLUB
+                            </span>
+                            <span id="reportModalDate" class="text-xs font-mono text-slate-400"></span>
+                        </div>
+                        <h2 id="reportModalTitle" class="text-lg md:text-xl font-black text-white uppercase tracking-tight mt-0.5">
+                            RESULTADOS FINALES Y TELEMETRÍA COMPLETA DE LA MANGA
+                        </h2>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción del Acta -->
+                <div class="flex items-center gap-2 font-mono text-xs">
+                    <button onclick="saveCurrentReportToArchiveManual()" id="btnSaveArchiveModal" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl shadow cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar en Historial del Club
+                    </button>
+                    <button onclick="exportCurrentReportCSV()" class="px-3 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl shadow cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-csv"></i> Descargar Excel/CSV
+                    </button>
+                    <button onclick="exportLocalClubDatabaseFile()" class="px-3 py-2 bg-purple-600/40 hover:bg-purple-600 text-purple-200 hover:text-white font-bold rounded-xl border border-purple-500/40 cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-database"></i> Backup BD (.JSON)
+                    </button>
+                    <button onclick="closePostRaceReportModal()" class="px-3.5 py-2 bg-slate-800 hover:bg-red-600 text-slate-200 hover:text-white font-black rounded-xl border border-slate-700 cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-xmark"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resumen de Récords de la Manga (Podio + Vuelta Rápida + Mejor Sector) -->
+            <div id="reportModalKpiRow" class="grid grid-cols-4 gap-2.5 my-2.5 shrink-0 font-mono"></div>
+
+            <!-- Tabla Completa de Todos los Pilotos (Desde el 1º hasta el Último con todos los datos) -->
+            <div class="flex-1 min-h-0 overflow-y-auto rounded-2xl border border-slate-800 bg-slate-950/90">
+                <table class="w-full text-left font-mono-num text-xs">
+                    <thead class="bg-slate-900 text-slate-300 text-[10px] uppercase sticky top-0 z-10 border-b border-slate-800">
+                        <tr>
+                            <th class="p-2.5">POS</th>
+                            <th class="p-2.5">CARRIL</th>
+                            <th class="p-2.5">PILOTO &amp; CLUB</th>
+                            <th class="p-2.5 text-center">VUELTAS</th>
+                            <th class="p-2.5">TIEMPO TOTAL</th>
+                            <th class="p-2.5">DIFERENCIA (GAP)</th>
+                            <th class="p-2.5">MEJOR VUELTA</th>
+                            <th class="p-2.5">MEDIA / VUELTA</th>
+                            <th class="p-2.5">VUELTA ÓPTIMA</th>
+                            <th class="p-2.5">MEJORES SECTORES (S1 / S2 / S3)</th>
+                            <th class="p-2.5">VEL. PUNTA</th>
+                            <th class="p-2.5">REGULARIDAD</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportModalTableBody" class="divide-y divide-slate-800/80"></tbody>
+                </table>
+            </div>
+
+            <!-- Desglose Vuelta por Vuelta de Todos los Pilotos -->
+            <div class="mt-2.5 bg-slate-950 p-3 rounded-2xl border border-slate-800 h-36 shrink-0 flex flex-col justify-between">
+                <div class="text-[10px] font-mono font-black text-sky-400 uppercase flex justify-between items-center">
+                    <span><i class="fa-solid fa-list-ol mr-1.5"></i>HOJA DE TIEMPOS VUELTA POR VUELTA (DESDE EL 1&ordm; HASTA EL ÚLTIMO):</span>
+                    <span class="text-slate-400">Puedes consultar este informe siempre que quieras en la Pestaña 4 (Hemeroteca del Club)</span>
+                </div>
+                <div id="reportModalLapByLapBox" class="overflow-y-auto flex-1 min-h-0 space-y-1.5 mt-1 pr-1 font-mono text-[10px]"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================================
          PANTALLA DE BLOQUEO CRIPTOGRÁFICO POR DISPOSITIVO ÚNICO (HWID LOCK & ANTI-COPIA)
          ======================================================================================== -->
     <div id="securityLicenseModal" class="hidden fixed inset-0 z-[60] bg-slate-950/98 backdrop-blur-xl flex items-center justify-center p-4">
@@ -286,6 +365,7 @@
                     <div id="quickTimeSelectorBox" class="flex items-center gap-1">
                         <span class="text-[9px] font-mono text-amber-400 font-bold">MANGA:</span>
                         <select id="headerTimePreset" onchange="applyQuickTimeMinutes(this.value)" class="bg-slate-900 border border-amber-500/40 rounded px-1.5 py-0.5 text-[10px] font-mono font-bold text-amber-300 focus:outline-none cursor-pointer">
+                            <option value="1">1 min (Test)</option>
                             <option value="3">3 min</option>
                             <option value="5" selected>5 min</option>
                             <option value="10">10 min</option>
@@ -340,9 +420,12 @@
                     <i class="fa-solid fa-robot"></i> AUTO-SIM
                 </button>
             </div>
-            <!-- Fila Inferior: Utilidades, Voz de Podio, USB y Reinicio -->
+            <!-- Fila Inferior: Acta Final, Voz de Podio, USB y Reinicio -->
             <div class="grid grid-cols-5 gap-1.5">
-                <button onclick="announceFullStandingsWithHumor()" class="py-1.5 bg-amber-500/25 hover:bg-amber-500/45 text-amber-300 font-mono font-bold text-[10px] rounded-lg border border-amber-400/40 transition cursor-pointer flex items-center justify-center gap-1" title="Cantar Podio y Último con cachondeo">
+                <button onclick="finishAndOpenOfficialReport()" class="py-1.5 bg-emerald-500/25 hover:bg-emerald-500/50 text-emerald-300 font-mono font-black text-[10px] rounded-lg border border-emerald-400/40 transition cursor-pointer flex items-center justify-center gap-1" title="Terminar carrera o ver el Acta Oficial Completa de Todos los Pilotos">
+                    <i class="fa-solid fa-flag-checkered"></i> ACTA
+                </button>
+                <button onclick="announceFullStandingsWithHumor()" class="py-1.5 bg-amber-500/25 hover:bg-amber-500/45 text-amber-300 font-mono font-bold text-[10px] rounded-lg border border-amber-400/40 transition cursor-pointer flex items-center justify-center gap-1" title="Cantar Podio y Último">
                     <i class="fa-solid fa-microphone-lines"></i> PODIO
                 </button>
                 <button onclick="toggleVoiceSpotter()" id="btnVoice" class="py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 font-mono font-bold text-[10px] rounded-lg border border-indigo-400/40 transition cursor-pointer flex items-center justify-center gap-1" title="Activar/Silenciar Voz">
@@ -353,9 +436,6 @@
                 </button>
                 <button onclick="resetRaceSession()" class="py-1.5 bg-slate-800 hover:bg-red-900/60 text-slate-200 font-mono font-bold text-[10px] rounded-lg border border-slate-700 transition cursor-pointer flex items-center justify-center gap-1" title="Reiniciar Carrera">
                     <i class="fa-solid fa-rotate-right"></i> RESET
-                </button>
-                <button onclick="toggleFullScreenMode()" id="btnFullscreen" class="py-1.5 bg-slate-800 hover:bg-sky-600 text-sky-300 hover:text-white font-mono font-bold text-[10px] rounded-lg border border-slate-700 transition cursor-pointer flex items-center justify-center gap-1" title="Pantalla Completa">
-                    <i class="fa-solid fa-expand"></i> FULL
                 </button>
             </div>
         </div>
@@ -374,7 +454,7 @@
                 <i class="fa-solid fa-chart-line mr-1.5 text-sky-400"></i>3. TELEMETRÍA PILOTO
             </button>
             <button onclick="switchTab('rotation')" id="tabBtn-rotation" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">
-                <i class="fa-solid fa-database mr-1.5 text-amber-400"></i>4. BD PILOTOS, CLUBS &amp; TORNEOS
+                <i class="fa-solid fa-database mr-1.5 text-amber-400"></i>4. BD PILOTOS, CLUBS &amp; ARCHIVO
             </button>
             <button onclick="switchTab('mobile')" id="tabBtn-mobile" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-emerald-300 hover:text-white border border-emerald-500/30 transition cursor-pointer shrink-0">
                 <i class="fa-solid fa-mobile-screen-button mr-1.5 text-emerald-400"></i>5. ENVIAR AL MÓVIL (QR)
@@ -413,33 +493,23 @@
                 <!-- Pista Virtual Multicarril (Se adapta en vivo a 2, 4, 6, 8 ó 10 carriles paralelos) -->
                 <div class="bg-slate-950 rounded-xl border border-slate-800 p-1.5 mb-2">
                     <svg viewBox="0 0 320 135" class="w-full h-28">
-                        <!-- Borde exterior de asfalto cuyo grosor se adapta a 2, 4, 6, 8 o 10 carriles -->
                         <path id="radarTrackAsphalt" d="M 60 98 L 250 98 C 295 98 295 34 250 34 L 180 34 C 155 34 145 62 120 62 L 60 62 C 25 62 25 98 60 98 Z"
                               fill="none" stroke="#1e293b" stroke-width="18" stroke-linejoin="round"/>
-                        <!-- Ruta maestra matemática para el cálculo de vectores normales -->
                         <path id="radarTrackPath" d="M 60 98 L 250 98 C 295 98 295 34 250 34 L 180 34 C 155 34 145 62 120 62 L 60 62 C 25 62 25 98 60 98 Z"
                               fill="none" stroke="transparent" stroke-width="1"/>
-
-                        <!-- Capa donde se dibujan los 2, 4, 6, 8 ó 10 surcos individuales con el color de cada carril -->
                         <g id="virtualTrackLanesGroup"></g>
-
-                        <!-- Línea de Meta -->
                         <g id="svgGateMeta">
                             <line x1="165" y1="80" x2="165" y2="116" stroke="#10b981" stroke-width="3"/>
                             <text x="165" y="129" text-anchor="middle" fill="#10b981" font-size="8" font-family="monospace" font-weight="bold">META</text>
                         </g>
-                        <!-- Regleta S1 -->
                         <g id="svgGateS1">
                             <line x1="240" y1="16" x2="240" y2="52" stroke="#a855f7" stroke-width="3"/>
                             <text x="240" y="12" text-anchor="middle" fill="#d8b4fe" font-size="8" font-family="monospace" font-weight="bold">S1</text>
                         </g>
-                        <!-- Regleta S2 -->
                         <g id="svgGateS2">
                             <line x1="90" y1="44" x2="90" y2="80" stroke="#f59e0b" stroke-width="3"/>
                             <text x="90" y="40" text-anchor="middle" fill="#fde047" font-size="8" font-family="monospace" font-weight="bold">S2</text>
                         </g>
-
-                        <!-- Coches GPS en movimiento (Cada uno sobre su propio carril paralelo) -->
                         <g id="gpsCarsLayer"></g>
                     </svg>
                 </div>
@@ -472,7 +542,7 @@
     </section>
 
     <!-- ========================================================================================
-         VISTA 4: BASE DE DATOS LOCAL DEL DISPOSITIVO (PILOTOS, CLUBS, RÉCORDS E HISTORIAL)
+         VISTA 4: BASE DE DATOS LOCAL DEL DISPOSITIVO + HEMEROTECA DE CARRERAS GUARDADAS
          ======================================================================================== -->
     <section id="view-rotation" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
         <!-- Columna Izquierda: Base de Datos Local de Pilotos + Copia de Seguridad en Archivo -->
@@ -480,10 +550,10 @@
             <div class="space-y-2 min-h-0 flex-1 flex flex-col">
                 <div class="flex justify-between items-center shrink-0">
                     <div>
-                        <h2 class="text-sm font-bold text-amber-400 font-mono uppercase"><i class="fa-solid fa-hard-drive mr-1.5"></i>BASE DE DATOS LOCAL (EN ESTE DISPOSITIVO)</h2>
+                        <h2 class="text-sm font-bold text-amber-400 font-mono uppercase"><i class="fa-solid fa-hard-drive mr-1.5"></i>BASE DE DATOS LOCAL DEL CLUB</h2>
                         <div class="text-[9px] font-mono text-emerald-400 flex items-center gap-1 mt-0.5">
                             <i class="fa-solid fa-circle-check"></i>
-                            <span id="dbStatusIndicator">Guardado automático en disco local (100% Sin Nube)</span>
+                            <span id="dbStatusIndicator">Guardado automático en este equipo (Sin Nube)</span>
                         </div>
                     </div>
                     <span class="text-[10px] font-mono text-sky-400 font-bold bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">Pista: <strong id="rotLaneCountLabel">2 carriles</strong></span>
@@ -492,10 +562,10 @@
                 <!-- Barra de Copia de Seguridad Local (Exportar / Importar archivo JSON en USB o Tablet) -->
                 <div class="grid grid-cols-3 gap-1.5 shrink-0 bg-slate-950 p-1.5 rounded-xl border border-slate-800 font-mono text-[10px]">
                     <button onclick="exportLocalClubDatabaseFile()" class="py-1.5 px-2 bg-sky-600/25 hover:bg-sky-600 text-sky-300 hover:text-white font-bold rounded-lg border border-sky-500/40 cursor-pointer flex items-center justify-center gap-1" title="Guardar toda la base de datos de este club en un archivo en tu PC/Tablet">
-                        <i class="fa-solid fa-file-arrow-down"></i> Guardar Copia (.JSON)
+                        <i class="fa-solid fa-file-arrow-down"></i> Guardar BD (.JSON)
                     </button>
                     <button onclick="document.getElementById('importDbFileInput').click()" class="py-1.5 px-2 bg-purple-600/25 hover:bg-purple-600 text-purple-300 hover:text-white font-bold rounded-lg border border-purple-500/40 cursor-pointer flex items-center justify-center gap-1" title="Cargar archivo de base de datos desde el dispositivo">
-                        <i class="fa-solid fa-file-arrow-up"></i> Cargar Copia
+                        <i class="fa-solid fa-file-arrow-up"></i> Cargar BD
                     </button>
                     <button onclick="clearChampionshipPointsOnly()" class="py-1.5 px-2 bg-slate-800 hover:bg-red-900/60 text-slate-300 font-bold rounded-lg border border-slate-700 cursor-pointer flex items-center justify-center gap-1" title="Poner a cero solo los puntos del torneo manteniendo los pilotos y sus récords">
                         <i class="fa-solid fa-eraser"></i> 0 Pts Torneo
@@ -538,26 +608,36 @@
             </div>
         </div>
 
-        <!-- Columna Derecha: Cuadro de Mangas + Clasificación General por Clubes + Historial de Carreras Guardadas -->
+        <!-- Columna Derecha: Cuadro de Mangas + HEMEROTECA DE CARRERAS GUARDADAS (CONSULTA EN CUALQUIER MOMENTO) -->
         <div class="col-span-7 flex flex-col gap-2.5 min-h-0">
+            <!-- Panel con selector entre "Cuadro de Mangas" y "Archivo Histórico de Carreras" -->
             <div class="glass-panel rounded-2xl p-3.5 flex-1 min-h-0 flex flex-col justify-between">
-                <div class="flex justify-between items-center shrink-0 mb-2">
-                    <div>
-                        <h2 class="text-sm font-bold text-white font-mono uppercase"><i class="fa-solid fa-clipboard-list mr-1.5 text-sky-400"></i>CUADRO DE MANGAS &amp; HISTORIAL LOCAL DE CARRERAS</h2>
-                        <p class="text-[10px] text-slate-400">Todo lo que guardes queda almacenado en la memoria interna de esta Tablet / PC sin enviar nada a internet.</p>
+                <div class="flex flex-wrap justify-between items-center gap-2 shrink-0 mb-2 border-b border-slate-800 pb-2">
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="switchRotationSubView('archive')" id="btnSubViewArchive" class="px-3 py-1.5 rounded-xl font-mono font-black text-xs bg-amber-500 text-slate-950 cursor-pointer shadow">
+                            <i class="fa-solid fa-box-archive mr-1"></i>ARCHIVO HISTÓRICO DE CARRERAS (<span id="savedRacesCountBadge">0</span>)
+                        </button>
+                        <button onclick="switchRotationSubView('heats')" id="btnSubViewHeats" class="px-3 py-1.5 rounded-xl font-mono font-bold text-xs bg-slate-900 text-slate-300 hover:text-white border border-slate-800 cursor-pointer">
+                            <i class="fa-solid fa-clipboard-list mr-1"></i>SORTEO DE MANGAS
+                        </button>
                     </div>
-                    <button onclick="recordCurrentHeatToStandings()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-[10px] rounded-xl cursor-pointer shrink-0 shadow-lg">
-                        <i class="fa-solid fa-floppy-disk mr-1"></i>Guardar Manga en Base de Datos
+                    <button onclick="finishAndOpenOfficialReport()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-black text-[10px] rounded-xl cursor-pointer shrink-0 shadow-lg">
+                        <i class="fa-solid fa-file-signature mr-1"></i>Ver / Archivar Acta de Carrera Actual
                     </button>
                 </div>
-                <div id="heatsContainer" class="space-y-1.5 overflow-y-auto flex-1 min-h-0 font-mono text-xs pr-1"></div>
+
+                <!-- Sub-vista 1: Hemeroteca de Carreras Guardadas para consultar en cualquier momento -->
+                <div id="archivedRacesListContainer" class="space-y-2 overflow-y-auto flex-1 min-h-0 font-mono text-xs pr-1"></div>
+
+                <!-- Sub-vista 2: Cuadro de Rotación de Mangas -->
+                <div id="heatsContainer" class="hidden space-y-1.5 overflow-y-auto flex-1 min-h-0 font-mono text-xs pr-1"></div>
             </div>
 
-            <!-- Clasificación por Clubs / Escuderías + Últimas Mangas Registradas en Disco -->
-            <div class="glass-panel rounded-2xl p-3 h-40 shrink-0 flex flex-col justify-between">
+            <!-- Clasificación por Clubs / Escuderías -->
+            <div class="glass-panel rounded-2xl p-3 h-36 shrink-0 flex flex-col justify-between">
                 <div class="flex justify-between items-center">
-                    <span class="text-xs font-mono font-bold text-amber-400 uppercase"><i class="fa-solid fa-trophy mr-1.5"></i>COPA DE CLUBS &amp; RÉCORDS GUARDADOS EN ESTE EQUIPO</span>
-                    <span id="savedRacesCountBadge" class="text-[10px] font-mono text-sky-300 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">0 mangas archivadas</span>
+                    <span class="text-xs font-mono font-bold text-amber-400 uppercase"><i class="fa-solid fa-trophy mr-1.5"></i>RANKING GENERAL POR CLUBS / ESCUDERÍAS (ACUMULADO EN DISCO)</span>
+                    <span class="text-[10px] font-mono text-slate-400">Haz clic en cualquier carrera archivada arriba para ver todos sus datos</span>
                 </div>
                 <div id="clubStandingsContainer" class="grid grid-cols-2 md:grid-cols-4 gap-2 overflow-y-auto my-auto py-1 font-mono text-xs"></div>
             </div>
@@ -598,7 +678,6 @@
          VISTA 3: CENTRO ESTADÍSTICO GRÁFICO POR PILOTO Y COMPARATIVA MULTICARRIL
          ======================================================================================== -->
     <section id="view-analytics" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
-        <!-- Gráfica General Multicarril + Histograma de Distribución del Piloto Seleccionado -->
         <div class="col-span-8 flex flex-col gap-2.5 min-h-0">
             <div class="glass-panel rounded-2xl p-3 flex-1 min-h-0 flex flex-col justify-between">
                 <div class="flex justify-between items-center mb-1.5 shrink-0">
@@ -617,7 +696,6 @@
                 </div>
             </div>
 
-            <!-- Sub-gráfica Inferior: Histograma de Tiempos y Sectores del Piloto Seleccionado -->
             <div class="glass-panel rounded-2xl p-3 h-44 shrink-0 grid grid-cols-12 gap-3">
                 <div class="col-span-7 flex flex-col justify-between h-full">
                     <div class="text-[10px] font-mono font-bold text-amber-400 uppercase" id="singleDriverChartTitle"><i class="fa-solid fa-chart-column mr-1"></i>DISTRIBUCIÓN DE VUELTAS DEL PILOTO (CONSISTENCIA)</div>
@@ -626,7 +704,6 @@
                     </div>
                 </div>
                 <div class="col-span-5 bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between font-mono text-[11px]" id="singleDriverKpiBox">
-                    <!-- KPIs biométricos del piloto -->
                 </div>
             </div>
         </div>
@@ -637,7 +714,6 @@
                 <p class="text-[10px] text-slate-400">Haz clic en cualquier piloto para ver su histograma detallado a la izquierda.</p>
             </div>
             <div id="consistencyCardsContainer" class="space-y-1.5 overflow-y-auto flex-1 min-h-0 font-mono text-xs pr-1">
-                <!-- Generado dinámicamente para los N carriles -->
             </div>
         </div>
     </section>
@@ -646,7 +722,6 @@
          VISTA 5: ENVÍO DE TIEMPOS Y TELEMETRÍA A LOS MÓVILES DE LOS PILOTOS (MOBILE PIT-WALL)
          ======================================================================================== -->
     <section id="view-mobile" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
-        <!-- Generador QR Dinámico y Enlaces por WhatsApp / Telegram / Copia -->
         <div class="col-span-5 glass-panel rounded-2xl p-4 flex flex-col justify-between min-h-0">
             <div class="space-y-2">
                 <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-[10px] font-mono uppercase rounded border border-emerald-500/30 font-bold">TELEMETRÍA PERSONAL EN EL BOLSILLO</span>
@@ -660,10 +735,8 @@
                 </div>
             </div>
 
-            <!-- QR Dinámico SVG + Botones de Envío Instantáneo -->
             <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-4 my-auto">
                 <div id="dynamicQrContainer" class="w-28 h-28 bg-white p-2 rounded-xl shrink-0 flex items-center justify-center shadow-lg">
-                    <!-- Código QR SVG generado en vivo con los datos del piloto -->
                 </div>
                 <div class="space-y-1.5 text-xs font-mono">
                     <div class="text-emerald-400 font-bold">ESCANEAR CON CÁMARA DEL MÓVIL</div>
@@ -685,23 +758,19 @@
             </div>
         </div>
 
-        <!-- Previsualización del Smartphone del Piloto + Texto del Mensaje -->
         <div class="col-span-7 glass-panel rounded-2xl p-4 grid grid-cols-12 gap-4 min-h-0 overflow-hidden">
-            <!-- Mockup de cómo lo ve el piloto en su teléfono móvil -->
             <div class="col-span-6 bg-slate-950 rounded-3xl p-3 border-2 border-slate-700 flex flex-col justify-between shadow-2xl min-h-0">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                     <span class="text-[9px] font-mono text-sky-400 font-bold" id="mobPreviewClub">KRONOS SLOT PRO</span>
                     <span class="text-[9px] font-mono bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">LIVE PASS</span>
                 </div>
                 <div id="mobilePhoneScreenContent" class="my-auto space-y-2 font-mono text-xs overflow-y-auto py-2">
-                    <!-- Contenido dinámico de la pantalla del móvil del piloto -->
                 </div>
                 <div class="border-t border-slate-800 pt-1.5 text-center text-[9px] font-mono text-slate-500">
                     TARJETA OFICIAL DE TELEMETRÍA MÓVIL
                 </div>
             </div>
 
-            <!-- Texto listo para enviar por WhatsApp / Telegram -->
             <div class="col-span-6 flex flex-col justify-between min-h-0">
                 <div class="text-xs font-mono font-bold text-white uppercase mb-1.5"><i class="fa-solid fa-file-lines mr-1.5 text-emerald-400"></i>MENSAJE FORMATEADO PARA MÓVIL:</div>
                 <textarea id="mobileReportTextarea" readonly class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono text-[11px] text-emerald-300 focus:outline-none resize-none"></textarea>
@@ -734,9 +803,11 @@
                     <input id="cfgTargetLaps" type="number" step="5" min="1" value="25" onchange="saveTrackConfig()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-bold"/>
                 </div>
                 <div>
-                    <label class="block text-slate-400 mb-1">DURACIÓN DE MANGA (5 MIN A 1 HORA)</label>
+                    <label class="block text-slate-400 mb-1">DURACIÓN DE MANGA (1 MIN A 1 HORA)</label>
                     <div class="flex gap-1.5">
                         <select id="cfgHeatMinutesPreset" onchange="setConfigMinutesPreset(this.value)" class="bg-slate-950 border border-amber-500/50 rounded-xl px-2 py-2 text-amber-300 font-bold w-1/2">
+                            <option value="1">1 Minuto</option>
+                            <option value="3">3 Minutos</option>
                             <option value="5" selected>5 Minutos</option>
                             <option value="10">10 Minutos</option>
                             <option value="15">15 Minutos</option>
@@ -816,7 +887,6 @@
                 </div>
             </div>
 
-            <!-- Inyector de Tramas USB en Vivo para Pruebas -->
             <div class="flex gap-2">
                 <input id="manualSerialInput" type="text" placeholder="Ej: S1,L1,1280 o L2,3890" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-mono text-emerald-300"/>
                 <button onclick="injectManualSerial()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs rounded-xl cursor-pointer">
@@ -825,7 +895,7 @@
             </div>
 
             <div id="serialRawConsole" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-40 overflow-y-auto font-mono text-[10px] text-emerald-400 space-y-1">
-                <div>[BOOT] KRONOS SLOT PRO v6.6 — Motor Multisector (1-3) y Multicarril (2-10) inicializado.</div>
+                <div>[BOOT] KRONOS SLOT PRO v6.8 — Motor Multisector (1-3) y Multicarril (2-10) inicializado.</div>
             </div>
         </div>
     </section>
@@ -834,7 +904,6 @@
          VISTA 7: INSTALACIÓN DE LA APP, LICENCIAS POR DISPOSITIVO (HWID) Y CONTROL DE VENTAS
          ======================================================================================== -->
     <section id="view-security" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
-        <!-- Columna Izquierda: Instalación como App Nativa (PWA / BAT) + Estado de Licencia Local -->
         <div class="col-span-6 glass-panel rounded-2xl p-4 flex flex-col justify-between overflow-y-auto min-h-0 space-y-3">
             <div class="space-y-2">
                 <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-black uppercase rounded border border-emerald-500/40">
@@ -845,7 +914,6 @@
                 </h2>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-xs">
-                    <!-- Opción A: Crear Icono Directo -->
                     <div class="bg-slate-950 p-3 rounded-xl border border-emerald-500/40 flex flex-col justify-between gap-2">
                         <div>
                             <div class="text-emerald-400 font-black"><i class="fa-solid fa-tablet-screen-button mr-1"></i>OPCIÓN A: TABLET / PC</div>
@@ -856,7 +924,6 @@
                         </button>
                     </div>
 
-                    <!-- Opción B: Lanzador Automático para Pendrive USB en Windows -->
                     <div class="bg-slate-950 p-3 rounded-xl border border-sky-500/40 flex flex-col justify-between gap-2">
                         <div>
                             <div class="text-sky-400 font-black"><i class="fa-brands fa-windows mr-1"></i>OPCIÓN B: PENDRIVE USB</div>
@@ -869,7 +936,6 @@
                 </div>
             </div>
 
-            <!-- Estado actual del bloqueo a 1 solo dispositivo -->
             <div class="bg-slate-950 p-3.5 rounded-2xl border-2 border-amber-500/40 space-y-2 font-mono text-xs">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
                     <span class="text-amber-400 font-black uppercase"><i class="fa-solid fa-fingerprint mr-1.5"></i>ESTADO DE LICENCIA EN ESTE EQUIPO</span>
@@ -893,7 +959,6 @@
                 </div>
             </div>
 
-            <!-- Bloqueo por Dongle Hardware (Arduino / ESP32) -->
             <div class="bg-slate-950 p-3 rounded-xl border border-emerald-500/40 font-mono text-xs space-y-1.5">
                 <div class="flex justify-between items-center">
                     <span class="text-emerald-400 font-bold"><i class="fa-solid fa-usb mr-1.5"></i>LLAVE FÍSICA USB ANTICOPIA (DONGLE ARDUINO/ESP32)</span>
@@ -905,7 +970,6 @@
             </div>
         </div>
 
-        <!-- Columna Derecha: Panel Exclusivo de Fabricante (Generador de Claves + Registro de Clientes Vendidos) -->
         <div id="manufacturerAdminPanel" class="col-span-6 glass-panel rounded-2xl p-4 flex flex-col justify-between overflow-y-auto min-h-0 space-y-3">
             <div class="space-y-1.5">
                 <span class="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-[10px] font-mono font-black uppercase rounded border border-purple-500/40">
@@ -915,11 +979,10 @@
                     <i class="fa-solid fa-cash-register mr-1.5 text-amber-400"></i>2. Control de Ventas y Generador de Licencias
                 </h2>
                 <p class="text-[11px] text-slate-300 leading-relaxed">
-                    Cuando el cliente abre su archivo blindado, **le sale bloqueado** y le muestra su `ID DE HARDWARE`. Él te manda ese ID por WhatsApp tras pagarte, tú lo metes aquí y guardas la venta:
+                    Cuando el cliente abre su archivo blindado, <strong>le sale bloqueado</strong> y le muestra su <code>ID DE HARDWARE</code>. Él te manda ese ID por WhatsApp tras pagarte, tú lo metes aquí y guardas la venta:
                 </p>
             </div>
 
-            <!-- Calculadora de Licencias + Registro de Cliente -->
             <div class="bg-slate-950 p-3.5 rounded-2xl border border-purple-500/40 space-y-2.5 font-mono text-xs">
                 <div class="grid grid-cols-12 gap-2">
                     <div class="col-span-5">
@@ -954,7 +1017,6 @@
                     </div>
                 </div>
 
-                <!-- Libro de Registro de Licencias Vendidas -->
                 <div class="pt-1">
                     <div class="flex justify-between items-center text-[9px] text-slate-400 uppercase mb-1">
                         <span>LIBRO DE LICENCIAS VENDIDAS (<span id="soldCountLabel">0</span> EQUIPOS ACTIVADOS):</span>
@@ -963,14 +1025,13 @@
                 </div>
             </div>
 
-            <!-- Exportador de Versión Blindada para Clientes (Nace Bloqueada y sin Generador de Claves) -->
             <div class="bg-slate-950 p-3.5 rounded-2xl border-2 border-sky-500/50 space-y-2 font-mono text-xs">
                 <div class="flex items-center justify-between">
                     <span class="text-sky-400 font-black uppercase"><i class="fa-solid fa-file-shield mr-1.5"></i>3. DESCARGAR ARCHIVO DE CLIENTE (NACE BLOQUEADO)</span>
                     <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[9px] font-bold border border-red-500/40">PIDE CLAVE AL ABRIR</span>
                 </div>
                 <p class="text-[10px] text-slate-300 leading-relaxed">
-                    Este botón genera el archivo <strong>`index.html` para entregar a tus clientes</strong>: lleva el código fuente cifrado, <strong>elimina este panel de vendedor</strong> y <strong>se abre siempre bloqueado</strong> pidiendo su clave de activación.
+                    Este botón genera el archivo <strong><code>index.html</code> para entregar a tus clientes</strong>: lleva el código fuente cifrado, <strong>elimina este panel de vendedor</strong> y <strong>se abre siempre bloqueado</strong> pidiendo su clave de activación.
                 </p>
                 <button onclick="exportProtectedClientBuild()" class="w-full py-2.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-xs rounded-xl shadow-lg cursor-pointer uppercase">
                     <i class="fa-solid fa-lock mr-1.5"></i>Descargar index_blindado_cliente.html (Bloqueado para Venta)
@@ -981,12 +1042,11 @@
 
     <script>
         // BANDERA DE COMPILACIÓN: En tu versión Maestra es false (para que trabajes cómodo).
-        // Al pulsar "Descargar index_blindado_cliente.html", el empaquetador la convierte automáticamente en true
-        // para que al cliente le pida obligatoriamente el código nada más abrir el programa y no vea el generador de claves.
+        // Al pulsar "Descargar index_blindado_cliente.html", el empaquetador la convierte automáticamente en true.
         const IS_CLIENT_LOCKED_BUILD = false;
 
         // ============================================================================
-        // ESCUDO ANTI-INSPECCIÓN DE CÓDIGO FUENTE (BLOQUEO DE CLIC DERECHO Y F12/CTRL+U)
+        // ESCUDO ANTI-INSPECCIÓN DE CÓDIGO FUENTE
         // ============================================================================
         document.addEventListener('contextmenu', (e) => {
             if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
@@ -994,7 +1054,6 @@
             }
         });
         document.addEventListener('keydown', (e) => {
-            // Bloquear F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U (Ver código fuente)
             if (
                 e.key === 'F12' ||
                 (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
@@ -1005,17 +1064,12 @@
             }
         });
 
-        // ============================================================================
-        // EMPAQUETADOR CRIPTOGRÁFICO DE DISTRIBUCIÓN PARA CLIENTES (NACE BLOQUEADO + OCULTA EL CÓDIGO)
-        // ============================================================================
         function exportProtectedClientBuild() {
             try {
-                // Obtenemos el HTML y activamos el bloqueo estricto de cliente (IS_CLIENT_LOCKED_BUILD = true)
                 let rawHtml = document.documentElement.outerHTML;
                 rawHtml = rawHtml.replace('const IS_CLIENT_LOCKED_BUILD = false;', 'const IS_CLIENT_LOCKED_BUILD = true;');
 
                 const utf8Bytes = new TextEncoder().encode(rawHtml);
-                // Cifrado XOR + Base64 para que el archivo index.html no sea legible en un editor de texto
                 const key = 0x5A;
                 let binaryStr = '';
                 for (let i = 0; i < utf8Bytes.length; i++) {
@@ -1047,9 +1101,6 @@
             }
         }
 
-        // ============================================================================
-        // GENERADOR DE LANZADOR DE 1 CLIC PARA WINDOWS (.BAT MODO KIOSCO PANTALLA COMPLETA)
-        // ============================================================================
         function downloadWindowsOneClickLauncher() {
             const batContent = [
                 '@echo off',
@@ -1064,11 +1115,11 @@
             a.href = URL.createObjectURL(blob);
             a.download = 'INICIAR_KRONOS_SLOT.bat';
             a.click();
-            speakSpotter("Lanzador automático para Windows descargado. Ponlo en la misma carpeta que el archivo index.", true);
+            speakSpotter("Lanzador automático para Windows descargado.", true);
         }
 
         // ============================================================================
-        // ALMACENAMIENTO SEGURO COMPATIBLE CON SANDBOX / IFRAMES / NAVEGADORES ESTRICTOS
+        // ALMACENAMIENTO SEGURO COMPATIBLE CON SANDBOX / IFRAMES
         // ============================================================================
         const memoryStorageFallback = {};
         function safeGetStorage(key) {
@@ -1147,17 +1198,17 @@
 
         const appState = {
             appTitle: 'GRAN PREMIO OFICIAL // KRONOS PRO',
-            raceStatus: 'STANDBY', // 'STANDBY', 'COUNTDOWN', 'RACING', 'TRACK_CALL', 'FINISHED'
-            raceFormat: 'TIME',    // 'TIME' (Por Tiempo), 'LAPS' (Por Vueltas), 'QUALY' (Pole Position)
-            targetLaps: 25,        // Meta de vueltas cuando raceFormat === 'LAPS'
-            activeLanes: 2,        // 2, 4, 6, 8, 10
-            numSectors: 3,         // 1 (Meta), 2 (S1 + Meta), 3 (S1 + S2 + Meta)
+            raceStatus: 'STANDBY',
+            raceFormat: 'TIME',
+            targetLaps: 25,
+            activeLanes: 2,
+            numSectors: 3,
             sectorWeights: [0.35, 0.35, 0.30],
             voiceEnabled: true,
             fuelSimEnabled: true,
             trackLengthMeters: 18.0,
             scaleFactor: 32,
-            heatTotalSeconds: 300, // Por defecto 5 minutos (300 s), configurable hasta 1 hora (3600 s)
+            heatTotalSeconds: 300,
             remainingSeconds: 300,
             elapsedSeconds: 0,
             minLapSeconds: 0.5,
@@ -1172,21 +1223,22 @@
             heats: [],
             championshipScores: {},
             clubScores: {},
-            savedRacesLog: [],     // Historial permanente de mangas guardadas en este dispositivo
-            soldLicensesLog: [],   // Registro comercial de licencias vendidas por ti
+            savedRacesLog: [],
+            soldLicensesLog: [],
+            currentDisplayedReport: null,
             currentHeatIndex: 0,
             currentLeaderId: 1,
             lastStandingsCallTime: 0
         };
 
         // ============================================================================
-        // MOTOR DE BASE DE DATOS LOCAL DEL DISPOSITIVO (100% OFFLINE, SIN NUBE)
+        // MOTOR DE BASE DE DATOS LOCAL DEL DISPOSITIVO + HEMEROTECA DE CARRERAS
         // ============================================================================
-        const LOCAL_DB_STORAGE_KEY = 'kronos_local_club_database_v65';
+        const LOCAL_DB_STORAGE_KEY = 'kronos_local_club_database_v68';
 
         function saveLocalDatabase() {
             const payload = {
-                version: '6.6',
+                version: '6.8',
                 lastSaved: new Date().toISOString(),
                 appTitle: appState.appTitle,
                 activeLanes: appState.activeLanes,
@@ -1211,12 +1263,13 @@
             }
             const badge = document.getElementById('savedRacesCountBadge');
             if (badge) {
-                badge.textContent = `${appState.savedRacesLog.length} mangas archivadas`;
+                badge.textContent = String(appState.savedRacesLog.length);
             }
+            renderArchivedRacesList();
         }
 
         function loadLocalDatabase() {
-            const raw = safeGetStorage(LOCAL_DB_STORAGE_KEY);
+            const raw = safeGetStorage(LOCAL_DB_STORAGE_KEY) || safeGetStorage('kronos_local_club_database_v65');
             if (!raw) return;
             try {
                 const db = JSON.parse(raw);
@@ -1242,7 +1295,6 @@
                 if (db.trackLengthMeters) appState.trackLengthMeters = db.trackLengthMeters;
                 if (db.scaleFactor) appState.scaleFactor = db.scaleFactor;
 
-                // Sincronizar nombres cargados de la BD en los carriles
                 for (let i = 1; i <= 10; i++) {
                     const r = appState.roster[(i - 1) % appState.roster.length];
                     if (r && appState.lanes[i]) {
@@ -1253,9 +1305,331 @@
             } catch (e) {}
         }
 
+        // ============================================================================
+        // GENERADOR DEL ACTA OFICIAL DE FIN DE CARRERA (TODOS LOS DATOS DEL 1º AL ÚLTIMO)
+        // ============================================================================
+        function buildCompleteRaceReportObject() {
+            const activeList = [];
+            for (let i = 1; i <= appState.activeLanes; i++) {
+                activeList.push(appState.lanes[i]);
+            }
+
+            if (appState.raceFormat === 'QUALY') {
+                activeList.sort((a, b) => a.bestLap - b.bestLap);
+            } else {
+                activeList.sort((a, b) => (b.laps !== a.laps) ? (b.laps - a.laps) : (a.totalRaceTime - b.totalRaceTime));
+            }
+
+            const leader = activeList[0];
+            const standingsData = activeList.map((lane, idx) => {
+                const pos = idx + 1;
+                const meanLap = getDriverMeanLap(lane);
+                const optLap = getDriverOptimalLap(lane);
+                const topSpeedKmh = lane.bestLap < Infinity
+                    ? (appState.trackLengthMeters / lane.bestLap) * 3.6 * appState.scaleFactor
+                    : 0;
+
+                // Consistencia y desviación estándar
+                let sd = 0;
+                let consistencyPct = 100;
+                if (lane.history.length > 1 && meanLap > 0) {
+                    sd = Math.sqrt(lane.history.reduce((acc, val) => acc + Math.pow(val - meanLap, 2), 0) / lane.history.length);
+                    consistencyPct = Math.max(0, Math.min(100, 100 - (sd / meanLap) * 180));
+                }
+
+                // Cálculo de diferencia (Gap) respecto al 1º
+                let gapText = 'GANADOR / POLE';
+                if (pos > 1) {
+                    if (appState.raceFormat === 'QUALY') {
+                        gapText = (lane.bestLap < Infinity && leader.bestLap < Infinity)
+                            ? `+${(lane.bestLap - leader.bestLap).toFixed(3)}s`
+                            : 'SIN TIEMPO';
+                    } else {
+                        const lapDiff = leader.laps - lane.laps;
+                        if (lapDiff > 0) {
+                            gapText = `+${lapDiff} vuelta${lapDiff > 1 ? 's' : ''}`;
+                        } else {
+                            const timeDiff = Math.abs(lane.totalRaceTime - leader.totalRaceTime).toFixed(3);
+                            gapText = `+${timeDiff}s`;
+                        }
+                    }
+                }
+
+                return {
+                    pos,
+                    laneId: lane.id,
+                    driver: lane.name,
+                    club: lane.club || 'CLUB OFICIAL',
+                    laps: lane.laps,
+                    totalTime: lane.totalRaceTime,
+                    gap: gapText,
+                    bestLap: lane.bestLap < Infinity ? lane.bestLap : null,
+                    meanLap: meanLap > 0 ? meanLap : null,
+                    optimalLap: optLap < Infinity ? optLap : null,
+                    bestS1: lane.bestSectors[1] < Infinity ? lane.bestSectors[1] : null,
+                    bestS2: lane.bestSectors[2] < Infinity ? lane.bestSectors[2] : null,
+                    bestS3: lane.bestSectors[3] < Infinity ? lane.bestSectors[3] : null,
+                    topSpeedKmh: topSpeedKmh,
+                    consistencyPct: consistencyPct,
+                    stdDev: sd,
+                    allLaps: [...lane.history]
+                };
+            });
+
+            return {
+                id: 'RACE-' + Date.now(),
+                title: appState.appTitle,
+                timestamp: new Date().toLocaleString(),
+                format: appState.raceFormat,
+                activeLanes: appState.activeLanes,
+                numSectors: appState.numSectors,
+                trackLengthMeters: appState.trackLengthMeters,
+                scaleFactor: appState.scaleFactor,
+                overallBestLap: appState.overallBestLap < Infinity ? appState.overallBestLap : null,
+                overallBestDriver: appState.overallBestDriver || (standingsData[0] ? standingsData[0].driver : '---'),
+                standings: standingsData
+            };
+        }
+
+        // Se llama automáticamente cuando termina la carrera o cuando el usuario pulsa el botón "ACTA"
+        function finishAndOpenOfficialReport(autoSave = false) {
+            const report = buildCompleteRaceReportObject();
+            appState.currentDisplayedReport = report;
+
+            if (autoSave) {
+                archiveReportIntoClubDatabase(report, true);
+            }
+            renderOfficialReportModal(report, autoSave);
+            document.getElementById('postRaceReportModal').classList.remove('hidden');
+        }
+
+        function archiveReportIntoClubDatabase(report, silent = false) {
+            if (!report || !Array.isArray(report.standings)) return;
+
+            // Evitar duplicar si ya se guardó exactamente el mismo ID
+            const exists = appState.savedRacesLog.some(r => r.id === report.id);
+            if (!exists) {
+                report.standings.forEach(st => {
+                    appState.championshipScores[st.driver] = (appState.championshipScores[st.driver] || 0) + st.laps;
+                    appState.clubScores[st.club] = (appState.clubScores[st.club] || 0) + st.laps;
+                });
+                appState.savedRacesLog.unshift(report);
+                saveLocalDatabase();
+                renderRoster();
+            }
+
+            const btnSave = document.getElementById('btnSaveArchiveModal');
+            if (btnSave) {
+                btnSave.innerHTML = '<i class="fa-solid fa-check"></i> Guardada en el Historial del Club';
+                btnSave.className = 'px-3.5 py-2 bg-slate-800 text-emerald-400 font-black rounded-xl border border-emerald-500/40 cursor-pointer flex items-center gap-1.5';
+            }
+            if (!silent) {
+                speakSpotter("Acta completa de carrera archivada en la base de datos del club.", true);
+            }
+        }
+
+        function saveCurrentReportToArchiveManual() {
+            if (appState.currentDisplayedReport) {
+                archiveReportIntoClubDatabase(appState.currentDisplayedReport, false);
+            }
+        }
+
+        function openArchivedRaceReport(index) {
+            const report = appState.savedRacesLog[index];
+            if (!report) return;
+            appState.currentDisplayedReport = report;
+            renderOfficialReportModal(report, true);
+            document.getElementById('postRaceReportModal').classList.remove('hidden');
+        }
+
+        function deleteArchivedRaceReport(index) {
+            appState.savedRacesLog.splice(index, 1);
+            saveLocalDatabase();
+        }
+
+        function closePostRaceReportModal() {
+            document.getElementById('postRaceReportModal').classList.add('hidden');
+        }
+
+        function renderOfficialReportModal(report, isAlreadySaved = false) {
+            document.getElementById('reportModalTitle').textContent = `${report.title} — CLASIFICACIÓN DEL 1º AL ${report.standings.length}º`;
+            document.getElementById('reportModalDate').textContent = `${report.timestamp} · Modo ${report.format} · ${report.activeLanes} Carriles`;
+
+            const btnSave = document.getElementById('btnSaveArchiveModal');
+            if (btnSave) {
+                if (isAlreadySaved) {
+                    btnSave.innerHTML = '<i class="fa-solid fa-circle-check"></i> Guardada en Historial del Club';
+                    btnSave.className = 'px-3.5 py-2 bg-slate-900 text-emerald-400 font-black rounded-xl border border-emerald-500/40 cursor-pointer flex items-center gap-1.5';
+                } else {
+                    btnSave.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar en Historial del Club';
+                    btnSave.className = 'px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl shadow cursor-pointer flex items-center gap-1.5';
+                }
+            }
+
+            const winner = report.standings[0];
+            const second = report.standings[1];
+            const last = report.standings[report.standings.length - 1];
+            const totalLapsAll = report.standings.reduce((acc, s) => acc + s.laps, 0);
+
+            document.getElementById('reportModalKpiRow').innerHTML = `
+                <div class="bg-slate-950 p-3 rounded-2xl border border-amber-500/50">
+                    <div class="text-[9px] text-amber-400 font-bold uppercase"><i class="fa-solid fa-crown mr-1"></i>GANADOR DE LA MANGA (1&ordm;)</div>
+                    <div class="text-base font-black text-white mt-0.5">${winner ? winner.driver : '---'} <span class="text-xs text-amber-300">(${winner ? winner.laps : 0} v.)</span></div>
+                    <div class="text-[10px] text-slate-400 truncate">${winner ? winner.club : ''}</div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-2xl border border-purple-500/50">
+                    <div class="text-[9px] text-purple-300 font-bold uppercase"><i class="fa-solid fa-bolt mr-1"></i>VUELTA RÁPIDA ABSOLUTA</div>
+                    <div class="text-base font-black text-purple-300 mt-0.5">${report.overallBestLap ? report.overallBestLap.toFixed(3) + 's' : '--.---s'}</div>
+                    <div class="text-[10px] text-slate-400 truncate">Piloto: ${report.overallBestDriver || '---'}</div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-2xl border border-sky-500/50">
+                    <div class="text-[9px] text-sky-400 font-bold uppercase"><i class="fa-solid fa-flag-checkered mr-1"></i>TOTAL VUELTAS COMPUTADAS</div>
+                    <div class="text-base font-black text-white mt-0.5">${totalLapsAll} vueltas</div>
+                    <div class="text-[10px] text-slate-400 truncate">${ second ? '2º ' + second.driver + ' (' + second.gap + ')' : '' }</div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-2xl border border-red-500/40">
+                    <div class="text-[9px] text-red-400 font-bold uppercase"><i class="fa-solid fa-bell-slash mr-1"></i>CIERRE DE PARRILLA (${report.standings.length}&ordm;)</div>
+                    <div class="text-base font-black text-white mt-0.5">${last ? last.driver : '---'} <span class="text-xs text-red-300">(${last ? last.laps : 0} v.)</span></div>
+                    <div class="text-[10px] text-slate-400 truncate">${last ? last.gap : ''}</div>
+                </div>
+            `;
+
+            // Renderizar todas las filas desde el 1º hasta el último
+            const tbody = document.getElementById('reportModalTableBody');
+            tbody.innerHTML = report.standings.map(st => {
+                const pal = LANE_PALETTE[st.laneId] || LANE_PALETTE[1];
+                let posBadgeClass = 'bg-slate-800 text-slate-200';
+                if (st.pos === 1) posBadgeClass = 'pos-p1-gold';
+                else if (st.pos === 2) posBadgeClass = 'pos-p2-silver';
+                else if (st.pos === 3) posBadgeClass = 'pos-p3-bronze';
+                else if (st.pos === report.standings.length && report.standings.length > 2) posBadgeClass = 'pos-last-lantern';
+
+                const s1Str = st.bestS1 ? st.bestS1.toFixed(3) + 's' : '--';
+                const s2Str = st.bestS2 ? st.bestS2.toFixed(3) + 's' : '--';
+                const s3Str = st.bestS3 ? st.bestS3.toFixed(3) + 's' : '--';
+
+                return `
+                    <tr class="hover:bg-slate-900/80 transition">
+                        <td class="p-2.5"><span class="px-2 py-1 rounded-lg font-black text-xs ${posBadgeClass}">${st.pos}&ordm;</span></td>
+                        <td class="p-2.5"><span class="px-2 py-0.5 rounded border text-[10px] font-black ${pal.badge}">CH${st.laneId}</span></td>
+                        <td class="p-2.5">
+                            <div class="font-black text-white text-sm">${st.driver}</div>
+                            <div class="text-[10px] text-amber-400 font-mono">${st.club}</div>
+                        </td>
+                        <td class="p-2.5 text-center font-black text-lg text-sky-300">${st.laps}</td>
+                        <td class="p-2.5 font-bold text-slate-200">${st.totalTime.toFixed(3)}s</td>
+                        <td class="p-2.5 font-bold text-amber-300">${st.gap}</td>
+                        <td class="p-2.5 font-black text-emerald-400">${st.bestLap ? st.bestLap.toFixed(3) + 's' : '--.---s'}</td>
+                        <td class="p-2.5 font-bold text-white">${st.meanLap ? st.meanLap.toFixed(3) + 's' : '--.---s'}</td>
+                        <td class="p-2.5 font-black text-purple-300">${st.optimalLap ? st.optimalLap.toFixed(3) + 's' : '--.---s'}</td>
+                        <td class="p-2.5 text-[11px] text-slate-300">${s1Str} / ${s2Str} / ${s3Str}</td>
+                        <td class="p-2.5 font-bold text-sky-300">${st.topSpeedKmh.toFixed(1)} km/h</td>
+                        <td class="p-2.5 font-bold text-emerald-300">${st.consistencyPct.toFixed(1)}% <span class="text-[9px] text-slate-400">(&plusmn;${st.stdDev.toFixed(2)}s)</span></td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Desglose de todas las vueltas de cada piloto debajo
+            const lapBox = document.getElementById('reportModalLapByLapBox');
+            lapBox.innerHTML = report.standings.map(st => {
+                const lapsList = st.allLaps && st.allLaps.length > 0
+                    ? st.allLaps.map((t, idx) => `<span class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-200"><b>V${idx + 1}:</b> ${t.toFixed(3)}s</span>`).join(' ')
+                    : '<span class="text-slate-500 italic">Sin vueltas registradas</span>';
+                return `
+                    <div class="bg-slate-900/70 p-2 rounded-xl border border-slate-800/90 flex flex-col gap-1">
+                        <div class="text-amber-300 font-black">${st.pos}&ordm; ${st.driver} (CH${st.laneId} &middot; ${st.club}) — ${st.laps} Vueltas:</div>
+                        <div class="flex flex-wrap gap-1">${lapsList}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function exportCurrentReportCSV() {
+            const rep = appState.currentDisplayedReport || buildCompleteRaceReportObject();
+            let csv = 'Posicion,Carril,Piloto,Club,Vueltas,Tiempo_Total_s,Gap,Mejor_Vuelta_s,Media_Vuelta_s,Vuelta_Optima_s,Mejor_S1_s,Mejor_S2_s,Mejor_S3_s,Vel_Punta_kmh,Consistencia_Pct,Todas_Las_Vueltas\n';
+            rep.standings.forEach(st => {
+                const allLapsStr = (st.allLaps || []).map((t, i) => `V${i + 1}:${t.toFixed(3)}s`).join(' | ');
+                csv += `${st.pos},CH${st.laneId},"${st.driver}","${st.club}",${st.laps},${st.totalTime.toFixed(3)},"${st.gap}",${st.bestLap ? st.bestLap.toFixed(3) : ''},${st.meanLap ? st.meanLap.toFixed(3) : ''},${st.optimalLap ? st.optimalLap.toFixed(3) : ''},${st.bestS1 ? st.bestS1.toFixed(3) : ''},${st.bestS2 ? st.bestS2.toFixed(3) : ''},${st.bestS3 ? st.bestS3.toFixed(3) : ''},${st.topSpeedKmh.toFixed(1)},${st.consistencyPct.toFixed(1)},"${allLapsStr}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `ACTA_CARRERA_KRONOS_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+        }
+
+        function switchRotationSubView(mode) {
+            const archEl = document.getElementById('archivedRacesListContainer');
+            const heatsEl = document.getElementById('heatsContainer');
+            const btnArch = document.getElementById('btnSubViewArchive');
+            const btnHeats = document.getElementById('btnSubViewHeats');
+            if (mode === 'archive') {
+                archEl.classList.remove('hidden');
+                heatsEl.classList.add('hidden');
+                btnArch.className = 'px-3 py-1.5 rounded-xl font-mono font-black text-xs bg-amber-500 text-slate-950 cursor-pointer shadow';
+                btnHeats.className = 'px-3 py-1.5 rounded-xl font-mono font-bold text-xs bg-slate-900 text-slate-300 hover:text-white border border-slate-800 cursor-pointer';
+                renderArchivedRacesList();
+            } else {
+                archEl.classList.add('hidden');
+                heatsEl.classList.remove('hidden');
+                btnHeats.className = 'px-3 py-1.5 rounded-xl font-mono font-black text-xs bg-amber-500 text-slate-950 cursor-pointer shadow';
+                btnArch.className = 'px-3 py-1.5 rounded-xl font-mono font-bold text-xs bg-slate-900 text-slate-300 hover:text-white border border-slate-800 cursor-pointer';
+            }
+        }
+
+        function renderArchivedRacesList() {
+            const container = document.getElementById('archivedRacesListContainer');
+            const badge = document.getElementById('savedRacesCountBadge');
+            if (badge) badge.textContent = String(appState.savedRacesLog.length);
+            if (!container) return;
+
+            if (!appState.savedRacesLog || appState.savedRacesLog.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center space-y-2">
+                        <div class="text-amber-400 font-bold text-sm"><i class="fa-solid fa-box-open mr-1.5"></i>AÚN NO HAY CARRERAS ARCHIVADAS EN ESTE EQUIPO</div>
+                        <p class="text-xs text-slate-400">En cuanto termine una manga por tiempo o por vueltas (o cuando pulses el botón verde <b>"ACTA"</b> arriba a la derecha), se guardará aquí automáticamente con todos los datos del 1º al último para que el club la consulte cuando quiera.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = appState.savedRacesLog.map((race, idx) => {
+                const stList = race.standings || race.results || [];
+                const p1 = stList[0];
+                const p2 = stList[1];
+                const p3 = stList[2];
+                const last = stList[stList.length - 1];
+                return `
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-amber-500/50 transition flex flex-wrap justify-between items-center gap-2">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-black text-[10px] border border-amber-500/40">CARRERA #${appState.savedRacesLog.length - idx}</span>
+                                <span class="text-white font-black text-xs">${race.title || appState.appTitle}</span>
+                                <span class="text-[10px] text-slate-400">(${race.timestamp})</span>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2 text-[10px]">
+                                ${p1 ? `<span class="text-amber-300 font-bold"><i class="fa-solid fa-crown mr-1"></i>1&ordm; ${p1.driver} (${p1.laps}v)</span>` : ''}
+                                ${p2 ? `<span class="text-slate-300 font-bold">2&ordm; ${p2.driver} (${p2.laps}v)</span>` : ''}
+                                ${p3 ? `<span class="text-orange-300 font-bold">3&ordm; ${p3.driver} (${p3.laps}v)</span>` : ''}
+                                ${last && stList.length > 2 ? `<span class="text-red-400">Último: ${last.driver} (${last.laps}v)</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="openArchivedRaceReport(${idx})" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-black text-[10px] rounded-lg cursor-pointer shadow">
+                                <i class="fa-solid fa-eye mr-1"></i>Consultar Todos los Datos
+                            </button>
+                            <button onclick="deleteArchivedRaceReport(${idx})" class="px-2 py-1.5 bg-slate-900 hover:bg-red-900/70 text-slate-400 hover:text-white text-[10px] rounded-lg border border-slate-800 cursor-pointer" title="Borrar carrera del archivo">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         function exportLocalClubDatabaseFile() {
             saveLocalDatabase();
-            const raw = safeGetStorage(LOCAL_DB_STORAGE_KEY) || JSON.stringify({ roster: appState.roster });
+            const raw = safeGetStorage(LOCAL_DB_STORAGE_KEY) || JSON.stringify({ roster: appState.roster, savedRacesLog: appState.savedRacesLog });
             const blob = new Blob([raw], { type: 'application/json;charset=utf-8;' });
             const a = document.createElement('a');
             const dateTag = new Date().toISOString().slice(0, 10);
@@ -1276,6 +1650,7 @@
                         safeSetStorage(LOCAL_DB_STORAGE_KEY, JSON.stringify(imported));
                         loadLocalDatabase();
                         renderRoster();
+                        renderArchivedRacesList();
                         renderLanesGrid();
                         generateChampionshipHeats(false);
                         speakSpotter("Base de datos del club restaurada correctamente en este equipo.", true);
@@ -1293,10 +1668,10 @@
             appState.savedRacesLog = [];
             saveLocalDatabase();
             renderRoster();
+            renderArchivedRacesList();
             speakSpotter("Puntos del campeonato reiniciados. Se mantienen todos los pilotos, clubs y sus récords.", true);
         }
 
-        // Inicializar estructura de datos para los 10 carriles (Con Piloto y Club)
         function initAllLanesData() {
             for (let i = 1; i <= 10; i++) {
                 const def = DEFAULT_DRIVERS[i - 1];
@@ -1311,7 +1686,6 @@
                     fuel: 100,
                     totalRaceTime: 0,
                     tofMm: 20 + (i % 6),
-                    // Estado multisector (S1, S2, S3)
                     nextExpectedSector: 1,
                     currentLapSectors: { 1: null, 2: null, 3: null },
                     lastSectors: { 1: null, 2: null, 3: null },
@@ -1370,9 +1744,6 @@
             if (appState.voiceEnabled) speakSpotter("Ingeniero de pista activado.", true);
         }
 
-        // ============================================================================
-        // GESTIÓN DEL TÍTULO DE LA APLICACIÓN Y MODOS DE CARRERA (TIEMPO / VUELTAS / POLE)
-        // ============================================================================
         function promptCustomTitle() {
             const tabCfg = document.getElementById('cfgAppTitle');
             switchTab('config');
@@ -1410,7 +1781,6 @@
             if (summaryEl) summaryEl.textContent = `${appState.activeLanes} CH · ${secDesc} · ${modeDesc}`;
         }
 
-        // Selección rápida de minutos (de 5 min a 60 min / 1 hora) desde la barra superior
         function applyQuickTimeMinutes(minsVal) {
             const mins = Math.max(1, parseInt(minsVal, 10) || 5);
             appState.heatTotalSeconds = mins * 60;
@@ -1431,7 +1801,6 @@
             applyQuickTimeMinutes(minsVal);
         }
 
-        // Entrada rápida de Número de Vueltas desde la barra superior
         function applyQuickTargetLaps(lapsVal) {
             const laps = Math.max(1, parseInt(lapsVal, 10) || 25);
             appState.targetLaps = laps;
@@ -1444,14 +1813,10 @@
             updateMultiLaneStandings();
         }
 
-        // ============================================================================
-        // CAMBIO DINÁMICO DE TOPOLOGÍA (2, 4, 6, 8, 10 CARRILES Y 1, 2, 3 SECTORES)
-        // ============================================================================
         function setSystemTopology(newLanes, newSectors) {
             if (newLanes !== null) appState.activeLanes = newLanes;
             if (newSectors !== null) appState.numSectors = newSectors;
 
-            // Actualizar estado visual de botones de Carriles (2,4,6,8,10)
             [2, 4, 6, 8, 10].forEach(n => {
                 const btn = document.getElementById(`btnLane-${n}`);
                 if (btn) {
@@ -1461,7 +1826,6 @@
                 }
             });
 
-            // Actualizar estado visual de botones de Sectores (1,2,3)
             [1, 2, 3].forEach(s => {
                 const btn = document.getElementById(`btnSec-${s}`);
                 if (btn) {
@@ -1471,7 +1835,6 @@
                 }
             });
 
-            // Sincronizar desplegables de configuración
             document.getElementById('cfgLanesSelect').value = String(appState.activeLanes);
             document.getElementById('cfgSectorsSelect').value = String(appState.numSectors);
             document.getElementById('rotLaneCountLabel').textContent = `${appState.activeLanes} carriles`;
@@ -1479,11 +1842,9 @@
             updateHeaderSummaryText();
             document.getElementById('mapTopologyLabel').textContent = `TOPOLOGÍA: ${appState.numSectors} REGLETA${appState.numSectors > 1 ? 'S' : ''} PCB - ${appState.activeLanes} CH`;
 
-            // Mostrar/Ocultar puertas S1 y S2 en el radar SVG
             document.getElementById('svgGateS1').style.display = appState.numSectors >= 2 ? 'block' : 'none';
             document.getElementById('svgGateS2').style.display = appState.numSectors === 3 ? 'block' : 'none';
 
-            // Reiniciar punteros de sector esperado si cambia la arquitectura
             for (let i = 1; i <= 10; i++) {
                 appState.lanes[i].nextExpectedSector = 1;
             }
@@ -1505,7 +1866,6 @@
             if (!lane || !lane.history || lane.history.length === 0) {
                 return `<span class="text-[10px] font-mono text-slate-500 italic">Esperando paso por meta para registrar vueltas...</span>`;
             }
-            // Mostramos todas las vueltas ordenadas de la más reciente a la primera para verlas al instante
             let chips = '';
             for (let idx = lane.history.length - 1; idx >= 0; idx--) {
                 const t = lane.history[idx];
@@ -1530,13 +1890,11 @@
             return chips;
         }
 
-        // Renderiza las tarjetas de los 2, 4, 6, 8 o 10 carriles adaptando el tamaño automáticamente
         function renderLanesGrid() {
             const container = document.getElementById('lanesGridContainer');
             const n = appState.activeLanes;
             const sCount = appState.numSectors;
 
-            // En pantalla horizontal (Tablet Landscape / PC / Mac) ajustamos filas y columnas exactas para ver todos los carriles de un vistazo
             if (n === 2) {
                 container.className = 'col-span-9 grid grid-cols-2 grid-rows-1 gap-3 h-full min-h-0';
             } else if (n === 4) {
@@ -1559,7 +1917,6 @@
                 const meanLap = getDriverMeanLap(lane);
                 const optLap = getDriverOptimalLap(lane);
 
-                // Construir cajas de micro-sectores con alto contraste y colorido
                 let sectorsHtml = '';
                 if (sCount >= 2) {
                     const s1Val = lane.lastSectors[1] !== null ? lane.lastSectors[1].toFixed(3) + 's' : '--.---';
@@ -1588,7 +1945,6 @@
                 html += `
                 <div id="laneCard-${i}" style="border-left-color: ${pal.hex};" class="glass-panel rounded-2xl ${isUltraCompact ? 'p-2' : (isMedium ? 'p-2.5' : 'p-3.5')} border-2 border-slate-700/80 border-l-[10px] flex flex-col gap-1.5 h-full min-h-0 transition-all relative overflow-hidden">
                     
-                    <!-- 1. CABECERA DEL CARRIL: Dorsal grande, Piloto + Club y Medalla de Posición -->
                     <div class="flex justify-between items-center gap-2 border-b border-slate-700/80 pb-1.5 shrink-0">
                         <div class="flex items-center gap-2 min-w-0">
                             <span style="background:${pal.hex}; color:#04070f;" class="px-2.5 py-1 rounded-xl font-mono-num font-black ${isUltraCompact ? 'text-xs' : 'text-sm'} shrink-0 shadow-md">
@@ -1612,9 +1968,7 @@
                         </div>
                     </div>
 
-                    <!-- 2. BLOQUES GRANDES DE DATOS PRINCIPALES (Aprovechan el ancho y alto con números gigantes) -->
                     <div class="grid grid-cols-12 gap-2 shrink-0">
-                        <!-- BLOQUE VUELTAS Y GAP (Azul Cian Intenso) -->
                         <div class="col-span-3 bg-gradient-to-br from-sky-950 via-slate-950 to-slate-950 p-2 rounded-xl border-2 border-sky-500/50 flex flex-col justify-between shadow-inner">
                             <div class="flex justify-between items-center">
                                 <span class="text-[9px] font-mono font-black text-sky-300 uppercase"><i class="fa-solid fa-flag-checkered mr-1"></i>VUELTAS</span>
@@ -1627,7 +1981,6 @@
                             </div>
                         </div>
 
-                        <!-- BLOQUE ÚLTIMA VUELTA, DELTA Y MEDIA (Color Dinámico FIA: Morado/Verde/Ámbar) -->
                         <div id="lastLapBox-${i}" class="col-span-5 bg-gradient-to-br from-amber-950/60 via-slate-950 to-slate-950 p-2 rounded-xl border-2 border-amber-500/50 flex flex-col justify-between shadow-inner">
                             <div class="flex justify-between items-center text-[9px] font-mono">
                                 <span class="font-black text-amber-300 uppercase"><i class="fa-solid fa-stopwatch mr-1"></i>ÚLTIMA VUELTA</span>
@@ -1642,7 +1995,6 @@
                             </div>
                         </div>
 
-                        <!-- BLOQUE MEJOR VUELTA PERSONAL, VELOCIDAD Y COMBUSTIBLE (Verde Esmeralda Intenso) -->
                         <div class="col-span-4 bg-gradient-to-br from-emerald-950 via-slate-950 to-slate-950 p-2 rounded-xl border-2 border-emerald-500/50 flex flex-col justify-between shadow-inner">
                             <div class="flex justify-between items-center">
                                 <span class="text-[9px] font-mono font-black text-emerald-300 uppercase"><i class="fa-solid fa-bolt mr-1"></i>MEJOR VUELTA</span>
@@ -1662,10 +2014,8 @@
                         </div>
                     </div>
 
-                    <!-- 3. MICRO-SECTORES EN VIVO -->
                     ${sectorsHtml}
 
-                    <!-- 4. REGISTRO COMPLETO DE TODAS LAS VUELTAS DEL PILOTO DENTRO DE SU CUADRO (Ocupa el resto del recuadro) -->
                     <div class="flex-1 min-h-0 bg-slate-950/95 rounded-xl border border-slate-800/90 p-2 flex flex-col justify-between overflow-hidden">
                         <div class="flex justify-between items-center border-b border-slate-800/80 pb-1 mb-1 shrink-0">
                             <span class="text-[9px] font-mono font-black text-sky-400 uppercase tracking-wider"><i class="fa-solid fa-list-ol mr-1"></i>HISTORIAL DE TODAS LAS VUELTAS (${lane.history.length})</span>
@@ -1737,7 +2087,6 @@
             if (!lanesGroup || !carsLayer || !masterPath) return;
 
             const n = appState.activeLanes;
-            // Ajustar anchura visual del asfalto según si la pista es de 2, 4, 6, 8 o 10 carriles
             const asphaltWidth = n === 2 ? 16 : (n === 4 ? 20 : (n === 6 ? 23 : (n === 8 ? 26 : 29)));
             if (asphaltPath) asphaltPath.setAttribute('stroke-width', String(asphaltWidth));
 
@@ -1782,16 +2131,11 @@
             carsLayer.innerHTML = carsSvg;
         }
 
-        // ============================================================================
-        // MOTOR CENTRAL MULTISECTOR (SOPORTA 1, 2 Ó 3 SECTORES Y 2..10 CARRILES)
-        // ============================================================================
-        // Avanza el coche por el siguiente punto de control esperado (S1 -> S2 -> Meta)
         function triggerNextCheckpoint(laneId) {
             if (laneId > appState.activeLanes) return;
             const lane = appState.lanes[laneId];
             const sCount = appState.numSectors;
 
-            // Tiempo base realista para la vuelta completa (~3.900s) repartido por el peso del sector
             const weight = sCount === 1 ? 1.0 : (sCount === 2 ? (lane.nextExpectedSector === 1 ? 0.48 : 0.52) : appState.sectorWeights[lane.nextExpectedSector - 1]);
             const simulatedSectorMs = Math.floor((3750 + Math.random() * 450) * weight);
             const simulatedTofMm = Math.floor(15 + Math.random() * 14);
@@ -1801,7 +2145,6 @@
 
         function registerSectorOrLapEvent(laneId, sectorIndex, timeMsFromHardware = null, tofMm = null) {
             if (laneId < 1 || laneId > 10) return;
-            // Si el modo Dongle Hardware USB está activo, verificar que la placa original haya enviado AUTH
             if (securityState.requireHardwareDongle && !securityState.dongleVerified) {
                 playTone(220, 300, 'sawtooth', 0.25);
                 speakSpotter("Llave física USB no detectada. Conecte el hardware oficial Sloting Plus.", true);
@@ -1810,7 +2153,6 @@
             const lane = appState.lanes[laneId];
             const now = performance.now();
 
-            // Detectar Salida Falsa (Jump Start) durante la secuencia roja F1
             if (appState.raceStatus === 'COUNTDOWN') {
                 playTone(190, 450, 'sawtooth', 0.28);
                 speakSpotter(`Salida falsa en carril ${laneId}, ${lane.name}. Penalización de una vuelta.`, true);
@@ -1836,12 +2178,9 @@
             lane.lastSectorPassTime = now;
             if (tofMm) lane.tofMm = tofMm;
 
-            // CASO A: MODO 1 SECTOR (SOLO META)
             if (sCount === 1 || sectorIndex >= sCount) {
                 if (sCount > 1) {
-                    // Registrar el último sector (S2 en modo 2 sectores, o S3 en modo 3 sectores)
                     processSingleSectorMetrics(laneId, sCount, secTime);
-                    // Calcular tiempo total de vuelta como suma de los sectores de esta vuelta
                     let sumLap = 0;
                     for (let s = 1; s <= sCount; s++) {
                         sumLap += (lane.currentLapSectors[s] || secTime);
@@ -1852,11 +2191,9 @@
                 }
                 lane.nextExpectedSector = 1;
             } else {
-                // CASO B: CORTE EN SECTOR INTERMEDIO (S1 ó S2 antes de Meta)
                 processSingleSectorMetrics(laneId, sectorIndex, secTime);
                 lane.nextExpectedSector = sectorIndex + 1;
 
-                // Actualizar etiqueta del botón de paso en la tarjeta
                 const btnStep = document.getElementById(`btnStep-${laneId}`);
                 if (btnStep) {
                     btnStep.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i>${lane.nextExpectedSector === sCount ? 'META' : 'S' + lane.nextExpectedSector}`;
@@ -1887,7 +2224,6 @@
 
             lane.sectorColors[sIdx] = secColor;
 
-            // Actualizar caja visual del sector en la tarjeta del carril
             const boxEl = document.getElementById(`secBox-${laneId}-${sIdx}`);
             const valEl = document.getElementById(`secVal-${laneId}-${sIdx}`);
             if (boxEl && valEl) {
@@ -1895,7 +2231,6 @@
                 valEl.textContent = `${secTime.toFixed(3)}s`;
             }
 
-            // Registrar paso de sector en el feed lateral
             const sectorDistMeters = appState.trackLengthMeters * (appState.numSectors === 2 ? 0.5 : appState.sectorWeights[sIdx - 1]);
             const secSpeedKmh = (sectorDistMeters / secTime) * 3.6 * appState.scaleFactor;
             prependLiveLogRow(`S${sIdx}`, laneId, lane.name, secTime, secSpeedKmh, secColor);
@@ -1912,7 +2247,6 @@
             lane.totalRaceTime += lapSec;
             lane.lastLapPassTime = performance.now();
 
-            // Consumo de combustible
             if (appState.fuelSimEnabled) {
                 lane.fuel = Math.max(0, lane.fuel - 5.5);
                 const fuelBar = document.getElementById(`fuelBar-${laneId}`);
@@ -1937,7 +2271,6 @@
 
             lane.history.push(lapSec);
 
-            // Guardar automáticamente el Récord Personal Histórico (PB) del piloto en la Base de Datos Local
             const rosterEntry = appState.roster.find(r => r.name === lane.name);
             if (rosterEntry) {
                 if (!rosterEntry.personalBest || lapSec < rosterEntry.personalBest) {
@@ -1950,11 +2283,9 @@
             const deltaStr = (delta >= 0 ? '+' : '') + delta.toFixed(3) + 's';
             const speedScaleKmh = (appState.trackLengthMeters / lapSec) * 3.6 * appState.scaleFactor;
 
-            // Calcular Vuelta Óptima Teórica (Suma de sus mejores sectores personales)
             const optLap = getDriverOptimalLap(lane);
             const meanLap = getDriverMeanLap(lane);
 
-            // Actualizar DOM de la tarjeta
             const lapsEl = document.getElementById(`laps-${laneId}`);
             if (lapsEl) {
                 lapsEl.textContent = lane.laps;
@@ -1990,7 +2321,6 @@
             updateSingleDriverAnalytics();
             updateMobilePitWallView();
 
-            // Si estamos en modo POR VUELTAS y este piloto alcanza el número de vueltas objetivo: ¡Bandera a cuadros!
             if (appState.raceFormat === 'LAPS') {
                 renderMasterClock();
                 if (lane.laps >= appState.targetLaps && appState.raceStatus === 'RACING') {
@@ -2000,6 +2330,7 @@
                     playTone(1567.98, 550, 'triangle', 0.28);
                     updateRaceBadge(`<i class="fa-solid fa-flag-checkered mr-1"></i>VICTORIA: ${lane.name}`, 'bg-purple-500/20 text-purple-300 border-purple-500/40');
                     announceFullStandingsWithHumor(true);
+                    finishAndOpenOfficialReport(true);
                     return;
                 }
             }
@@ -2009,21 +2340,18 @@
             const nowMs = performance.now();
             const newLeader = standings[0];
 
-            // 1. Si hay cambio de Líder en la carrera, cantarlo con emoción
             if (newLeader && newLeader.id !== prevLeaderId && newLeader.laps > 1) {
                 appState.currentLeaderId = newLeader.id;
                 speakSpotter(`¡Cambio de líder! ${newLeader.name} se pone primero en carrera. Segundo es ${standings[1]?.name || ''}.`, true);
                 return;
             }
 
-            // 2. Cada cierto tiempo o cada 4 vueltas del líder, cantar el Podio (1º, 2º, 3º) y el Último con cachondeo
             if (newLeader && newLeader.id === laneId && newLeader.laps >= 2 && newLeader.laps % 4 === 0 && (nowMs - appState.lastStandingsCallTime > 11000)) {
                 appState.lastStandingsCallTime = nowMs;
                 announceFullStandingsWithHumor(false);
                 return;
             }
 
-            // 3. Cante normal de vuelta o récord morado
             if (lapColor === 'sector-purple') {
                 speakSpotter(`Récord absoluto de pista para ${lane.name}: ${secInt} con ${dec}`);
             } else if (appState.activeLanes <= 4 || lapColor === 'sector-green') {
@@ -2031,7 +2359,6 @@
             }
         }
 
-        // Canta por voz el Líder (P1), Segundo (P2), Tercero (P3) y el Último con cachondeo de club
         function announceFullStandingsWithHumor(isFinalFlag = false) {
             const activeList = [];
             for (let i = 1; i <= appState.activeLanes; i++) {
@@ -2151,7 +2478,6 @@
             }
         }
 
-        // Calcula posiciones (P1 a P10) según el Modo de Carrera (Tiempo, Vueltas o Clasificación Pole)
         function updateMultiLaneStandings() {
             const activeList = [];
             for (let i = 1; i <= appState.activeLanes; i++) {
@@ -2159,10 +2485,8 @@
             }
 
             if (appState.raceFormat === 'QUALY') {
-                // En modo Pole Position gana la vuelta rápida individual más baja
                 activeList.sort((a, b) => a.bestLap - b.bestLap);
             } else {
-                // En modo Tiempo o Vueltas gana quien lleve más vueltas en menor tiempo acumulado
                 activeList.sort((a, b) => {
                     if (b.laps !== a.laps) return b.laps - a.laps;
                     return a.totalRaceTime - b.totalRaceTime;
@@ -2183,7 +2507,6 @@
                     cardEl.classList.remove('card-p1-glow', 'card-p2-glow', 'card-p3-glow', 'card-last-glow');
                 }
 
-                // Colores oficiales de Podio muy vistosos: P1 Oro, P2 Plata, P3 Bronce y Último Farolillo Rojo
                 if (posRank === 1) {
                     posBadge.innerHTML = appState.raceFormat === 'QUALY'
                         ? '<i class="fa-solid fa-trophy mr-1"></i>1&ordm; &middot; POLE'
@@ -2215,7 +2538,6 @@
                     gapEl.className = 'text-[9px] font-mono font-bold text-emerald-300 bg-slate-900 px-1.5 py-0.5 rounded truncate';
                 }
 
-                // Calcular diferencias para P2..PN
                 if (posRank > 1) {
                     if (appState.raceFormat === 'QUALY') {
                         const poleDiff = (lane.bestLap < Infinity && leader.bestLap < Infinity)
@@ -2239,9 +2561,6 @@
             return activeList;
         }
 
-        // ============================================================================
-        // TABLA COMPARATIVA DE MICRO-SECTORES Y VUELTA ÓPTIMA TEÓRICA
-        // ============================================================================
         function renderSectorAnalysisTable() {
             const tbody = document.getElementById('sectorAnalysisTableBody');
             if (!tbody) return;
@@ -2305,9 +2624,6 @@
             while (tbody.children.length > 40) tbody.removeChild(tbody.lastChild);
         }
 
-        // ============================================================================
-        // SECUENCIA DE SEMÁFORO F1, TRACK CALL Y RELOJ MAESTRO
-        // ============================================================================
         let countdownTimeouts = [];
 
         function clearF1Lights() {
@@ -2394,6 +2710,7 @@
                     if (appState.autoDemoTimer) toggleAutoDemo();
                     updateRaceBadge('<i class="fa-solid fa-flag-checkered mr-1"></i>FINAL DE MANGA', 'bg-purple-500/20 text-purple-300 border-purple-500/40');
                     announceFullStandingsWithHumor(true);
+                    finishAndOpenOfficialReport(true);
                 }
             }, 100);
         }
@@ -2404,7 +2721,6 @@
             if (!clockEl) return;
 
             if (appState.raceFormat === 'LAPS') {
-                // Mostrar Vuelta del Líder / Vueltas Objetivo
                 let maxLaps = 0;
                 for (let i = 1; i <= appState.activeLanes; i++) {
                     if (appState.lanes[i].laps > maxLaps) maxLaps = appState.lanes[i].laps;
@@ -2419,9 +2735,6 @@
             }
         }
 
-        // ============================================================================
-        // GRÁFICA MULTICARRIL, HISTOGRAMA POR PILOTO Y TARJETAS DE CONSISTENCIA
-        // ============================================================================
         let evolutionChart = null;
         let driverHistogramChart = null;
 
@@ -2530,7 +2843,6 @@
             logSerialConsole(`RX << ${line}`);
             const parts = line.toUpperCase().split(',');
 
-            // Verificación de Llave Física USB (Hardware Dongle Handshake)
             if (parts[0] === 'AUTH' && parts[1] === 'SLOTINGPLUS_OK') {
                 securityState.dongleVerified = true;
                 document.getElementById('usbText').innerHTML = '<i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i>DONGLE OK';
@@ -2538,7 +2850,6 @@
                 return;
             }
 
-            // Formato 1: Trama Clásica Directa "L1,3890" o "L10,3890,21"
             if (parts[0].startsWith('L')) {
                 const laneId = parseInt(parts[0].substring(1), 10);
                 const timeMs = parseInt(parts[1], 10);
@@ -2549,7 +2860,6 @@
                 return;
             }
 
-            // Formato 2: Trama Multisector "S1,L4,1290" | "S2,L4,1380" | "M,L4,1190"
             if ((parts[0].startsWith('S') || parts[0] === 'M') && parts[1] && parts[1].startsWith('L')) {
                 const secNum = parts[0] === 'M' ? appState.numSectors : parseInt(parts[0].substring(1), 10);
                 const laneId = parseInt(parts[1].substring(1), 10);
@@ -2645,9 +2955,6 @@
             }
         }
 
-        // ============================================================================
-        // INSCRIPCIÓN POR PILOTOS Y CLUBS, MANGAS ALEATORIAS Y COPA DE ESCUDERÍAS
-        // ============================================================================
         function renderRoster() {
             const list = document.getElementById('rosterList');
             if (!list) return;
@@ -2784,35 +3091,9 @@
             }
         }
 
-        function recordCurrentHeatToStandings() {
-            const raceSummary = [];
-            for (let i = 1; i <= appState.activeLanes; i++) {
-                const l = appState.lanes[i];
-                appState.championshipScores[l.name] = (appState.championshipScores[l.name] || 0) + l.laps;
-                const clubKey = l.club || 'CLUB INDEPENDIENTE';
-                appState.clubScores[clubKey] = (appState.clubScores[clubKey] || 0) + l.laps;
-                raceSummary.push({
-                    lane: i,
-                    driver: l.name,
-                    club: clubKey,
-                    laps: l.laps,
-                    bestLap: l.bestLap < Infinity ? l.bestLap : null
-                });
-            }
-            appState.savedRacesLog.unshift({
-                timestamp: new Date().toLocaleString(),
-                format: appState.raceFormat,
-                results: raceSummary
-            });
-            saveLocalDatabase();
-            renderRoster();
-            speakSpotter("Manga guardada en la base de datos interna de este dispositivo.", true);
-        }
-
         function renderClubStandings() {
             const box = document.getElementById('clubStandingsContainer');
             if (!box) return;
-            // Agregar todos los clubs inscritos aunque tengan 0 vueltas todavía
             const map = { ...appState.clubScores };
             appState.roster.forEach(r => {
                 if (map[r.club] === undefined) map[r.club] = 0;
@@ -2858,9 +3139,6 @@
             updateMobilePitWallView();
         }
 
-        // ============================================================================
-        // ENVÍO DE TIEMPOS A LOS MÓVILES DE LOS PILOTOS (QR DINÁMICO + WHATSAPP + CLIPBOARD)
-        // ============================================================================
         function updateMobilePitWallView() {
             const sel = document.getElementById('mobileDriverSelect');
             if (!sel) return;
@@ -2938,7 +3216,6 @@
             renderDynamicQrSvg(reportText);
         }
 
-        // Genera una matriz visual QR determinista en SVG con los datos de telemetría del piloto
         function renderDynamicQrSvg(payloadText) {
             const box = document.getElementById('dynamicQrContainer');
             if (!box) return;
@@ -3027,6 +3304,7 @@
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
             document.getElementById(`tabBtn-${tabId}`).className = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-black bg-sky-600 text-white shadow-lg shadow-sky-600/30 border border-sky-400 transition cursor-pointer shrink-0';
             if (tabId === 'sectors') renderSectorAnalysisTable();
+            if (tabId === 'rotation') renderArchivedRacesList();
             if (tabId === 'analytics') {
                 renderConsistencyCards();
                 updateAnalyticsChart();
@@ -3038,7 +3316,7 @@
         }
 
         // ============================================================================
-        // SISTEMA DE PROTECCIÓN ANTICOPIA POR HUELLA DE DISPOSITIVO (HWID) + CONTROL DE VENTAS
+        // SISTEMA DE PROTECCIÓN ANTICOPIA POR HUELLA DE DISPOSITIVO (HWID)
         // ============================================================================
         const securityState = {
             deviceHwid: '',
@@ -3048,7 +3326,6 @@
             deferredPwaPrompt: null
         };
 
-        // Genera una huella única (HWID) combinando GPU Canvas + CPU Cores + Screen + Plataforma
         function computeHardwareFingerprint() {
             let savedInstallationSalt = safeGetStorage('kronos_hw_salt_v6');
             if (!savedInstallationSalt) {
@@ -3076,7 +3353,6 @@
             return `KRN-${hex.substring(0, 4)}-${hex.substring(4, 8)}`;
         }
 
-        // Algoritmo criptográfico de firma: Calcula la Clave Oficial única para un HWID concreto
         function computeLicenseKeyForHwid(hwidStr) {
             const clean = hwidStr.trim().toUpperCase();
             const secretSalt = 'SLOTING_PLUS_MASTER_SECRET_2026';
@@ -3104,8 +3380,6 @@
             generateClientLicenseFromHwid();
             renderSoldLicensesList();
 
-            // Si es la versión de CLIENTE (IS_CLIENT_LOCKED_BUILD === true):
-            // 1. Ocultar el Panel de Fabricante (Keygen) y el botón de autocompletar
             if (IS_CLIENT_LOCKED_BUILD) {
                 const adminPanel = document.getElementById('manufacturerAdminPanel');
                 if (adminPanel) adminPanel.style.display = 'none';
@@ -3114,13 +3388,11 @@
             }
 
             const storedKey = safeGetStorage('kronos_activated_key_v6');
-            // En la compilación para clientes, SIEMPRE exige que la licencia esté activada en ese equipo
             if (IS_CLIENT_LOCKED_BUILD) {
                 if (storedKey !== securityState.expectedLicense) {
                     document.getElementById('securityLicenseModal').classList.remove('hidden');
                 }
             } else {
-                // En tu versión Maestra solo se muestra si tú pulsas "Probar Pantalla de Bloqueo"
                 if (storedKey && storedKey !== securityState.expectedLicense) {
                     document.getElementById('securityLicenseModal').classList.remove('hidden');
                 }
@@ -3160,7 +3432,7 @@
                 listEl.innerHTML = `<div class="text-slate-500 italic py-2 text-center">Aún no has registrado ventas. Introduce el nombre del club y su HWID arriba.</div>`;
                 return;
             }
-            listEl.innerHTML = log.map((item, idx) => `
+            listEl.innerHTML = log.map((item) => `
                 <div class="bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800 flex justify-between items-center">
                     <div class="truncate pr-2">
                         <span class="text-amber-400 font-bold">${item.client}</span>
@@ -3188,7 +3460,6 @@
 
         function verifyAndActivateDevice() {
             const entered = document.getElementById('licenseKeyInput').value.trim().toUpperCase();
-            // Acepta tanto el código exacto del dispositivo como tu código validado SP-DFDD-F8E3-PRO
             if (entered === securityState.expectedLicense || entered === 'SP-DFDD-F8E3-PRO') {
                 safeSetStorage('kronos_activated_key_v6', securityState.expectedLicense);
                 document.getElementById('securityLicenseModal').classList.add('hidden');
@@ -3235,7 +3506,6 @@
             }
         }
 
-        // Captura el evento de instalación nativa de Chrome / Android / Windows / Mac
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             securityState.deferredPwaPrompt = e;
@@ -3302,11 +3572,10 @@
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `apex_slot_multisector_${appState.activeLanes}ch.csv`;
+            a.download = `kronos_slot_multisector_${appState.activeLanes}ch.csv`;
             a.click();
         }
 
-        // Modo Pantalla Completa Nativa para Tablet Horizontal, PC y Mac
         function toggleFullScreenMode() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(() => {});
@@ -3315,7 +3584,6 @@
             }
         }
 
-        // Animación continua de los N coches sobre su propio carril paralelo en el mapa SVG
         function animateRadarGPS() {
             const path = document.getElementById('radarTrackPath');
             if (path) {
@@ -3332,7 +3600,6 @@
                         const expectedLapMs = (lane.bestLap < Infinity ? lane.bestLap : 3.85 + i * 0.05) * 1000;
                         progress = ((now - lane.lastLapPassTime) % expectedLapMs) / expectedLapMs;
                     } else {
-                        // En parrilla de salida se colocan escalonados en la recta de meta cada uno en su carril
                         progress = (0.21 - i * 0.008 + 1) % 1;
                     }
 
@@ -3371,7 +3638,6 @@
             }
         }
 
-        // Atajos de teclado [1..9 y 0 para Carril 10] y [Espacio] para Track Call
         window.addEventListener('keydown', (e) => {
             if (e.target.tagName === 'INPUT') return;
             if (e.key >= '1' && e.key <= '9') triggerNextCheckpoint(parseInt(e.key, 10));
@@ -3388,6 +3654,7 @@
             initDeviceSecurity();
             initChart();
             renderRoster();
+            renderArchivedRacesList();
             setSystemTopology(appState.activeLanes || 2, appState.numSectors || 3);
             setRaceFormat('TIME');
             renderMasterClock();
