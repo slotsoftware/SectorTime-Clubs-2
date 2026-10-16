@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="KRONOS PRO">
-    <title>KRONOS SLOT PRO OS v6.8 // Official Race Report & Club Archive</title>
+    <title>KRONOS SLOT PRO OS v6.9 // Android WebUSB OTG + VL6180X Ready</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -141,7 +141,6 @@
             border-color: rgba(239, 68, 68, 0.7) !important;
         }
 
-        /* Bloqueo y optimización para formato Horizontal (Tablet Landscape, PC y Mac) */
         #portraitWarningOverlay {
             display: none;
         }
@@ -158,6 +157,72 @@
 </head>
 
 <body class="h-screen w-screen overflow-hidden flex flex-col justify-between p-2 md:px-3.5 md:py-2.5 bg-[#04070f]">
+
+    <!-- ========================================================================================
+         MODAL DE DIAGNÓSTICO Y CONEXIÓN USB OTG ESPECIAL PARA TABLET ANDROID + ARDUINO UNO VL6180X
+         ======================================================================================== -->
+    <div id="usbAndroidHelperModal" class="hidden fixed inset-0 z-[58] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="glass-panel rounded-3xl max-w-2xl w-full p-5 border-2 border-sky-500/60 shadow-[0_0_50px_rgba(56,189,248,0.25)] space-y-4 font-mono">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-sky-500/20 border border-sky-400 flex items-center justify-center text-2xl text-sky-400">
+                        <i class="fa-brands fa-usb"></i>
+                    </div>
+                    <div>
+                        <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[9px] font-black uppercase rounded border border-emerald-500/40">
+                            DRIVER DUAL: ANDROID WEBUSB (CH340 / UNO R3) + PC WEBSERIAL
+                        </span>
+                        <h3 class="text-base font-black text-white uppercase mt-0.5">CONEXIÓN DIRECTA ARDUINO UNO + LÁSER VL6180X</h3>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('usbAndroidHelperModal').classList.add('hidden')" class="px-3 py-1.5 bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white rounded-xl text-xs font-bold cursor-pointer">
+                    <i class="fa-solid fa-xmark mr-1"></i>Cerrar
+                </button>
+            </div>
+
+            <!-- Estado en Tiempo Real del Bus y del Sensor VL6180X -->
+            <div class="grid grid-cols-3 gap-2.5 text-xs">
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <div class="text-[9px] text-slate-400 uppercase">ESTADO DEL CABLE USB OTG:</div>
+                    <div id="usbModalStatus" class="text-sm font-black text-amber-400 mt-1">DESCONECTADO</div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <div class="text-[9px] text-slate-400 uppercase">CHIP DETECTADO:</div>
+                    <div id="usbModalChip" class="text-sm font-black text-sky-400 mt-1">ESPERANDO PLACA...</div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <div class="text-[9px] text-slate-400 uppercase">LÁSER VL6180X (PINES A4/A5):</div>
+                    <div id="usbModalLaserStatus" class="text-sm font-black text-emerald-400 mt-1">SIN TRAMA AÚN</div>
+                </div>
+            </div>
+
+            <!-- Botones de Conexión Directa -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <button onclick="connectViaAndroidWebUSB()" class="py-3 px-4 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-xs rounded-2xl shadow-lg border border-sky-300/50 cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-android text-lg"></i> 1. VINCULAR EN TABLET ANDROID (WEBUSB OTG)
+                </button>
+                <button onclick="connectViaDesktopWebSerial()" class="py-3 px-4 bg-slate-800 hover:bg-emerald-600 text-slate-100 hover:text-white font-black text-xs rounded-2xl border border-slate-600 cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-laptop text-base"></i> 2. VINCULAR EN PC / MAC (PUERTO COM)
+                </button>
+            </div>
+
+            <!-- Instrucciones Críticas para Tablet Android -->
+            <div class="bg-slate-950 p-3.5 rounded-2xl border border-amber-500/40 text-[11px] space-y-1.5 text-slate-300 leading-relaxed">
+                <div class="text-amber-400 font-black uppercase"><i class="fa-solid fa-triangle-exclamation mr-1"></i>3 PASOS CLAVE SI USAS TABLET ANDROID CON ARDUINODROID:</div>
+                <div><strong class="text-white">1. Cierra del todo ArduinoDroid:</strong> Si acabas de cargar el código con ArduinoDroid, ciérralo por completo y <strong>desenchufa y vuelve a enchufar el cable USB OTG</strong>. Si no lo haces, ArduinoDroid secuestra el USB y no deja entrar a Chrome.</div>
+                <div><strong class="text-white">2. Abre la app en Google Chrome (con enlace web o servidor):</strong> Si abres un archivo suelto desde "Mis Archivos", Android bloquea el USB por seguridad. Ábrelo desde <strong>Google Chrome</strong>.</div>
+                <div><strong class="text-white">3. Pulsa el botón azul "1. VINCULAR EN TABLET ANDROID":</strong> Te saldrá una ventanita preguntando <em>"¿Permitir que Chrome acceda al dispositivo USB?"</em> &rarr; Selecciónalo y pulsa <strong>Aceptar</strong>.</div>
+            </div>
+
+            <!-- Monitor en vivo dentro del propio modal -->
+            <div class="bg-black/90 p-2.5 rounded-xl border border-slate-800">
+                <div class="text-[9px] text-emerald-400 font-bold uppercase mb-1">MONITOR DE TRAMAS RECIBIDAS DEL ARDUINO EN VIVO (115200 BAUDIOS):</div>
+                <div id="usbModalLiveFeed" class="h-20 overflow-y-auto text-[10px] text-emerald-300 space-y-0.5">
+                    <div>Esperando datos de tu Arduino UNO R3 (AUTH,SLOTINGPLUS_OK / L1,tiempo,mm)...</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ========================================================================================
          MODAL OFICIAL DE FIN DE CARRERA (ACTA COMPLETA DE TODOS LOS PILOTOS DEL 1º AL ÚLTIMO)
@@ -201,10 +266,10 @@
                 </div>
             </div>
 
-            <!-- Resumen de Récords de la Manga (Podio + Vuelta Rápida + Mejor Sector) -->
+            <!-- Resumen de Récords de la Manga -->
             <div id="reportModalKpiRow" class="grid grid-cols-4 gap-2.5 my-2.5 shrink-0 font-mono"></div>
 
-            <!-- Tabla Completa de Todos los Pilotos (Desde el 1º hasta el Último con todos los datos) -->
+            <!-- Tabla Completa de Todos los Pilotos -->
             <div class="flex-1 min-h-0 overflow-y-auto rounded-2xl border border-slate-800 bg-slate-950/90">
                 <table class="w-full text-left font-mono-num text-xs">
                     <thead class="bg-slate-900 text-slate-300 text-[10px] uppercase sticky top-0 z-10 border-b border-slate-800">
@@ -258,7 +323,6 @@
                 </p>
             </div>
 
-            <!-- Huella única del dispositivo actual -->
             <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-left font-mono space-y-1">
                 <div class="text-[10px] text-slate-400 uppercase">1. ID DE HARDWARE DE ESTE EQUIPO (ENVIAR POR WHATSAPP AL VENDEDOR):</div>
                 <div class="flex items-center justify-between gap-2">
@@ -269,7 +333,6 @@
                 </div>
             </div>
 
-            <!-- Entrada de Clave de Licencia vinculada a este HWID -->
             <div class="space-y-2 text-left font-mono">
                 <label class="block text-[10px] text-amber-400 font-bold uppercase">
                     2. INTRODUCIR CLAVE DE ACTIVACIÓN PROPORCIONADA POR SLOTING PLUS:
@@ -289,7 +352,7 @@
 
             <div id="masterDevShortcutRow" class="text-[10px] font-mono text-slate-500 border-t border-slate-800/80 pt-2 flex justify-between items-center">
                 <span>PROTECCIÓN HWID + DONGLE USB</span>
-                <button onclick="fillMasterDemoKey()" class="text-sky-400 hover:underline cursor-pointer" title="Solo visible en tu versión Maestra de Fabricante (se elimina automáticamente en el archivo del cliente)">
+                <button onclick="fillMasterDemoKey()" class="text-sky-400 hover:underline cursor-pointer">
                     <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Autocompletar (Solo Modo Fabricante)
                 </button>
             </div>
@@ -307,13 +370,12 @@
         </p>
     </div>
 
-    <!-- BARRA SUPERIOR DE DIRECCIÓN DE CARRERA: ORGANIZADA EN 3 ZONAS CLARAS (CONFIGURACIÓN | GRAN SEMÁFORO CENTRAL | MANDOS DE CARRERA) -->
+    <!-- BARRA SUPERIOR DE DIRECCIÓN DE CARRERA -->
     <header id="topRaceBar" class="glass-panel rounded-2xl px-3.5 py-2 mb-2 grid grid-cols-12 items-center gap-3 shrink-0">
         
         <!-- ZONA 1 (IZQUIERDA): MARCA + SELECTORES CLAROS DE MODO, CARRILES Y SECTORES -->
         <div class="col-span-5 flex flex-col gap-1.5">
             <div class="flex items-center justify-between gap-2">
-                <!-- Identidad Oficial -->
                 <div class="flex items-center gap-2 bg-slate-950/95 px-2.5 py-1 rounded-xl border border-sky-500/30 shadow shrink-0">
                     <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 via-sky-600 to-indigo-700 flex flex-col items-center justify-center shadow border border-amber-300/50 shrink-0">
                         <span class="text-[7px] font-black tracking-tighter leading-none text-white" id="brandShortLogo">SLOTING</span>
@@ -406,9 +468,8 @@
             </div>
         </div>
 
-        <!-- ZONA 3 (DERECHA): BOTONERA DE DIRECCIÓN DE CARRERA EN 2 FILAS GRANDES Y CLARAS -->
+        <!-- ZONA 3 (DERECHA): BOTONERA DE DIRECCIÓN DE CARRERA -->
         <div class="col-span-3 flex flex-col gap-1.5">
-            <!-- Fila Superior: Acciones Principales de Carrera -->
             <div class="grid grid-cols-3 gap-1.5">
                 <button onclick="startF1Sequence()" class="py-2 px-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 active:scale-95 text-white font-mono font-black text-xs rounded-xl shadow-lg border border-emerald-300/50 transition flex items-center justify-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-traffic-light"></i> SALIDA F1
@@ -420,7 +481,6 @@
                     <i class="fa-solid fa-robot"></i> AUTO-SIM
                 </button>
             </div>
-            <!-- Fila Inferior: Acta Final, Voz de Podio, USB, Reinicio y Pantalla Completa -->
             <div class="grid grid-cols-6 gap-1">
                 <button onclick="finishAndOpenOfficialReport()" class="py-1.5 bg-emerald-500/25 hover:bg-emerald-500/50 text-emerald-300 font-mono font-black text-[10px] rounded-lg border border-emerald-400/40 transition cursor-pointer flex items-center justify-center gap-1" title="Terminar carrera o ver el Acta Oficial Completa de Todos los Pilotos">
                     <i class="fa-solid fa-flag-checkered"></i> ACTA
@@ -431,20 +491,20 @@
                 <button onclick="toggleVoiceSpotter()" id="btnVoice" class="py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 font-mono font-bold text-[10px] rounded-lg border border-indigo-400/40 transition cursor-pointer flex items-center justify-center gap-1" title="Activar/Silenciar Voz">
                     <span id="voiceIcon"><i class="fa-solid fa-volume-high mr-1"></i>VOZ</span>
                 </button>
-                <button onclick="connectArduinoUSB()" class="py-1.5 bg-sky-600/25 hover:bg-sky-600/45 text-sky-300 font-mono font-bold text-[10px] rounded-lg border border-sky-500/40 transition cursor-pointer flex items-center justify-center gap-1" title="Conectar Cable USB OTG">
-                    <i class="fa-solid fa-plug"></i> USB
+                <button onclick="connectArduinoUSB()" id="btnConnectUsbHeader" class="py-1.5 bg-sky-600/40 hover:bg-sky-500 text-sky-200 hover:text-white font-mono font-black text-[10px] rounded-lg border border-sky-400/60 transition cursor-pointer flex items-center justify-center gap-1 shadow" title="Conectar Arduino por Cable USB OTG (Tablet Android o PC)">
+                    <i class="fa-solid fa-plug"></i> USB OTG
                 </button>
                 <button onclick="resetRaceSession()" class="py-1.5 bg-slate-800 hover:bg-red-900/60 text-slate-200 font-mono font-bold text-[10px] rounded-lg border border-slate-700 transition cursor-pointer flex items-center justify-center gap-1" title="Reiniciar Carrera">
                     <i class="fa-solid fa-rotate-right"></i> RESET
                 </button>
-                <button onclick="toggleFullScreenMode()" id="btnFullscreen" class="py-1.5 bg-sky-500/25 hover:bg-sky-500 text-sky-300 hover:text-white font-mono font-black text-[10px] rounded-lg border border-sky-400/50 transition cursor-pointer flex items-center justify-center gap-1 shadow" title="Maximizar a Pantalla Completa (Full Screen)">
+                <button onclick="toggleFullScreenMode()" id="btnFullscreen" class="py-1.5 bg-sky-500/25 hover:bg-sky-500 text-sky-300 hover:text-white font-mono font-black text-[10px] rounded-lg border border-sky-400/50 transition cursor-pointer flex items-center justify-center gap-1 shadow" title="Maximizar a Pantalla Completa">
                     <i class="fa-solid fa-expand" id="fullscreenIcon"></i> FULL
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- NAVEGACIÓN DE PANTALLAS TIPO PESTAÑAS GRANDES + BOTONES DE PASO POR META -->
+    <!-- NAVEGACIÓN DE PANTALLAS TIPO PESTAÑAS GRANDES -->
     <nav class="flex items-center justify-between gap-2 mb-2 shrink-0 bg-slate-950/90 p-1.5 rounded-2xl border border-slate-800/90">
         <div class="flex items-center gap-1.5 overflow-x-auto">
             <button onclick="switchTab('live')" id="tabBtn-live" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-black bg-sky-600 text-white shadow-lg shadow-sky-600/30 border border-sky-400 transition cursor-pointer shrink-0">
@@ -470,7 +530,6 @@
             </button>
         </div>
 
-        <!-- Simulador Rápido de Paso por el Siguiente Sector para cada Carril -->
         <div class="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1 rounded-xl border border-slate-700/80 overflow-x-auto max-w-full">
             <span class="text-[9px] font-mono font-bold text-amber-400 uppercase shrink-0"><i class="fa-solid fa-bolt mr-1"></i>PULSAR CARRIL:</span>
             <div id="quickSimButtons" class="flex items-center gap-1"></div>
@@ -481,19 +540,15 @@
          VISTA 1: PARRILLA EN VIVO MULTICARRIL + RADAR GPS + REGISTRO DE TIEMPOS EN TIEMPO REAL
          ======================================================================================== -->
     <section id="view-live" class="flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
-        <!-- Tarjetas Dinámicas de los 2, 4, 6, 8 ó 10 Carriles -->
         <div id="lanesGridContainer" class="col-span-9 grid grid-cols-2 grid-rows-1 gap-3 h-full min-h-0"></div>
 
-        <!-- Columna Lateral: Radar GPS del Circuito + Récords Morados + Feed en Vivo -->
         <div class="col-span-3 flex flex-col gap-2.5 h-full min-h-0">
-            <!-- Radar GPS y Estado de Regletas PCB -->
             <div class="glass-panel rounded-2xl p-3 flex flex-col justify-between shrink-0">
                 <div class="flex justify-between items-center mb-1">
                     <span class="text-[10px] font-mono font-bold text-sky-400 uppercase" id="mapTopologyLabel">TOPOLOGÍA: 3 REGLETAS PCB &middot; 2 CH</span>
                     <span class="text-[10px] font-mono font-black text-purple-300" id="overallPurpleLap">LAP: --.---s</span>
                 </div>
 
-                <!-- Pista Virtual Multicarril (Se adapta en vivo a 2, 4, 6, 8 ó 10 carriles paralelos) -->
                 <div class="bg-slate-950 rounded-xl border border-slate-800 p-1.5 mb-2">
                     <svg viewBox="0 0 320 135" class="w-full h-28">
                         <path id="radarTrackAsphalt" d="M 60 98 L 250 98 C 295 98 295 34 250 34 L 180 34 C 155 34 145 62 120 62 L 60 62 C 25 62 25 98 60 98 Z"
@@ -517,11 +572,9 @@
                     </svg>
                 </div>
 
-                <!-- Récords Absolutos por Sector -->
                 <div id="purpleSectorsSummary" class="grid grid-cols-3 gap-1.5 text-center font-mono-num text-[10px]"></div>
             </div>
 
-            <!-- Feed de Cronometraje e Ingeniero de Voz -->
             <div class="glass-panel rounded-2xl p-3 flex-1 min-h-0 flex flex-col justify-between">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-1.5 mb-1.5 shrink-0">
                     <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase"><i class="fa-solid fa-stopwatch mr-1"></i>CRONO &amp; SECTORES EN VIVO</span>
@@ -532,13 +585,13 @@
                 <div class="overflow-y-auto flex-1 min-h-0 pr-1">
                     <table class="w-full text-left font-mono-num text-[10px]">
                         <tbody id="liveLogBody" class="divide-y divide-slate-800/60">
-                            <tr><td colspan="4" class="py-6 text-center text-slate-500 font-mono">Listo para salida F1 o simulación...</td></tr>
+                            <tr><td colspan="4" class="py-6 text-center text-slate-500 font-mono">Listo para salida F1 o conexión USB OTG...</td></tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="mt-2 pt-1.5 border-t border-slate-800 flex items-center justify-between text-[10px] font-mono text-slate-400 shrink-0">
                     <span id="spotterMessage" class="truncate text-sky-300">Spotter IA en espera de salida...</span>
-                    <span id="usbText" class="text-[9px] text-emerald-400 shrink-0 ml-2"><i class="fa-solid fa-circle text-[7px] mr-1"></i>SIM/USB</span>
+                    <span id="usbText" onclick="connectArduinoUSB()" class="text-[9px] text-amber-400 hover:text-white cursor-pointer shrink-0 ml-2 font-black underline" title="Pulsa aquí para vincular el cable USB OTG de tu Arduino"><i class="fa-solid fa-plug mr-1"></i>CONECTAR USB</span>
                 </div>
             </div>
         </div>
@@ -548,7 +601,6 @@
          VISTA 4: BASE DE DATOS LOCAL DEL DISPOSITIVO + HEMEROTECA DE CARRERAS GUARDADAS
          ======================================================================================== -->
     <section id="view-rotation" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
-        <!-- Columna Izquierda: Base de Datos Local de Pilotos + Copia de Seguridad en Archivo -->
         <div class="col-span-5 glass-panel rounded-2xl p-3.5 flex flex-col justify-between min-h-0">
             <div class="space-y-2 min-h-0 flex-1 flex flex-col">
                 <div class="flex justify-between items-center shrink-0">
@@ -562,21 +614,19 @@
                     <span class="text-[10px] font-mono text-sky-400 font-bold bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">Pista: <strong id="rotLaneCountLabel">2 carriles</strong></span>
                 </div>
                 
-                <!-- Barra de Copia de Seguridad Local (Exportar / Importar archivo JSON en USB o Tablet) -->
                 <div class="grid grid-cols-3 gap-1.5 shrink-0 bg-slate-950 p-1.5 rounded-xl border border-slate-800 font-mono text-[10px]">
-                    <button onclick="exportLocalClubDatabaseFile()" class="py-1.5 px-2 bg-sky-600/25 hover:bg-sky-600 text-sky-300 hover:text-white font-bold rounded-lg border border-sky-500/40 cursor-pointer flex items-center justify-center gap-1" title="Guardar toda la base de datos de este club en un archivo en tu PC/Tablet">
+                    <button onclick="exportLocalClubDatabaseFile()" class="py-1.5 px-2 bg-sky-600/25 hover:bg-sky-600 text-sky-300 hover:text-white font-bold rounded-lg border border-sky-500/40 cursor-pointer flex items-center justify-center gap-1">
                         <i class="fa-solid fa-file-arrow-down"></i> Guardar BD (.JSON)
                     </button>
-                    <button onclick="document.getElementById('importDbFileInput').click()" class="py-1.5 px-2 bg-purple-600/25 hover:bg-purple-600 text-purple-300 hover:text-white font-bold rounded-lg border border-purple-500/40 cursor-pointer flex items-center justify-center gap-1" title="Cargar archivo de base de datos desde el dispositivo">
+                    <button onclick="document.getElementById('importDbFileInput').click()" class="py-1.5 px-2 bg-purple-600/25 hover:bg-purple-600 text-purple-300 hover:text-white font-bold rounded-lg border border-purple-500/40 cursor-pointer flex items-center justify-center gap-1">
                         <i class="fa-solid fa-file-arrow-up"></i> Cargar BD
                     </button>
-                    <button onclick="clearChampionshipPointsOnly()" class="py-1.5 px-2 bg-slate-800 hover:bg-red-900/60 text-slate-300 font-bold rounded-lg border border-slate-700 cursor-pointer flex items-center justify-center gap-1" title="Poner a cero solo los puntos del torneo manteniendo los pilotos y sus récords">
+                    <button onclick="clearChampionshipPointsOnly()" class="py-1.5 px-2 bg-slate-800 hover:bg-red-900/60 text-slate-300 font-bold rounded-lg border border-slate-700 cursor-pointer flex items-center justify-center gap-1">
                         <i class="fa-solid fa-eraser"></i> 0 Pts Torneo
                     </button>
                     <input id="importDbFileInput" type="file" accept=".json" onchange="importLocalClubDatabaseFile(event)" class="hidden"/>
                 </div>
 
-                <!-- Formulario de alta de Piloto + Club + Coche/Categoría -->
                 <div class="grid grid-cols-12 gap-1.5 shrink-0 bg-slate-950 p-2 rounded-xl border border-slate-800">
                     <input id="newDriverInput" type="text" placeholder="Piloto (ej. CARLOS)" class="col-span-4 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-sky-500"/>
                     <input id="newClubInput" type="text" placeholder="Club (ej. MANRESA)" class="col-span-4 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-amber-300 font-mono focus:outline-none focus:border-amber-500"/>
@@ -586,7 +636,6 @@
                     </button>
                 </div>
 
-                <!-- Cabecera de columnas de la Base de Datos de Pilotos -->
                 <div class="grid grid-cols-12 px-2.5 text-[9px] font-mono text-slate-400 uppercase shrink-0">
                     <div class="col-span-4">PILOTO / COCHE</div>
                     <div class="col-span-4">CLUB / ESCUDERÍA</div>
@@ -594,7 +643,6 @@
                     <div class="col-span-2 text-right">ACUMULADO</div>
                 </div>
 
-                <!-- Lista editable de pilotos guardados en el dispositivo con su Récord Personal Histórico -->
                 <div id="rosterList" class="space-y-1 overflow-y-auto pr-1 font-mono text-xs flex-1 min-h-0"></div>
             </div>
 
@@ -611,9 +659,7 @@
             </div>
         </div>
 
-        <!-- Columna Derecha: Cuadro de Mangas + HEMEROTECA DE CARRERAS GUARDADAS (CONSULTA EN CUALQUIER MOMENTO) -->
         <div class="col-span-7 flex flex-col gap-2.5 min-h-0">
-            <!-- Panel con selector entre "Cuadro de Mangas" y "Archivo Histórico de Carreras" -->
             <div class="glass-panel rounded-2xl p-3.5 flex-1 min-h-0 flex flex-col justify-between">
                 <div class="flex flex-wrap justify-between items-center gap-2 shrink-0 mb-2 border-b border-slate-800 pb-2">
                     <div class="flex items-center gap-1.5">
@@ -629,14 +675,10 @@
                     </button>
                 </div>
 
-                <!-- Sub-vista 1: Hemeroteca de Carreras Guardadas para consultar en cualquier momento -->
                 <div id="archivedRacesListContainer" class="space-y-2 overflow-y-auto flex-1 min-h-0 font-mono text-xs pr-1"></div>
-
-                <!-- Sub-vista 2: Cuadro de Rotación de Mangas -->
                 <div id="heatsContainer" class="hidden space-y-1.5 overflow-y-auto flex-1 min-h-0 font-mono text-xs pr-1"></div>
             </div>
 
-            <!-- Clasificación por Clubs / Escuderías -->
             <div class="glass-panel rounded-2xl p-3 h-36 shrink-0 flex flex-col justify-between">
                 <div class="flex justify-between items-center">
                     <span class="text-xs font-mono font-bold text-amber-400 uppercase"><i class="fa-solid fa-trophy mr-1.5"></i>RANKING GENERAL POR CLUBS / ESCUDERÍAS (ACUMULADO EN DISCO)</span>
@@ -729,7 +771,7 @@
             <div class="space-y-2">
                 <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-[10px] font-mono uppercase rounded border border-emerald-500/30 font-bold">TELEMETRÍA PERSONAL EN EL BOLSILLO</span>
                 <h2 class="text-base font-black text-white uppercase"><i class="fa-solid fa-qrcode mr-1.5 text-emerald-400"></i>Envío de Tiempos a los Móviles de los Pilotos</h2>
-                <p class="text-xs text-slate-400">Selecciona un piloto (o el resumen completo de la manga) para generar al instante su <strong>Tarjeta Móvil QR</strong> y el <strong>Informe Oficial para enviar por WhatsApp / Telegram</strong> con todos sus sectores y vuelta óptima.</p>
+                <p class="text-xs text-slate-400">Selecciona un piloto (o el resumen completo de la manga) para generar al instante su <strong>Tarjeta Móvil QR</strong> y el <strong>Informe Oficial para enviar por WhatsApp / Telegram</strong>.</p>
 
                 <div class="pt-1">
                     <label class="block text-[10px] font-mono text-slate-400 mb-1">SELECCIONAR PILOTO PARA ENVIAR A SU MÓVIL:</label>
@@ -743,7 +785,7 @@
                 </div>
                 <div class="space-y-1.5 text-xs font-mono">
                     <div class="text-emerald-400 font-bold">ESCANEAR CON CÁMARA DEL MÓVIL</div>
-                    <p class="text-[10px] text-slate-400 leading-relaxed">El piloto apunta con su móvil a la pantalla de tu Samsung Tab A9+ y se lleva su hoja completa de tiempos, sectores y consistencia.</p>
+                    <p class="text-[10px] text-slate-400 leading-relaxed">El piloto apunta con su móvil a la pantalla de tu Tablet y se lleva su hoja completa de tiempos, sectores y consistencia.</p>
                     <div class="flex flex-wrap gap-1.5 pt-1">
                         <button onclick="shareViaWhatsApp()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] rounded-lg cursor-pointer flex items-center gap-1.5">
                             <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
@@ -819,7 +861,7 @@
                             <option value="45">45 Minutos</option>
                             <option value="60">1 Hora (60m)</option>
                         </select>
-                        <input id="cfgHeatMinutesCustom" type="number" min="1" max="120" value="5" onchange="setConfigMinutesPreset(this.value)" class="w-1/2 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold" title="Minutos exactos (1 a 120 min)"/>
+                        <input id="cfgHeatMinutesCustom" type="number" min="1" max="120" value="5" onchange="setConfigMinutesPreset(this.value)" class="w-1/2 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold"/>
                     </div>
                     <input id="cfgHeatSeconds" type="hidden" value="300"/>
                 </div>
@@ -880,25 +922,28 @@
 
         <div class="col-span-6 glass-panel rounded-2xl p-4 space-y-3 flex flex-col justify-between overflow-y-auto min-h-0">
             <div class="space-y-2">
-                <h2 class="text-sm font-bold text-emerald-400 font-mono uppercase"><i class="fa-solid fa-microchip mr-1.5"></i>PROTOCOLO UNIVERSAL USB / CAN RJ45 (1 A 3 SECTORES &middot; 2 A 10 CARRILES)</h2>
+                <h2 class="text-sm font-bold text-emerald-400 font-mono uppercase"><i class="fa-solid fa-microchip mr-1.5"></i>CONEXIÓN ARDUINO UNO + SENSOR LÁSER VL6180X (TABLET ANDROID &amp; PC)</h2>
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    El motor de serie de <strong>KRONOS SLOT PRO</strong> reconoce automáticamente tanto tu prototipo básico de 2 carriles como la red completa de 10 carriles y 3 regletas PCB:
+                    Pulsa el botón de abajo para abrir el asistente de vinculación directa con tu Arduino UNO R3 y ver en vivo las lecturas milimétricas del sensor VL6180X:
                 </p>
+                <button onclick="connectArduinoUSB()" class="w-full py-2.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-mono font-black text-xs rounded-xl shadow-lg cursor-pointer">
+                    <i class="fa-brands fa-usb mr-1.5"></i>ABRIR PANEL DE CONEXIÓN ANDROID WEBUSB / PC WEBSERIAL
+                </button>
                 <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] space-y-1.5">
-                    <div><span class="text-sky-400 font-bold">&bull; Modo 1 Sector (Solo Meta):</span> <code class="text-amber-300">L1,3842</code> ó <code class="text-amber-300">M,L8,3842,19</code> (Carril 8, 3842 ms, 19 mm ToF)</div>
-                    <div><span class="text-sky-400 font-bold">&bull; Modo 2 ó 3 Sectores:</span> <code class="text-emerald-300">S1,L1,1320</code> (Corte en Regleta Sector 1) &rarr; <code class="text-emerald-300">S2,L1,1410</code> (Corte en Regleta Sector 2) &rarr; <code class="text-purple-300">M,L1,1112</code> (Corte en Meta: suma vuelta total o recibe tiempo directo).</div>
+                    <div><span class="text-sky-400 font-bold">&bull; Modo 1 Sector (Solo Meta):</span> <code class="text-amber-300">L1,3842,24</code> (Carril 1, 3842 ms, 24 mm ToF)</div>
+                    <div><span class="text-sky-400 font-bold">&bull; Modo 2 ó 3 Sectores:</span> <code class="text-emerald-300">S1,L1,1320</code> &rarr; <code class="text-emerald-300">S2,L1,1410</code> &rarr; <code class="text-purple-300">M,L1,1112</code></div>
                 </div>
             </div>
 
             <div class="flex gap-2">
-                <input id="manualSerialInput" type="text" placeholder="Ej: S1,L1,1280 o L2,3890" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-mono text-emerald-300"/>
+                <input id="manualSerialInput" type="text" placeholder="Ej: L1,3540,22 o S1,L1,1280" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-mono text-emerald-300"/>
                 <button onclick="injectManualSerial()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs rounded-xl cursor-pointer">
                     Inyectar Trama
                 </button>
             </div>
 
             <div id="serialRawConsole" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-40 overflow-y-auto font-mono text-[10px] text-emerald-400 space-y-1">
-                <div>[BOOT] KRONOS SLOT PRO v6.8 — Motor Multisector (1-3) y Multicarril (2-10) inicializado.</div>
+                <div>[BOOT] KRONOS SLOT PRO v6.9 — Driver Dual Android WebUSB + PC WebSerial inicializado.</div>
             </div>
         </div>
     </section>
@@ -999,7 +1044,7 @@
                                class="w-full bg-slate-900 border border-sky-500/50 rounded-xl px-2.5 py-2 text-sky-300 font-black uppercase"/>
                     </div>
                     <div class="col-span-2 flex items-end">
-                        <button onclick="useThisDeviceHwidInKeygen()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[9px] rounded-xl border border-slate-700 cursor-pointer" title="Probar con mi propio ID">
+                        <button onclick="useThisDeviceHwidInKeygen()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[9px] rounded-xl border border-slate-700 cursor-pointer">
                             Mi ID
                         </button>
                     </div>
@@ -1033,9 +1078,6 @@
                     <span class="text-sky-400 font-black uppercase"><i class="fa-solid fa-file-shield mr-1.5"></i>3. DESCARGAR ARCHIVO DE CLIENTE (NACE BLOQUEADO)</span>
                     <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[9px] font-bold border border-red-500/40">PIDE CLAVE AL ABRIR</span>
                 </div>
-                <p class="text-[10px] text-slate-300 leading-relaxed">
-                    Este botón genera el archivo <strong><code>index.html</code> para entregar a tus clientes</strong>: lleva el código fuente cifrado, <strong>elimina este panel de vendedor</strong> y <strong>se abre siempre bloqueado</strong> pidiendo su clave de activación.
-                </p>
                 <button onclick="exportProtectedClientBuild()" class="w-full py-2.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-xs rounded-xl shadow-lg cursor-pointer uppercase">
                     <i class="fa-solid fa-lock mr-1.5"></i>Descargar index_blindado_cliente.html (Bloqueado para Venta)
                 </button>
@@ -1044,26 +1086,11 @@
     </section>
 
     <script>
-        // BANDERA DE COMPILACIÓN: En tu versión Maestra es false (para que trabajes cómodo).
-        // Al pulsar "Descargar index_blindado_cliente.html", el empaquetador la convierte automáticamente en true.
         const IS_CLIENT_LOCKED_BUILD = false;
 
-        // ============================================================================
-        // ESCUDO ANTI-INSPECCIÓN DE CÓDIGO FUENTE
-        // ============================================================================
         document.addEventListener('contextmenu', (e) => {
             if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
                 e.preventDefault();
-            }
-        });
-        document.addEventListener('keydown', (e) => {
-            if (
-                e.key === 'F12' ||
-                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
-                (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'S' || e.key === 's'))
-            ) {
-                e.preventDefault();
-                return false;
             }
         });
 
@@ -1081,9 +1108,7 @@
                 const payloadB64 = btoa(binaryStr);
 
                 const loaderHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>KRONOS SLOT PRO // CLIENT EDITION</title></head><body style="background:#04070f;color:#fff;margin:0;overflow:hidden;"><script>
-/* SLOTING PLUS & SLOT SOFTWARE - PROTECTED CLIENT BUILD (REQUIRES HWID LICENSE KEY) */
 (function(){
-    document.addEventListener('contextmenu',function(e){e.preventDefault();});
     var _0x9f2a="${payloadB64}";
     var _0x3b1c=atob(_0x9f2a);
     var _0x7d4e=new Uint8Array(_0x3b1c.length);
@@ -1098,7 +1123,7 @@
                 a.href = URL.createObjectURL(blob);
                 a.download = 'index_blindado_cliente.html';
                 a.click();
-                speakSpotter("Archivo de cliente generado. Al abrirlo en cualquier equipo nuevo pedirá obligatoriamente el código de activación.", true);
+                speakSpotter("Archivo de cliente generado.", true);
             } catch (e) {
                 speakSpotter("Error al generar el archivo blindado.", true);
             }
@@ -1121,38 +1146,17 @@
             speakSpotter("Lanzador automático para Windows descargado.", true);
         }
 
-        // ============================================================================
-        // ALMACENAMIENTO SEGURO COMPATIBLE CON SANDBOX / IFRAMES
-        // ============================================================================
         const memoryStorageFallback = {};
         function safeGetStorage(key) {
-            try {
-                return window.localStorage.getItem(key);
-            } catch (e) {
-                return memoryStorageFallback[key] || null;
-            }
+            try { return window.localStorage.getItem(key); } catch (e) { return memoryStorageFallback[key] || null; }
         }
         function safeSetStorage(key, value) {
-            try {
-                window.localStorage.setItem(key, value);
-            } catch (e) {
-                memoryStorageFallback[key] = value;
-            }
+            try { window.localStorage.setItem(key, value); } catch (e) { memoryStorageFallback[key] = value; }
         }
         function safeRemoveStorage(key) {
-            try {
-                window.localStorage.removeItem(key);
-            } catch (e) {
-                delete memoryStorageFallback[key];
-            }
+            try { window.localStorage.removeItem(key); } catch (e) { delete memoryStorageFallback[key]; }
         }
         function safeCopyText(text) {
-            try {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(text).catch(() => {});
-                    return;
-                }
-            } catch (e) {}
             const temp = document.createElement('textarea');
             temp.value = text;
             document.body.appendChild(temp);
@@ -1161,9 +1165,6 @@
             document.body.removeChild(temp);
         }
 
-        // ============================================================================
-        // COLORES OFICIALES DE CLUB PARA HASTA 10 CARRILES
-        // ============================================================================
         const LANE_PALETTE = {
             1:  { name: 'ROJO',    hex: '#ef4444', border: 'border-l-red-500',     badge: 'bg-red-500/20 text-red-400 border-red-500/40' },
             2:  { name: 'BLANCO',  hex: '#f8fafc', border: 'border-l-slate-100',   badge: 'bg-slate-100/20 text-white border-slate-300/40' },
@@ -1194,9 +1195,7 @@
             "y cerrando la procesión en última posición va {name}, ¡que parece que lleva el coche atado con goma elástica!",
             "y de farolillo rojo tenemos a {name}, ¡alguien que le diga que el gatillo es para apretarlo a fondo!",
             "y en última posición {name}, que hoy ha salido a pasear el coche y mirar el paisaje del club.",
-            "y último va {name}, ¡pide pista que te va a doblar hasta el coche de seguridad!",
-            "y en la cola del pelotón está {name}, ¡échale tres en uno a esas trencillas que te pesan los neumáticos!",
-            "y cerrando el grupo va {name}, ¡con ese ritmo tan tranquilo no vas a gastar neumáticos en todo el año!"
+            "y último va {name}, ¡pide pista que te va a doblar hasta el coche de seguridad!"
         ];
 
         const appState = {
@@ -1234,14 +1233,11 @@
             lastStandingsCallTime: 0
         };
 
-        // ============================================================================
-        // MOTOR DE BASE DE DATOS LOCAL DEL DISPOSITIVO + HEMEROTECA DE CARRERAS
-        // ============================================================================
         const LOCAL_DB_STORAGE_KEY = 'kronos_local_club_database_v68';
 
         function saveLocalDatabase() {
             const payload = {
-                version: '6.8',
+                version: '6.9',
                 lastSaved: new Date().toISOString(),
                 appTitle: appState.appTitle,
                 activeLanes: appState.activeLanes,
@@ -1260,19 +1256,14 @@
             };
             safeSetStorage(LOCAL_DB_STORAGE_KEY, JSON.stringify(payload));
             const ind = document.getElementById('dbStatusIndicator');
-            if (ind) {
-                const timeStr = new Date().toLocaleTimeString();
-                ind.textContent = `Guardado en este dispositivo (${timeStr})`;
-            }
+            if (ind) ind.textContent = `Guardado en este dispositivo (${new Date().toLocaleTimeString()})`;
             const badge = document.getElementById('savedRacesCountBadge');
-            if (badge) {
-                badge.textContent = String(appState.savedRacesLog.length);
-            }
+            if (badge) badge.textContent = String(appState.savedRacesLog.length);
             renderArchivedRacesList();
         }
 
         function loadLocalDatabase() {
-            const raw = safeGetStorage(LOCAL_DB_STORAGE_KEY) || safeGetStorage('kronos_local_club_database_v65');
+            const raw = safeGetStorage(LOCAL_DB_STORAGE_KEY);
             if (!raw) return;
             try {
                 const db = JSON.parse(raw);
@@ -1295,8 +1286,6 @@
                 if (db.clubScores) appState.clubScores = db.clubScores;
                 if (Array.isArray(db.savedRacesLog)) appState.savedRacesLog = db.savedRacesLog;
                 if (Array.isArray(db.soldLicensesLog)) appState.soldLicensesLog = db.soldLicensesLog;
-                if (db.trackLengthMeters) appState.trackLengthMeters = db.trackLengthMeters;
-                if (db.scaleFactor) appState.scaleFactor = db.scaleFactor;
 
                 for (let i = 1; i <= 10; i++) {
                     const r = appState.roster[(i - 1) % appState.roster.length];
@@ -1308,9 +1297,6 @@
             } catch (e) {}
         }
 
-        // ============================================================================
-        // GENERADOR DEL ACTA OFICIAL DE FIN DE CARRERA (TODOS LOS DATOS DEL 1º AL ÚLTIMO)
-        // ============================================================================
         function buildCompleteRaceReportObject() {
             const activeList = [];
             for (let i = 1; i <= appState.activeLanes; i++) {
@@ -1332,7 +1318,6 @@
                     ? (appState.trackLengthMeters / lane.bestLap) * 3.6 * appState.scaleFactor
                     : 0;
 
-                // Consistencia y desviación estándar
                 let sd = 0;
                 let consistencyPct = 100;
                 if (lane.history.length > 1 && meanLap > 0) {
@@ -1340,7 +1325,6 @@
                     consistencyPct = Math.max(0, Math.min(100, 100 - (sd / meanLap) * 180));
                 }
 
-                // Cálculo de diferencia (Gap) respecto al 1º
                 let gapText = 'GANADOR / POLE';
                 if (pos > 1) {
                     if (appState.raceFormat === 'QUALY') {
@@ -1394,22 +1378,16 @@
             };
         }
 
-        // Se llama automáticamente cuando termina la carrera o cuando el usuario pulsa el botón "ACTA"
         function finishAndOpenOfficialReport(autoSave = false) {
             const report = buildCompleteRaceReportObject();
             appState.currentDisplayedReport = report;
-
-            if (autoSave) {
-                archiveReportIntoClubDatabase(report, true);
-            }
+            if (autoSave) archiveReportIntoClubDatabase(report, true);
             renderOfficialReportModal(report, autoSave);
             document.getElementById('postRaceReportModal').classList.remove('hidden');
         }
 
         function archiveReportIntoClubDatabase(report, silent = false) {
             if (!report || !Array.isArray(report.standings)) return;
-
-            // Evitar duplicar si ya se guardó exactamente el mismo ID
             const exists = appState.savedRacesLog.some(r => r.id === report.id);
             if (!exists) {
                 report.standings.forEach(st => {
@@ -1420,15 +1398,12 @@
                 saveLocalDatabase();
                 renderRoster();
             }
-
             const btnSave = document.getElementById('btnSaveArchiveModal');
             if (btnSave) {
                 btnSave.innerHTML = '<i class="fa-solid fa-check"></i> Guardada en el Historial del Club';
                 btnSave.className = 'px-3.5 py-2 bg-slate-800 text-emerald-400 font-black rounded-xl border border-emerald-500/40 cursor-pointer flex items-center gap-1.5';
             }
-            if (!silent) {
-                speakSpotter("Acta completa de carrera archivada en la base de datos del club.", true);
-            }
+            if (!silent) speakSpotter("Acta completa de carrera archivada en la base de datos del club.", true);
         }
 
         function saveCurrentReportToArchiveManual() {
@@ -1458,17 +1433,6 @@
             document.getElementById('reportModalTitle').textContent = `${report.title} — CLASIFICACIÓN DEL 1º AL ${report.standings.length}º`;
             document.getElementById('reportModalDate').textContent = `${report.timestamp} · Modo ${report.format} · ${report.activeLanes} Carriles`;
 
-            const btnSave = document.getElementById('btnSaveArchiveModal');
-            if (btnSave) {
-                if (isAlreadySaved) {
-                    btnSave.innerHTML = '<i class="fa-solid fa-circle-check"></i> Guardada en Historial del Club';
-                    btnSave.className = 'px-3.5 py-2 bg-slate-900 text-emerald-400 font-black rounded-xl border border-emerald-500/40 cursor-pointer flex items-center gap-1.5';
-                } else {
-                    btnSave.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar en Historial del Club';
-                    btnSave.className = 'px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl shadow cursor-pointer flex items-center gap-1.5';
-                }
-            }
-
             const winner = report.standings[0];
             const second = report.standings[1];
             const last = report.standings[report.standings.length - 1];
@@ -1497,7 +1461,6 @@
                 </div>
             `;
 
-            // Renderizar todas las filas desde el 1º hasta el último
             const tbody = document.getElementById('reportModalTableBody');
             tbody.innerHTML = report.standings.map(st => {
                 const pal = LANE_PALETTE[st.laneId] || LANE_PALETTE[1];
@@ -1532,7 +1495,6 @@
                 `;
             }).join('');
 
-            // Desglose de todas las vueltas de cada piloto debajo
             const lapBox = document.getElementById('reportModalLapByLapBox');
             lapBox.innerHTML = report.standings.map(st => {
                 const lapsList = st.allLaps && st.allLaps.length > 0
@@ -1590,18 +1552,17 @@
                 container.innerHTML = `
                     <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center space-y-2">
                         <div class="text-amber-400 font-bold text-sm"><i class="fa-solid fa-box-open mr-1.5"></i>AÚN NO HAY CARRERAS ARCHIVADAS EN ESTE EQUIPO</div>
-                        <p class="text-xs text-slate-400">En cuanto termine una manga por tiempo o por vueltas (o cuando pulses el botón verde <b>"ACTA"</b> arriba a la derecha), se guardará aquí automáticamente con todos los datos del 1º al último para que el club la consulte cuando quiera.</p>
+                        <p class="text-xs text-slate-400">En cuanto termine una manga por tiempo o por vueltas (o cuando pulses el botón verde <b>"ACTA"</b> arriba a la derecha), se guardará aquí automáticamente.</p>
                     </div>
                 `;
                 return;
             }
 
             container.innerHTML = appState.savedRacesLog.map((race, idx) => {
-                const stList = race.standings || race.results || [];
+                const stList = race.standings || [];
                 const p1 = stList[0];
                 const p2 = stList[1];
                 const p3 = stList[2];
-                const last = stList[stList.length - 1];
                 return `
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-amber-500/50 transition flex flex-wrap justify-between items-center gap-2">
                         <div class="space-y-1">
@@ -1614,14 +1575,13 @@
                                 ${p1 ? `<span class="text-amber-300 font-bold"><i class="fa-solid fa-crown mr-1"></i>1&ordm; ${p1.driver} (${p1.laps}v)</span>` : ''}
                                 ${p2 ? `<span class="text-slate-300 font-bold">2&ordm; ${p2.driver} (${p2.laps}v)</span>` : ''}
                                 ${p3 ? `<span class="text-orange-300 font-bold">3&ordm; ${p3.driver} (${p3.laps}v)</span>` : ''}
-                                ${last && stList.length > 2 ? `<span class="text-red-400">Último: ${last.driver} (${last.laps}v)</span>` : ''}
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5">
                             <button onclick="openArchivedRaceReport(${idx})" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-black text-[10px] rounded-lg cursor-pointer shadow">
-                                <i class="fa-solid fa-eye mr-1"></i>Consultar Todos los Datos
+                                <i class="fa-solid fa-eye mr-1"></i>Consultar Datos
                             </button>
-                            <button onclick="deleteArchivedRaceReport(${idx})" class="px-2 py-1.5 bg-slate-900 hover:bg-red-900/70 text-slate-400 hover:text-white text-[10px] rounded-lg border border-slate-800 cursor-pointer" title="Borrar carrera del archivo">
+                            <button onclick="deleteArchivedRaceReport(${idx})" class="px-2 py-1.5 bg-slate-900 hover:bg-red-900/70 text-slate-400 hover:text-white text-[10px] rounded-lg border border-slate-800 cursor-pointer">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
@@ -1635,11 +1595,10 @@
             const raw = safeGetStorage(LOCAL_DB_STORAGE_KEY) || JSON.stringify({ roster: appState.roster, savedRacesLog: appState.savedRacesLog });
             const blob = new Blob([raw], { type: 'application/json;charset=utf-8;' });
             const a = document.createElement('a');
-            const dateTag = new Date().toISOString().slice(0, 10);
             a.href = URL.createObjectURL(blob);
-            a.download = `BD_CLUB_KRONOS_${dateTag}.json`;
+            a.download = `BD_CLUB_KRONOS_${new Date().toISOString().slice(0, 10)}.json`;
             a.click();
-            speakSpotter("Copia de seguridad local descargada en este dispositivo.", true);
+            speakSpotter("Copia de seguridad local descargada.", true);
         }
 
         function importLocalClubDatabaseFile(event) {
@@ -1656,10 +1615,10 @@
                         renderArchivedRacesList();
                         renderLanesGrid();
                         generateChampionshipHeats(false);
-                        speakSpotter("Base de datos del club restaurada correctamente en este equipo.", true);
+                        speakSpotter("Base de datos del club restaurada.", true);
                     }
                 } catch (err) {
-                    speakSpotter("El archivo seleccionado no es una copia válida.", true);
+                    speakSpotter("El archivo seleccionado no es válido.", true);
                 }
             };
             reader.readAsText(file);
@@ -1672,7 +1631,7 @@
             saveLocalDatabase();
             renderRoster();
             renderArchivedRacesList();
-            speakSpotter("Puntos del campeonato reiniciados. Se mantienen todos los pilotos, clubs y sus récords.", true);
+            speakSpotter("Puntos del campeonato reiniciados.", true);
         }
 
         function initAllLanesData() {
@@ -1700,9 +1659,6 @@
             }
         }
 
-        // ============================================================================
-        // SINTETIZADOR DE SONIDOS F1 & INGENIERO DE VOZ
-        // ============================================================================
         let audioCtx = null;
         function getAudioContext() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1867,7 +1823,7 @@
         function buildLaneLapHistoryHTML(laneId) {
             const lane = appState.lanes[laneId];
             if (!lane || !lane.history || lane.history.length === 0) {
-                return `<span class="text-[10px] font-mono text-slate-500 italic">Esperando paso por meta para registrar vueltas...</span>`;
+                return `<span class="text-[10px] font-mono text-slate-500 italic">Esperando paso por sensor láser VL6180X...</span>`;
             }
             let chips = '';
             for (let idx = lane.history.length - 1; idx >= 0; idx--) {
@@ -1954,9 +1910,9 @@
                                 CH${i}
                             </span>
                             <div class="flex flex-col min-w-0">
-                                <input id="driverName-${i}" type="text" value="${lane.name}" onchange="updateDriverName(${i}, this.value)" title="Clic para editar nombre del piloto"
+                                <input id="driverName-${i}" type="text" value="${lane.name}" onchange="updateDriverName(${i}, this.value)"
                                        class="bg-transparent text-white font-black ${isUltraCompact ? 'text-xs w-20' : (isMedium ? 'text-sm w-32' : 'text-lg w-44')} tracking-tight truncate leading-tight focus:outline-none focus:border-b border-sky-400"/>
-                                <input id="driverClub-${i}" type="text" value="${lane.club || 'CLUB INDEPENDIENTE'}" onchange="updateDriverClub(${i}, this.value)" title="Clic para editar Club o Escudería"
+                                <input id="driverClub-${i}" type="text" value="${lane.club || 'CLUB INDEPENDIENTE'}" onchange="updateDriverClub(${i}, this.value)"
                                        class="bg-transparent text-amber-300 font-mono font-bold ${isUltraCompact ? 'text-[8px] w-20' : 'text-[10px] w-40'} tracking-wider uppercase truncate leading-none mt-0.5 focus:outline-none focus:border-b border-amber-400"/>
                             </div>
                         </div>
@@ -1976,7 +1932,7 @@
                             <div class="flex justify-between items-center">
                                 <span class="text-[9px] font-mono font-black text-sky-300 uppercase"><i class="fa-solid fa-flag-checkered mr-1"></i>VUELTAS</span>
                             </div>
-                            <div id="laps-${i}" class="${isUltraCompact ? 'text-2xl' : (isMedium ? 'text-4xl' : 'text-5xl')} font-mono-num font-black text-white leading-none my-1 drop-shadow-[0_2px_8px_rgba(56,189,248,0.35)]">
+                            <div id="laps-${i}" class="${isUltraCompact ? 'text-2xl' : (isMedium ? 'text-4xl' : 'text-5xl')} font-mono-num font-black text-white leading-none my-1">
                                 ${lane.laps}
                             </div>
                             <div id="gap-${i}" class="text-[9px] font-mono font-black text-amber-300 truncate bg-slate-900/95 px-1.5 py-0.5 rounded border border-slate-700 text-center">
@@ -1989,7 +1945,7 @@
                                 <span class="font-black text-amber-300 uppercase"><i class="fa-solid fa-stopwatch mr-1"></i>ÚLTIMA VUELTA</span>
                                 <span id="deltaBadge-${i}" class="px-1.5 py-0.5 rounded font-black bg-slate-900 text-white border border-slate-700">&Delta; 0.000s</span>
                             </div>
-                            <div id="lastLap-${i}" class="${isUltraCompact ? 'text-xl' : (isMedium ? 'text-3xl' : 'text-5xl')} font-mono-num font-black text-white tracking-tight leading-none my-1 drop-shadow">
+                            <div id="lastLap-${i}" class="${isUltraCompact ? 'text-xl' : (isMedium ? 'text-3xl' : 'text-5xl')} font-mono-num font-black text-white tracking-tight leading-none my-1">
                                 ${lane.lastLap > 0 ? lane.lastLap.toFixed(3) + 's' : '0.000s'}
                             </div>
                             <div class="flex justify-between items-center text-[9px] font-mono font-bold bg-slate-950/90 px-2 py-0.5 rounded border border-slate-800">
@@ -2002,15 +1958,15 @@
                             <div class="flex justify-between items-center">
                                 <span class="text-[9px] font-mono font-black text-emerald-300 uppercase"><i class="fa-solid fa-bolt mr-1"></i>MEJOR VUELTA</span>
                                 ${!isUltraCompact ? `
-                                <button onclick="refuelCar(${i})" class="text-[8px] font-mono font-black px-1.5 py-0.5 bg-sky-500/25 text-sky-200 rounded border border-sky-400/50 hover:bg-sky-500 hover:text-white cursor-pointer" title="Repostar Combustible"><i class="fa-solid fa-gas-pump mr-1"></i>BOX</button>
+                                <button onclick="refuelCar(${i})" class="text-[8px] font-mono font-black px-1.5 py-0.5 bg-sky-500/25 text-sky-200 rounded border border-sky-400/50 hover:bg-sky-500 hover:text-white cursor-pointer"><i class="fa-solid fa-gas-pump mr-1"></i>BOX</button>
                                 ` : ''}
                             </div>
-                            <div id="bestLap-${i}" class="${isUltraCompact ? 'text-lg' : (isMedium ? 'text-2xl' : 'text-4xl')} font-mono-num font-black text-emerald-400 leading-none my-1 drop-shadow-[0_2px_8px_rgba(16,185,129,0.35)]">
+                            <div id="bestLap-${i}" class="${isUltraCompact ? 'text-lg' : (isMedium ? 'text-2xl' : 'text-4xl')} font-mono-num font-black text-emerald-400 leading-none my-1">
                                 ${lane.bestLap < Infinity ? lane.bestLap.toFixed(3) + 's' : '--.---s'}
                             </div>
                             <div class="flex justify-between items-center bg-slate-950/90 px-2 py-0.5 rounded border border-slate-800">
                                 <span id="speed-${i}" class="text-[10px] font-mono-num font-black text-sky-300 truncate">0.0 km/h</span>
-                                <div class="w-12 h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700 ml-1" title="Nivel de Combustible">
+                                <div class="w-12 h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700 ml-1">
                                     <div id="fuelBar-${i}" class="h-full bg-gradient-to-r from-emerald-500 to-lime-400" style="width: ${lane.fuel}%"></div>
                                 </div>
                             </div>
@@ -2040,7 +1996,7 @@
             for (let i = 1; i <= appState.activeLanes; i++) {
                 const pal = LANE_PALETTE[i];
                 html += `
-                    <button onclick="triggerNextCheckpoint(${i})" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${pal.badge} hover:scale-105 transition cursor-pointer" title="Tecla [${i === 10 ? '0' : i}]">
+                    <button onclick="triggerNextCheckpoint(${i})" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${pal.badge} hover:scale-105 transition cursor-pointer">
                         CH${i}
                     </button>
                 `;
@@ -2138,11 +2094,9 @@
             if (laneId > appState.activeLanes) return;
             const lane = appState.lanes[laneId];
             const sCount = appState.numSectors;
-
             const weight = sCount === 1 ? 1.0 : (sCount === 2 ? (lane.nextExpectedSector === 1 ? 0.48 : 0.52) : appState.sectorWeights[lane.nextExpectedSector - 1]);
             const simulatedSectorMs = Math.floor((3750 + Math.random() * 450) * weight);
             const simulatedTofMm = Math.floor(15 + Math.random() * 14);
-
             registerSectorOrLapEvent(laneId, lane.nextExpectedSector, simulatedSectorMs, simulatedTofMm);
         }
 
@@ -2150,7 +2104,7 @@
             if (laneId < 1 || laneId > 10) return;
             if (securityState.requireHardwareDongle && !securityState.dongleVerified) {
                 playTone(220, 300, 'sawtooth', 0.25);
-                speakSpotter("Llave física USB no detectada. Conecte el hardware oficial Sloting Plus.", true);
+                speakSpotter("Llave física USB no detectada.", true);
                 return;
             }
             const lane = appState.lanes[laneId];
@@ -2167,7 +2121,7 @@
 
             if (appState.raceStatus === 'STANDBY') {
                 appState.raceStatus = 'RACING';
-                updateRaceBadge('<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>ENTRENAMIENTOS / LIBRES', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
+                updateRaceBadge('<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>EN CARRERA / LÁSER ACTIVO', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
                 startMasterClock();
             }
 
@@ -2182,7 +2136,7 @@
             if (tofMm) lane.tofMm = tofMm;
 
             if (sCount === 1 || sectorIndex >= sCount) {
-                if (sCount > 1) {
+                if (sCount > 1 && lane.currentLapSectors[1] !== null) {
                     processSingleSectorMetrics(laneId, sCount, secTime);
                     let sumLap = 0;
                     for (let s = 1; s <= sCount; s++) {
@@ -2196,7 +2150,6 @@
             } else {
                 processSingleSectorMetrics(laneId, sectorIndex, secTime);
                 lane.nextExpectedSector = sectorIndex + 1;
-
                 const btnStep = document.getElementById(`btnStep-${laneId}`);
                 if (btnStep) {
                     btnStep.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i>${lane.nextExpectedSector === sCount ? 'META' : 'S' + lane.nextExpectedSector}`;
@@ -2304,9 +2257,7 @@
                 if (meanTag) meanTag.textContent = `Media: ${meanLap.toFixed(3)}s | Total: ${lane.history.length} V.`;
 
                 const historyBox = document.getElementById(`lapHistoryList-${laneId}`);
-                if (historyBox) {
-                    historyBox.innerHTML = buildLaneLapHistoryHTML(laneId);
-                }
+                if (historyBox) historyBox.innerHTML = buildLaneLapHistoryHTML(laneId);
 
                 const lastBox = document.getElementById(`lastLapBox-${laneId}`);
                 lastBox.className = `col-span-5 p-2 rounded-xl border-2 flex flex-col justify-between transition-all shadow-inner ${lapColor}`;
@@ -2345,13 +2296,7 @@
 
             if (newLeader && newLeader.id !== prevLeaderId && newLeader.laps > 1) {
                 appState.currentLeaderId = newLeader.id;
-                speakSpotter(`¡Cambio de líder! ${newLeader.name} se pone primero en carrera. Segundo es ${standings[1]?.name || ''}.`, true);
-                return;
-            }
-
-            if (newLeader && newLeader.id === laneId && newLeader.laps >= 2 && newLeader.laps % 4 === 0 && (nowMs - appState.lastStandingsCallTime > 11000)) {
-                appState.lastStandingsCallTime = nowMs;
-                announceFullStandingsWithHumor(false);
+                speakSpotter(`¡Cambio de líder! ${newLeader.name} se pone primero en carrera.`, true);
                 return;
             }
 
@@ -2364,9 +2309,7 @@
 
         function announceFullStandingsWithHumor(isFinalFlag = false) {
             const activeList = [];
-            for (let i = 1; i <= appState.activeLanes; i++) {
-                activeList.push(appState.lanes[i]);
-            }
+            for (let i = 1; i <= appState.activeLanes; i++) activeList.push(appState.lanes[i]);
             if (appState.raceFormat === 'QUALY') {
                 activeList.sort((a, b) => a.bestLap - b.bestLap);
             } else {
@@ -2375,27 +2318,15 @@
 
             const p1 = activeList[0];
             const p2 = activeList[1];
-            const p3 = activeList.length >= 3 ? activeList[2] : null;
             const last = activeList[activeList.length - 1];
-
             const bromaTemplate = FRASES_CACHONDEO_ULTIMO[Math.floor(Math.random() * FRASES_CACHONDEO_ULTIMO.length)];
             const bromaLast = bromaTemplate.replace('{name}', last.name);
 
             let speech = isFinalFlag
-                ? `¡Final de carrera! Victoria y medalla de oro para ${p1.name}. `
-                : `Repaso de carrera: Lidera ${p1.name} en primera posición. `;
-
-            if (p2) {
-                speech += `Segundo en plata es ${p2.name}. `;
-            }
-            if (p3 && activeList.length > 3) {
-                speech += `Tercero en bronce rueda ${p3.name}, `;
-                speech += bromaLast;
-            } else if (p3 && activeList.length === 3) {
-                speech += `Y en tercera y última posición, ` + bromaLast.replace(/^y /i, '');
-            } else if (activeList.length === 2 && last) {
-                speech += bromaLast;
-            }
+                ? `¡Final de carrera! Victoria para ${p1.name}. `
+                : `Lidera ${p1.name} en primera posición. `;
+            if (p2) speech += `Segundo es ${p2.name}. `;
+            if (last) speech += bromaLast;
 
             speakSpotter(speech, true);
         }
@@ -2452,16 +2383,123 @@
             }
         }
 
-        async function connectArduinoUSB() {
-            if (!('serial' in navigator)) {
-                speakSpotter("Usa Google Chrome o Edge para conectar el puerto USB.", true);
+        // ============================================================================
+        // DRIVER HÍBRIDO USB OTG: ANDROID WEBUSB (CH340 / ARDUINO UNO / CP210X) + PC WEBSERIAL
+        // ============================================================================
+        let activeUsbDevice = null;
+        let usbReadLoopActive = false;
+
+        function connectArduinoUSB() {
+            document.getElementById('usbAndroidHelperModal').classList.remove('hidden');
+        }
+
+        async function connectViaAndroidWebUSB() {
+            if (!('usb' in navigator)) {
+                if ('serial' in navigator) {
+                    return connectViaDesktopWebSerial();
+                }
+                speakSpotter("Abre el programa en Google Chrome para usar el puerto USB OTG.", true);
+                logSerialConsole("ERROR: navigator.usb no disponible en este visor.");
                 return;
+            }
+
+            try {
+                const device = await navigator.usb.requestDevice({ filters: [] });
+                activeUsbDevice = device;
+                await device.open();
+                if (device.configuration === null) {
+                    await device.selectConfiguration(1);
+                }
+
+                let targetInterfaceNumber = 0;
+                let endpointIn = 1;
+
+                for (const iface of device.configuration.interfaces) {
+                    for (const alt of iface.alternates) {
+                        const epIn = alt.endpoints.find(e => e.direction === 'in' && e.type === 'bulk');
+                        if (epIn) {
+                            targetInterfaceNumber = iface.interfaceNumber;
+                            endpointIn = epIn.endpointNumber;
+                            break;
+                        }
+                    }
+                }
+
+                await device.claimInterface(targetInterfaceNumber);
+
+                const isCH340 = (device.vendorId === 0x1A86);
+                const isCP210x = (device.vendorId === 0x10C4);
+                const isFTDI = (device.vendorId === 0x0403);
+
+                const chipLabel = isCH340
+                    ? 'CH340 / ARDUINO UNO'
+                    : (isCP210x ? 'SILABS CP210X' : (isFTDI ? 'FTDI USB' : `ARDUINO CDC (VID:${device.vendorId.toString(16).toUpperCase()})`));
+
+                document.getElementById('usbModalChip').textContent = chipLabel;
+
+                if (isCH340) {
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0xA1, value: 0x0000, index: 0x0000 });
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x9A, value: 0x1312, index: 0xCC03 });
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x9A, value: 0x2518, index: 0x00C3 });
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0xA4, value: ~((1 << 5) | (1 << 6)) & 0xFFFF, index: 0 });
+                } else if (isCP210x) {
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'interface', request: 0x00, value: 0x0001, index: targetInterfaceNumber });
+                    const baudBuf = new Uint8Array([0x00, 0xC2, 0x01, 0x00]);
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'interface', request: 0x1E, value: 0, index: targetInterfaceNumber }, baudBuf);
+                } else {
+                    const lineCoding = new Uint8Array([0x00, 0xC2, 0x01, 0x00, 0x00, 0x00, 0x08]);
+                    try {
+                        await device.controlTransferOut({ requestType: 'class', recipient: 'interface', request: 0x20, value: 0, index: 0 }, lineCoding);
+                        await device.controlTransferOut({ requestType: 'class', recipient: 'interface', request: 0x22, value: 0x0003, index: 0 });
+                    } catch (cdcErr) {}
+                }
+
+                document.getElementById('usbText').innerHTML = '<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>USB OTG ACTIVO';
+                document.getElementById('usbModalStatus').textContent = 'CONECTADO A 115200 BAUD';
+                document.getElementById('usbModalStatus').className = 'text-sm font-black text-emerald-400 mt-1';
+                speakSpotter("Arduino UNO vinculado por USB OTG en la Tablet. Pasa el coche por el sensor láser.", true);
+                logSerialConsole(`Conectado en Tablet Android (${chipLabel}) Endpoint IN #${endpointIn}`);
+
+                usbReadLoopActive = true;
+                const decoder = new TextDecoder();
+                let rxBuffer = '';
+
+                while (usbReadLoopActive && device.opened) {
+                    const result = await device.transferIn(endpointIn, 64);
+                    if (result.data && result.data.byteLength > 0) {
+                        let rawBytes = new Uint8Array(result.data.buffer);
+                        if (isFTDI && rawBytes.length >= 2) {
+                            rawBytes = rawBytes.slice(2);
+                        }
+                        if (rawBytes.length > 0) {
+                            rxBuffer += decoder.decode(rawBytes, { stream: true });
+                            const lines = rxBuffer.split('\n');
+                            rxBuffer = lines.pop();
+                            for (const l of lines) {
+                                parseUniversalSerialLine(l);
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                logSerialConsole("Aviso WebUSB Android: " + err.message);
+                speakSpotter("No se pudo abrir el puerto USB. Cierra ArduinoDroid y reconecta el cable OTG.", true);
+            }
+        }
+
+        async function connectViaDesktopWebSerial() {
+            if (!('serial' in navigator)) {
+                return connectViaAndroidWebUSB();
             }
             try {
                 const port = await navigator.serial.requestPort();
                 await port.open({ baudRate: 115200 });
-                document.getElementById('usbText').textContent = 'USB ARDUINO ONLINE';
-                speakSpotter("Bus USB conectado correctamente.", true);
+                document.getElementById('usbText').innerHTML = '<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>USB COM ONLINE';
+                document.getElementById('usbModalStatus').textContent = 'CONECTADO (WEBSERIAL 115200)';
+                document.getElementById('usbModalStatus').className = 'text-sm font-black text-emerald-400 mt-1';
+                document.getElementById('usbModalChip').textContent = 'PUERTO SERIE COM';
+                speakSpotter("Bus USB conectado correctamente a 115200 baudios.", true);
+
                 const decoder = new TextDecoderStream();
                 port.readable.pipeTo(decoder.writable);
                 const reader = decoder.readable.getReader();
@@ -2478,6 +2516,97 @@
                 }
             } catch (e) {
                 logSerialConsole("Aviso USB: " + e.message);
+            }
+        }
+
+        function parseUniversalSerialLine(line) {
+            if (!line) return;
+            const cleanLine = line.replace(/[\r\n]+/g, '').trim();
+            if (!cleanLine) return;
+
+            logSerialConsole(`RX << ${cleanLine}`);
+            const parts = cleanLine.toUpperCase().split(',');
+            const laserStatusEl = document.getElementById('usbModalLaserStatus');
+
+            if (parts[0] === 'AUTH' && parts[1] === 'SLOTINGPLUS_OK') {
+                securityState.dongleVerified = true;
+                const usbTxt = document.getElementById('usbText');
+                if (usbTxt) {
+                    usbTxt.innerHTML = '<i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i>ARDUINO ONLINE';
+                    usbTxt.className = 'text-[9px] text-emerald-400 shrink-0 ml-2 font-black cursor-pointer';
+                }
+                const modalSt = document.getElementById('usbModalStatus');
+                if (modalSt) {
+                    modalSt.textContent = 'CONECTADO Y RECIBIENDO';
+                    modalSt.className = 'text-sm font-black text-emerald-400 mt-1';
+                }
+                return;
+            }
+
+            if (parts[0] === 'INFO') {
+                if (laserStatusEl) {
+                    laserStatusEl.textContent = 'VL6180X OK (CARRIL 1)';
+                    laserStatusEl.className = 'text-sm font-black text-emerald-400 mt-1';
+                }
+                speakSpotter("Sensor láser VL6180X detectado y listo en carril 1.", true);
+                return;
+            }
+
+            if (parts[0] === 'ERR') {
+                if (laserStatusEl) {
+                    laserStatusEl.textContent = 'ERROR I2C (A4/A5)';
+                    laserStatusEl.className = 'text-sm font-black text-red-400 mt-1';
+                }
+                speakSpotter("Atención: El Arduino está conectado, pero no detecta el sensor láser en los pines A4 y A5.", true);
+                return;
+            }
+
+            if (parts[0].startsWith('L')) {
+                const laneId = parseInt(parts[0].substring(1), 10);
+                const timeMs = parseInt(parts[1], 10);
+                const distMm = parts[2] ? parseInt(parts[2], 10) : null;
+                if (!isNaN(laneId) && !isNaN(timeMs)) {
+                    if (laserStatusEl && distMm !== null) {
+                        laserStatusEl.textContent = `COCHE A ${distMm} mm (${timeMs} ms)`;
+                        laserStatusEl.className = 'text-sm font-black text-purple-300 mt-1';
+                    }
+                    registerSectorOrLapEvent(laneId, appState.numSectors, timeMs, distMm);
+                }
+                return;
+            }
+
+            if ((parts[0].startsWith('S') || parts[0] === 'M') && parts[1] && parts[1].startsWith('L')) {
+                const secNum = parts[0] === 'M' ? appState.numSectors : parseInt(parts[0].substring(1), 10);
+                const laneId = parseInt(parts[1].substring(1), 10);
+                const timeMs = parseInt(parts[2], 10);
+                const distMm = parts[3] ? parseInt(parts[3], 10) : null;
+                if (!isNaN(secNum) && !isNaN(laneId) && !isNaN(timeMs)) {
+                    registerSectorOrLapEvent(laneId, secNum, timeMs, distMm);
+                }
+            }
+        }
+
+        function injectManualSerial() {
+            const input = document.getElementById('manualSerialInput');
+            if (input.value.trim()) {
+                parseUniversalSerialLine(input.value.trim());
+                input.value = '';
+            }
+        }
+
+        function logSerialConsole(msg) {
+            const timeTag = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            const box = document.getElementById('serialRawConsole');
+            if (box) {
+                const div = document.createElement('div');
+                div.textContent = timeTag;
+                box.insertBefore(div, box.firstChild);
+            }
+            const modalFeed = document.getElementById('usbModalLiveFeed');
+            if (modalFeed) {
+                const d2 = document.createElement('div');
+                d2.textContent = timeTag;
+                modalFeed.insertBefore(d2, modalFeed.firstChild);
             }
         }
 
@@ -2747,8 +2876,7 @@
             const canvasHist = document.getElementById('driverHistogramChart');
             if (!canvasEvol || !canvasHist) return;
 
-            const ctx = canvasEvol.getContext('2d');
-            evolutionChart = new Chart(ctx, {
+            evolutionChart = new Chart(canvasEvol.getContext('2d'), {
                 type: 'line',
                 data: { labels: [], datasets: [] },
                 options: {
@@ -2762,8 +2890,7 @@
                 }
             });
 
-            const ctxHist = canvasHist.getContext('2d');
-            driverHistogramChart = new Chart(ctxHist, {
+            driverHistogramChart = new Chart(canvasHist.getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: ['Récord/Óptimas', 'Ritmo Verde (<+0.15s)', 'Estándar (+0.30s)', 'Tráfico/Error (>+0.30s)'],
@@ -2839,54 +2966,6 @@
                     <div class="flex justify-between"><span>Vel. Punta Escala:</span><strong class="text-amber-300">${topSpeed} km/h</strong></div>
                 `;
             }
-        }
-
-        function parseUniversalSerialLine(line) {
-            if (!line) return;
-            logSerialConsole(`RX << ${line}`);
-            const parts = line.toUpperCase().split(',');
-
-            if (parts[0] === 'AUTH' && parts[1] === 'SLOTINGPLUS_OK') {
-                securityState.dongleVerified = true;
-                document.getElementById('usbText').innerHTML = '<i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i>DONGLE OK';
-                speakSpotter("Llave física de seguridad Sloting Plus verificada.", true);
-                return;
-            }
-
-            if (parts[0].startsWith('L')) {
-                const laneId = parseInt(parts[0].substring(1), 10);
-                const timeMs = parseInt(parts[1], 10);
-                const distMm = parts[2] ? parseInt(parts[2], 10) : null;
-                if (!isNaN(laneId) && !isNaN(timeMs)) {
-                    registerSectorOrLapEvent(laneId, appState.numSectors, timeMs, distMm);
-                }
-                return;
-            }
-
-            if ((parts[0].startsWith('S') || parts[0] === 'M') && parts[1] && parts[1].startsWith('L')) {
-                const secNum = parts[0] === 'M' ? appState.numSectors : parseInt(parts[0].substring(1), 10);
-                const laneId = parseInt(parts[1].substring(1), 10);
-                const timeMs = parseInt(parts[2], 10);
-                const distMm = parts[3] ? parseInt(parts[3], 10) : null;
-                if (!isNaN(secNum) && !isNaN(laneId) && !isNaN(timeMs)) {
-                    registerSectorOrLapEvent(laneId, secNum, timeMs, distMm);
-                }
-            }
-        }
-
-        function injectManualSerial() {
-            const input = document.getElementById('manualSerialInput');
-            if (input.value.trim()) {
-                parseUniversalSerialLine(input.value.trim());
-                input.value = '';
-            }
-        }
-
-        function logSerialConsole(msg) {
-            const box = document.getElementById('serialRawConsole');
-            const div = document.createElement('div');
-            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            box.insertBefore(div, box.firstChild);
         }
 
         function rebuildChartDatasets() {
@@ -2971,7 +3050,7 @@
                             <span class="text-slate-500 font-bold text-[10px]">${i + 1}.</span>
                             <input type="text" value="${entry.name}" onchange="editRosterEntry(${i}, 'name', this.value)" class="bg-transparent text-white font-bold text-xs w-full truncate focus:outline-none focus:border-b border-sky-500"/>
                         </div>
-                        <input type="text" value="${entry.car || 'GT3'}" onchange="editRosterEntry(${i}, 'car', this.value)" class="bg-transparent text-sky-400 font-mono text-[9px] w-full truncate pl-3 focus:outline-none" title="Categoría o Coche del Piloto"/>
+                        <input type="text" value="${entry.car || 'GT3'}" onchange="editRosterEntry(${i}, 'car', this.value)" class="bg-transparent text-sky-400 font-mono text-[9px] w-full truncate pl-3 focus:outline-none"/>
                     </div>
                     <div class="col-span-4 min-w-0">
                         <input type="text" value="${entry.club}" onchange="editRosterEntry(${i}, 'club', this.value)" class="bg-transparent text-amber-300 font-mono text-[10px] w-full truncate focus:outline-none focus:border-b border-amber-500"/>
@@ -2981,7 +3060,7 @@
                     </div>
                     <div class="col-span-2 flex justify-end items-center gap-1.5">
                         <span class="text-[10px] text-emerald-400 font-black">${pts}v</span>
-                        <button onclick="removeRosterDriver(${i})" class="text-red-400 hover:text-red-300 text-[10px] cursor-pointer" title="Eliminar piloto de la Base de Datos"><i class="fa-solid fa-xmark"></i></button>
+                        <button onclick="removeRosterDriver(${i})" class="text-red-400 hover:text-red-300 text-[10px] cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                 </div>
             `}).join('');
@@ -3036,7 +3115,7 @@
             rebuildChartDatasets();
             updateMobilePitWallView();
             switchTab('live');
-            speakSpotter("Pilotos y clubs cargados directamente en la parrilla de salida.", true);
+            speakSpotter("Pilotos y clubs cargados en la parrilla.", true);
         }
 
         function shuffleArray(arr) {
@@ -3079,18 +3158,14 @@
                 container.innerHTML = appState.heats.map((heat, idx) => `
                     <div class="bg-slate-950 p-2 rounded-xl border ${heat.isRandom ? 'border-amber-500/40' : 'border-slate-800'} flex flex-wrap justify-between items-center gap-2">
                         <div class="flex flex-wrap items-center gap-1.5">
-                            <span class="text-amber-400 font-bold mr-1"><i class="fa-solid ${heat.isRandom ? 'fa-dice' : 'fa-arrows-rotate'} mr-1"></i>MANGA #${heat.heatNum}:</span>
-                            ${heat.assignments.map(a => `<span class="px-1.5 py-0.5 rounded border text-[10px] ${LANE_PALETTE[a.laneId].badge}">CH${a.laneId}: <strong>${a.driver}</strong> <span class="opacity-75 text-[9px]">(${a.club})</span></span>`).join('')}
+                            <span class="text-amber-400 font-bold mr-1">MANGA #${heat.heatNum}:</span>
+                            ${heat.assignments.map(a => `<span class="px-1.5 py-0.5 rounded border text-[10px] ${LANE_PALETTE[a.laneId].badge}">CH${a.laneId}: <strong>${a.driver}</strong></span>`).join('')}
                         </div>
                         <button onclick="loadHeatToTrack(${idx})" class="px-2.5 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded-lg font-bold text-[10px] cursor-pointer shrink-0">
                             Cargar en Pista
                         </button>
                     </div>
                 `).join('');
-            }
-
-            if (randomize) {
-                speakSpotter("Sorteo aleatorio de mangas por pilotos y clubs completado.", true);
             }
         }
 
@@ -3159,10 +3234,10 @@
                     const bestStr = l.bestLap < Infinity ? l.bestLap.toFixed(3) + 's' : '--.---s';
                     reportText += `- CH${i} ${l.name} [${l.club}]: ${l.laps} vueltas | Best: ${bestStr}\n`;
                 }
-                phoneHtml = `<div class="text-amber-400 font-bold"><i class="fa-solid fa-trophy mr-1"></i>RESUMEN DE MANGA (PILOTOS Y CLUBS)</div>` +
+                phoneHtml = `<div class="text-amber-400 font-bold">RESUMEN DE MANGA</div>` +
                     Array.from({ length: appState.activeLanes }, (_, idx) => {
                         const l = appState.lanes[idx + 1];
-                        return `<div class="bg-slate-900 p-2 rounded-lg flex justify-between items-center"><div><span>CH${l.id} <strong>${l.name}</strong></span><div class="text-[9px] text-amber-400">${l.club}</div></div><span class="text-emerald-400 font-bold">${l.laps}v (${l.bestLap < Infinity ? l.bestLap.toFixed(3) + 's' : '--'})</span></div>`;
+                        return `<div class="bg-slate-900 p-2 rounded-lg flex justify-between items-center"><div><span>CH${l.id} <strong>${l.name}</strong></span></div><span class="text-emerald-400 font-bold">${l.laps}v (${l.bestLap < Infinity ? l.bestLap.toFixed(3) + 's' : '--'})</span></div>`;
                     }).join('');
             } else {
                 const laneId = parseInt(val, 10) || 1;
@@ -3171,26 +3246,21 @@
                 const opt = getDriverOptimalLap(l);
                 const optStr = opt < Infinity ? opt.toFixed(3) + 's' : '--.---s';
                 const meanStr = getDriverMeanLap(l) > 0 ? getDriverMeanLap(l).toFixed(3) + 's' : '--.---s';
-                const s1 = l.bestSectors[1] < Infinity ? l.bestSectors[1].toFixed(3) + 's' : '--';
-                const s2 = l.bestSectors[2] < Infinity ? l.bestSectors[2].toFixed(3) + 's' : '--';
-                const s3 = l.bestSectors[3] < Infinity ? l.bestSectors[3].toFixed(3) + 's' : '--';
 
                 reportText =
 `[SLOTING PLUS & SLOT SOFTWARE // ${clubTitle}]
 - PILOTO: ${l.name} (Carril ${laneId})
-- CLUB / ESCUDERIA: ${l.club}
-- Vueltas Completadas: ${l.laps}
-- Mejor Vuelta Real: ${bestStr}
-- Vuelta Optima (Ideal): ${optStr}
-- Ritmo Medio: ${meanStr}
-- Mejores Sectores: S1: ${s1} | S2: ${s2} | S3: ${s3}
-- Ultimas 5 vueltas: ${l.history.slice(-5).map(t => t.toFixed(3) + 's').join(', ') || 'Sin vueltas'}`;
+- CLUB: ${l.club}
+- Vueltas: ${l.laps}
+- Mejor Vuelta: ${bestStr}
+- Vuelta Optima: ${optStr}
+- Ritmo Medio: ${meanStr}`;
 
                 phoneHtml = `
                     <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
                         <div class="text-[10px] text-slate-400">PILOTO / CARRIL ${laneId}</div>
                         <div class="text-base font-black text-white">${l.name}</div>
-                        <div class="text-[10px] font-bold text-amber-400 mt-0.5"><i class="fa-solid fa-shield-halved mr-1"></i>${l.club}</div>
+                        <div class="text-[10px] font-bold text-amber-400 mt-0.5">${l.club}</div>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div class="bg-slate-900 p-2 rounded-xl border border-slate-800">
@@ -3201,15 +3271,6 @@
                             <div class="text-[9px] text-slate-400">MEJOR VUELTA</div>
                             <div class="text-lg font-black text-emerald-400">${bestStr}</div>
                         </div>
-                    </div>
-                    <div class="bg-purple-950/40 p-2 rounded-xl border border-purple-500/40 flex justify-between items-center">
-                        <span class="text-[10px] text-purple-200">VUELTA ÓPTIMA:</span>
-                        <strong class="text-purple-300">${optStr}</strong>
-                    </div>
-                    <div class="grid grid-cols-3 gap-1 text-center text-[10px]">
-                        <div class="bg-slate-900 p-1.5 rounded">S1<br><strong class="text-sky-300">${s1}</strong></div>
-                        <div class="bg-slate-900 p-1.5 rounded">S2<br><strong class="text-sky-300">${s2}</strong></div>
-                        <div class="bg-slate-900 p-1.5 rounded">S3<br><strong class="text-sky-300">${s3}</strong></div>
                     </div>
                 `;
             }
@@ -3228,10 +3289,7 @@
                 hash ^= payloadText.charCodeAt(i);
                 hash = Math.imul(hash, 16777619);
             }
-
-            const isFinder = (r, c) =>
-                (r < 7 && c < 7) || (r < 7 && c >= size - 7) || (r >= size - 7 && c < 7);
-
+            const isFinder = (r, c) => (r < 7 && c < 7) || (r < 7 && c >= size - 7) || (r >= size - 7 && c < 7);
             let rects = '';
             for (let r = 0; r < size; r++) {
                 for (let c = 0; c < size; c++) {
@@ -3244,9 +3302,7 @@
                         const bit = ((hash >>> ((r * size + c) % 28)) ^ (r * 17 + c * 31 + payloadText.length)) & 1;
                         dark = bit === 1;
                     }
-                    if (dark) {
-                        rects += `<rect x="${c}" y="${r}" width="1" height="1" fill="#04070f"/>`;
-                    }
+                    if (dark) rects += `<rect x="${c}" y="${r}" width="1" height="1" fill="#04070f"/>`;
                 }
             }
             box.innerHTML = `<svg viewBox="0 0 ${size} ${size}" class="w-full h-full" shape-rendering="crispEdges">${rects}</svg>`;
@@ -3254,8 +3310,7 @@
 
         function shareViaWhatsApp() {
             const text = document.getElementById('mobileReportTextarea').value;
-            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-            window.open(url, '_blank');
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
         }
 
         function copyMobileReportToClipboard() {
@@ -3279,7 +3334,6 @@
             if (customTitle) {
                 appState.appTitle = customTitle.toUpperCase();
                 document.getElementById('appMainTitle').innerHTML = `<span>${appState.appTitle}</span><i class="fa-solid fa-pen text-[9px] text-slate-400 ml-1"></i>`;
-                document.title = appState.appTitle;
             }
             appState.targetLaps = Math.max(1, parseInt(document.getElementById('cfgTargetLaps').value, 10) || 25);
             appState.trackLengthMeters = parseFloat(document.getElementById('cfgTrackLen').value) || 18.0;
@@ -3313,14 +3367,9 @@
                 updateAnalyticsChart();
                 updateSingleDriverAnalytics();
             }
-            if (tabId === 'mobile') {
-                updateMobilePitWallView();
-            }
+            if (tabId === 'mobile') updateMobilePitWallView();
         }
 
-        // ============================================================================
-        // SISTEMA DE PROTECCIÓN ANTICOPIA POR HUELLA DE DISPOSITIVO (HWID)
-        // ============================================================================
         const securityState = {
             deviceHwid: '',
             expectedLicense: '',
@@ -3335,18 +3384,7 @@
                 savedInstallationSalt = Math.random().toString(36).substring(2, 8).toUpperCase();
                 safeSetStorage('kronos_hw_salt_v6', savedInstallationSalt);
             }
-            const tz = (typeof Intl !== 'undefined' && Intl.DateTimeFormat)
-                ? (Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC')
-                : 'UTC';
-            const rawHw = [
-                navigator.userAgent,
-                navigator.hardwareConcurrency || 4,
-                screen.width + 'x' + screen.height,
-                screen.colorDepth,
-                tz,
-                savedInstallationSalt
-            ].join('|');
-
+            const rawHw = [navigator.userAgent, screen.width + 'x' + screen.height, savedInstallationSalt].join('|');
             let h1 = 0x811c9dc5;
             for (let i = 0; i < rawHw.length; i++) {
                 h1 ^= rawHw.charCodeAt(i);
@@ -3358,8 +3396,7 @@
 
         function computeLicenseKeyForHwid(hwidStr) {
             const clean = hwidStr.trim().toUpperCase();
-            const secretSalt = 'SLOTING_PLUS_MASTER_SECRET_2026';
-            const combined = clean + '::' + secretSalt;
+            const combined = clean + '::SLOTING_PLUS_MASTER_SECRET_2026';
             let hashA = 5381;
             let hashB = 52711;
             for (let i = 0; i < combined.length; i++) {
@@ -3382,24 +3419,6 @@
             document.getElementById('keygenHwidInput').value = securityState.deviceHwid;
             generateClientLicenseFromHwid();
             renderSoldLicensesList();
-
-            if (IS_CLIENT_LOCKED_BUILD) {
-                const adminPanel = document.getElementById('manufacturerAdminPanel');
-                if (adminPanel) adminPanel.style.display = 'none';
-                const shortcutRow = document.getElementById('masterDevShortcutRow');
-                if (shortcutRow) shortcutRow.style.display = 'none';
-            }
-
-            const storedKey = safeGetStorage('kronos_activated_key_v6');
-            if (IS_CLIENT_LOCKED_BUILD) {
-                if (storedKey !== securityState.expectedLicense) {
-                    document.getElementById('securityLicenseModal').classList.remove('hidden');
-                }
-            } else {
-                if (storedKey && storedKey !== securityState.expectedLicense) {
-                    document.getElementById('securityLicenseModal').classList.remove('hidden');
-                }
-            }
         }
 
         function registerSoldLicense() {
@@ -3407,7 +3426,6 @@
             const hwidInput = document.getElementById('keygenHwidInput');
             const hwid = hwidInput.value.trim().toUpperCase();
             if (!hwid) return;
-
             const clientName = (clientNameInput && clientNameInput.value.trim()) ? clientNameInput.value.trim().toUpperCase() : 'CLUB CLIENTE';
             const licenseKey = computeLicenseKeyForHwid(hwid);
 
@@ -3421,7 +3439,7 @@
             saveLocalDatabase();
             renderSoldLicensesList();
             safeCopyText(licenseKey);
-            speakSpotter(`Venta registrada para ${clientName} y clave copiada al portapapeles.`, true);
+            speakSpotter(`Venta registrada para ${clientName}.`, true);
         }
 
         function renderSoldLicensesList() {
@@ -3430,21 +3448,14 @@
             if (!listEl) return;
             const log = appState.soldLicensesLog || [];
             if (countEl) countEl.textContent = String(log.length);
-
             if (log.length === 0) {
-                listEl.innerHTML = `<div class="text-slate-500 italic py-2 text-center">Aún no has registrado ventas. Introduce el nombre del club y su HWID arriba.</div>`;
+                listEl.innerHTML = `<div class="text-slate-500 italic py-2 text-center">Aún no has registrado ventas.</div>`;
                 return;
             }
             listEl.innerHTML = log.map((item) => `
                 <div class="bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800 flex justify-between items-center">
-                    <div class="truncate pr-2">
-                        <span class="text-amber-400 font-bold">${item.client}</span>
-                        <span class="text-slate-500 ml-1">(${item.date})</span>
-                    </div>
-                    <div class="flex items-center gap-2 shrink-0">
-                        <span class="text-sky-300 font-bold">${item.hwid}</span>
-                        <span class="text-emerald-400 font-black">${item.key}</span>
-                    </div>
+                    <span class="text-amber-400 font-bold truncate">${item.client}</span>
+                    <span class="text-emerald-400 font-black">${item.key}</span>
                 </div>
             `).join('');
         }
@@ -3467,7 +3478,7 @@
                 safeSetStorage('kronos_activated_key_v6', securityState.expectedLicense);
                 document.getElementById('securityLicenseModal').classList.add('hidden');
                 playTone(1046.5, 220, 'triangle', 0.22);
-                speakSpotter("Licencia oficial verificada para este dispositivo.", true);
+                speakSpotter("Licencia oficial verificada.", true);
             } else {
                 playTone(190, 400, 'sawtooth', 0.25);
                 document.getElementById('licenseErrorMsg').classList.remove('hidden');
@@ -3476,7 +3487,7 @@
 
         function copyHwidToClipboard() {
             safeCopyText(securityState.deviceHwid);
-            speakSpotter("Identificador de hardware copiado al portapapeles.", true);
+            speakSpotter("ID copiado.", true);
         }
 
         function useThisDeviceHwidInKeygen() {
@@ -3486,42 +3497,20 @@
 
         function generateClientLicenseFromHwid() {
             const hwid = document.getElementById('keygenHwidInput').value.trim().toUpperCase();
-            if (!hwid) {
-                document.getElementById('keygenOutputCode').textContent = 'SP-XXXX-XXXX-PRO';
-                return;
-            }
-            const key = computeLicenseKeyForHwid(hwid);
-            document.getElementById('keygenOutputCode').textContent = key;
+            document.getElementById('keygenOutputCode').textContent = hwid ? computeLicenseKeyForHwid(hwid) : 'SP-XXXX-XXXX-PRO';
         }
 
         function copyGeneratedLicense() {
-            const code = document.getElementById('keygenOutputCode').textContent;
-            safeCopyText(code);
+            safeCopyText(document.getElementById('keygenOutputCode').textContent);
             speakSpotter("Código de activación copiado.", true);
         }
 
         function toggleHardwareDongleLock(enabled) {
             securityState.requireHardwareDongle = enabled;
-            if (enabled) {
-                speakSpotter("Modo Llave Física USB activado. Se requerirá firma del chip Sloting Plus.", true);
-            } else {
-                speakSpotter("Modo Llave Física USB desactivado.", true);
-            }
         }
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            securityState.deferredPwaPrompt = e;
-        });
-
         async function triggerNativeAppInstall() {
-            if (securityState.deferredPwaPrompt) {
-                securityState.deferredPwaPrompt.prompt();
-                await securityState.deferredPwaPrompt.userChoice;
-                securityState.deferredPwaPrompt = null;
-            } else {
-                speakSpotter("En tu navegador pulsa el menú de arriba a la derecha y selecciona: Instalar aplicación o Añadir a pantalla de inicio.", true);
-            }
+            speakSpotter("En Chrome pulsa el menú de arriba a la derecha y selecciona Añadir a pantalla de inicio.", true);
         }
 
         function resetRaceSession() {
@@ -3564,43 +3553,28 @@
         }
 
         function exportCSV() {
-            let csv = 'Carril,Piloto,Vuelta,Tiempo_Lap_s,Mejor_S1_s,Mejor_S2_s,Mejor_S3_s\n';
+            let csv = 'Carril,Piloto,Vuelta,Tiempo_Lap_s\n';
             for (let i = 1; i <= appState.activeLanes; i++) {
                 const l = appState.lanes[i];
                 l.history.forEach((t, idx) => {
-                    csv += `${i},"${l.name}",${idx + 1},${t.toFixed(3)},${l.bestSectors[1] < Infinity ? l.bestSectors[1].toFixed(3) : ''},${l.bestSectors[2] < Infinity ? l.bestSectors[2].toFixed(3) : ''},${l.bestSectors[3] < Infinity ? l.bestSectors[3].toFixed(3) : ''}\n`;
+                    csv += `${i},"${l.name}",${idx + 1},${t.toFixed(3)}\n`;
                 });
             }
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `kronos_slot_multisector_${appState.activeLanes}ch.csv`;
+            a.download = `kronos_slot_${appState.activeLanes}ch.csv`;
             a.click();
         }
 
         function toggleFullScreenMode() {
             const docEl = document.documentElement;
-            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                if (docEl.requestFullscreen) {
-                    docEl.requestFullscreen().catch(() => {});
-                } else if (docEl.webkitRequestFullscreen) {
-                    docEl.webkitRequestFullscreen();
-                }
+            if (!document.fullscreenElement) {
+                if (docEl.requestFullscreen) docEl.requestFullscreen().catch(() => {});
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen().catch(() => {});
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
+                if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
             }
         }
-
-        document.addEventListener('fullscreenchange', () => {
-            const icon = document.getElementById('fullscreenIcon');
-            if (icon) {
-                icon.className = document.fullscreenElement ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
-            }
-        });
 
         function animateRadarGPS() {
             const path = document.getElementById('radarTrackPath');
@@ -3612,7 +3586,6 @@
                 for (let i = 1; i <= n; i++) {
                     const lane = appState.lanes[i];
                     const offsetPx = getLaneRadialOffsetPx(i, n);
-
                     let progress = 0;
                     if (appState.raceStatus === 'RACING') {
                         const expectedLapMs = (lane.bestLap < Infinity ? lane.bestLap : 3.85 + i * 0.05) * 1000;
@@ -3620,18 +3593,14 @@
                     } else {
                         progress = (0.21 - i * 0.008 + 1) % 1;
                     }
-
                     const dist = progress * totalLen;
                     const p1 = path.getPointAtLength(dist);
-                    const p2 = masterPathPointAtLengthSafe(path, (dist + 1.5) % totalLen);
+                    const p2 = path.getPointAtLength((dist + 1.5) % totalLen);
                     const dx = p2.x - p1.x;
                     const dy = p2.y - p1.y;
                     const len = Math.hypot(dx, dy) || 1;
-                    const nx = -dy / len;
-                    const ny = dx / len;
-
-                    const cx = (p1.x + nx * offsetPx).toFixed(1);
-                    const cy = (p1.y + ny * offsetPx).toFixed(1);
+                    const cx = (p1.x + (-dy / len) * offsetPx).toFixed(1);
+                    const cy = (p1.y + (dx / len) * offsetPx).toFixed(1);
 
                     const circle = document.getElementById(`gpsCar-${i}`);
                     const label = document.getElementById(`gpsCarLabel-${i}`);
@@ -3646,14 +3615,6 @@
                 }
             }
             requestAnimationFrame(animateRadarGPS);
-        }
-
-        function masterPathPointAtLengthSafe(path, dist) {
-            try {
-                return path.getPointAtLength(dist);
-            } catch (e) {
-                return { x: 165, y: 98 };
-            }
         }
 
         window.addEventListener('keydown', (e) => {
