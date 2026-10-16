@@ -420,8 +420,8 @@
                     <i class="fa-solid fa-robot"></i> AUTO-SIM
                 </button>
             </div>
-            <!-- Fila Inferior: Acta Final, Voz de Podio, USB y Reinicio -->
-            <div class="grid grid-cols-5 gap-1.5">
+            <!-- Fila Inferior: Acta Final, Voz de Podio, USB, Reinicio y Pantalla Completa -->
+            <div class="grid grid-cols-6 gap-1">
                 <button onclick="finishAndOpenOfficialReport()" class="py-1.5 bg-emerald-500/25 hover:bg-emerald-500/50 text-emerald-300 font-mono font-black text-[10px] rounded-lg border border-emerald-400/40 transition cursor-pointer flex items-center justify-center gap-1" title="Terminar carrera o ver el Acta Oficial Completa de Todos los Pilotos">
                     <i class="fa-solid fa-flag-checkered"></i> ACTA
                 </button>
@@ -436,6 +436,9 @@
                 </button>
                 <button onclick="resetRaceSession()" class="py-1.5 bg-slate-800 hover:bg-red-900/60 text-slate-200 font-mono font-bold text-[10px] rounded-lg border border-slate-700 transition cursor-pointer flex items-center justify-center gap-1" title="Reiniciar Carrera">
                     <i class="fa-solid fa-rotate-right"></i> RESET
+                </button>
+                <button onclick="toggleFullScreenMode()" id="btnFullscreen" class="py-1.5 bg-sky-500/25 hover:bg-sky-500 text-sky-300 hover:text-white font-mono font-black text-[10px] rounded-lg border border-sky-400/50 transition cursor-pointer flex items-center justify-center gap-1 shadow" title="Maximizar a Pantalla Completa (Full Screen)">
+                    <i class="fa-solid fa-expand" id="fullscreenIcon"></i> FULL
                 </button>
             </div>
         </div>
@@ -3518,7 +3521,6 @@
                 securityState.deferredPwaPrompt = null;
             } else {
                 speakSpotter("En tu navegador pulsa el menú de arriba a la derecha y selecciona: Instalar aplicación o Añadir a pantalla de inicio.", true);
-                alert("CÓMO INSTALAR COMO PROGRAMA NATIVO:\n\n• En Tablet Android (Chrome): Pulsa los 3 puntos arriba a la derecha -> 'Instalar aplicación' o 'Añadir a pantalla de inicio'.\n• En Windows / Mac (Chrome o Edge): Pulsa el icono de monitor con flecha en la barra de direcciones -> 'Instalar KRONOS SLOT PRO'.");
             }
         }
 
@@ -3577,12 +3579,28 @@
         }
 
         function toggleFullScreenMode() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {});
+            const docEl = document.documentElement;
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (docEl.requestFullscreen) {
+                    docEl.requestFullscreen().catch(() => {});
+                } else if (docEl.webkitRequestFullscreen) {
+                    docEl.webkitRequestFullscreen();
+                }
             } else {
-                document.exitFullscreen().catch(() => {});
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
             }
         }
+
+        document.addEventListener('fullscreenchange', () => {
+            const icon = document.getElementById('fullscreenIcon');
+            if (icon) {
+                icon.className = document.fullscreenElement ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
+            }
+        });
 
         function animateRadarGPS() {
             const path = document.getElementById('radarTrackPath');
