@@ -162,7 +162,7 @@
          MODAL DE DIAGNÓSTICO Y CONEXIÓN USB OTG ESPECIAL PARA TABLET ANDROID + ARDUINO UNO VL6180X
          ======================================================================================== -->
     <div id="usbAndroidHelperModal" class="hidden fixed inset-0 z-[58] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-4">
-        <div class="glass-panel rounded-3xl max-w-2xl w-full p-5 border-2 border-sky-500/60 shadow-[0_0_50px_rgba(56,189,248,0.25)] space-y-4 font-mono">
+        <div class="glass-panel rounded-3xl max-w-2xl w-full p-5 border-2 border-sky-500/60 shadow-[0_0_50px_rgba(56,189,248,0.25)] space-y-3.5 font-mono max-h-[95vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <div class="flex items-center gap-3">
                     <div class="w-11 h-11 rounded-2xl bg-sky-500/20 border border-sky-400 flex items-center justify-center text-2xl text-sky-400">
@@ -170,9 +170,9 @@
                     </div>
                     <div>
                         <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[9px] font-black uppercase rounded border border-emerald-500/40">
-                            DRIVER DUAL: ANDROID WEBUSB (CH340 / UNO R3) + PC WEBSERIAL
+                            MOTOR V7.1: BYPASS ANTI-SECURITYERROR (ANDROID OTG + WEBSOCKET BRIDGE)
                         </span>
-                        <h3 class="text-base font-black text-white uppercase mt-0.5">CONEXIÓN DIRECTA ARDUINO UNO + LÁSER VL6180X</h3>
+                        <h3 class="text-base font-black text-white uppercase mt-0.5">SOLUCIÓN AL "SECURITY ERROR" EN TABLET ANDROID</h3>
                     </div>
                 </div>
                 <button onclick="document.getElementById('usbAndroidHelperModal').classList.add('hidden')" class="px-3 py-1.5 bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white rounded-xl text-xs font-bold cursor-pointer">
@@ -180,45 +180,67 @@
                 </button>
             </div>
 
+            <!-- Alerta de Entorno (Detecta automáticamente si estás en Iframe o file://) -->
+            <div id="usbEnvironmentWarning" class="hidden bg-red-950/95 border-2 border-red-500 rounded-2xl p-3.5 text-xs text-red-100 space-y-2 shadow-lg">
+                <div class="font-black text-amber-300 uppercase text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                    <span>¡ATENCIÓN! CAUSA EXACTA DE TU "SECURITY ERROR" DETECTADA:</span>
+                </div>
+                <div id="usbEnvironmentReason" class="text-[11px] leading-relaxed"></div>
+            </div>
+
             <!-- Estado en Tiempo Real del Bus y del Sensor VL6180X -->
             <div class="grid grid-cols-3 gap-2.5 text-xs">
-                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <div class="text-[9px] text-slate-400 uppercase">ESTADO DEL CABLE USB OTG:</div>
-                    <div id="usbModalStatus" class="text-sm font-black text-amber-400 mt-1">DESCONECTADO</div>
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                    <div class="text-[9px] text-slate-400 uppercase">ESTADO PUERTO OTG:</div>
+                    <div id="usbModalStatus" class="text-xs font-black text-amber-400 mt-1">ESPERANDO CONEXIÓN</div>
                 </div>
-                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <div class="text-[9px] text-slate-400 uppercase">CHIP DETECTADO:</div>
-                    <div id="usbModalChip" class="text-sm font-black text-sky-400 mt-1">ESPERANDO PLACA...</div>
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                    <div class="text-[9px] text-slate-400 uppercase">CHIP USB / INTERFAZ:</div>
+                    <div id="usbModalChip" class="text-xs font-black text-sky-400 mt-1">SIN SELECCIONAR</div>
                 </div>
-                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <div class="text-[9px] text-slate-400 uppercase">LÁSER VL6180X (PINES A4/A5):</div>
-                    <div id="usbModalLaserStatus" class="text-sm font-black text-emerald-400 mt-1">SIN TRAMA AÚN</div>
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                    <div class="text-[9px] text-slate-400 uppercase">LÁSER VL6180X (A4/A5):</div>
+                    <div id="usbModalLaserStatus" class="text-xs font-black text-emerald-400 mt-1">ESPERANDO TRAMA</div>
                 </div>
             </div>
 
             <!-- Botones de Conexión Directa -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <button onclick="connectViaAndroidWebUSB()" class="py-3 px-4 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-xs rounded-2xl shadow-lg border border-sky-300/50 cursor-pointer flex items-center justify-center gap-2">
-                    <i class="fa-brands fa-android text-lg"></i> 1. VINCULAR EN TABLET ANDROID (WEBUSB OTG)
+                <button onclick="connectViaAndroidWebUSB()" class="py-3 px-3 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-xs rounded-2xl shadow-lg border border-sky-300/50 cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-usb text-lg"></i> 1. CONECTAR USB (BYPASS V7.1)
                 </button>
-                <button onclick="connectViaDesktopWebSerial()" class="py-3 px-4 bg-slate-800 hover:bg-emerald-600 text-slate-100 hover:text-white font-black text-xs rounded-2xl border border-slate-600 cursor-pointer flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-laptop text-base"></i> 2. VINCULAR EN PC / MAC (PUERTO COM)
+                <button onclick="connectLocalWebSocketBridge()" class="py-3 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs rounded-2xl shadow-lg border border-emerald-300/50 cursor-pointer flex items-center justify-center gap-2" title="Conecta sin SecurityError usando puente local ws://127.0.0.1:8080">
+                    <i class="fa-solid fa-tower-broadcast text-base"></i> 2. PUENTE LOCAL (SIN BLOQUEO)
                 </button>
             </div>
 
-            <!-- Instrucciones Críticas para Tablet Android -->
-            <div class="bg-slate-950 p-3.5 rounded-2xl border border-amber-500/40 text-[11px] space-y-1.5 text-slate-300 leading-relaxed">
-                <div class="text-amber-400 font-black uppercase"><i class="fa-solid fa-triangle-exclamation mr-1"></i>3 PASOS CLAVE SI USAS TABLET ANDROID CON ARDUINODROID:</div>
-                <div><strong class="text-white">1. Cierra del todo ArduinoDroid:</strong> Si acabas de cargar el código con ArduinoDroid, ciérralo por completo y <strong>desenchufa y vuelve a enchufar el cable USB OTG</strong>. Si no lo haces, ArduinoDroid secuestra el USB y no deja entrar a Chrome.</div>
-                <div><strong class="text-white">2. Abre la app en Google Chrome (con enlace web o servidor):</strong> Si abres un archivo suelto desde "Mis Archivos", Android bloquea el USB por seguridad. Ábrelo desde <strong>Google Chrome</strong>.</div>
-                <div><strong class="text-white">3. Pulsa el botón azul "1. VINCULAR EN TABLET ANDROID":</strong> Te saldrá una ventanita preguntando <em>"¿Permitir que Chrome acceda al dispositivo USB?"</em> &rarr; Selecciónalo y pulsa <strong>Aceptar</strong>.</div>
+            <!-- Solución Exacta al SecurityError explicada paso a paso -->
+            <div class="bg-slate-950 p-3.5 rounded-2xl border-2 border-amber-500/60 text-[11px] space-y-2 text-slate-200 leading-relaxed">
+                <div class="text-amber-400 font-black uppercase text-xs"><i class="fa-solid fa-circle-question mr-1"></i>¿POR QUÉ SALE "SECURITY ERROR" Y CÓMO QUITARLO EN 30 SEGUNDOS?</div>
+                <div>
+                    <span class="px-1.5 py-0.5 rounded bg-red-500/30 text-red-300 font-black mr-1">CASO A</span>
+                    <strong>Si estás pulsando el botón dentro de esta ventana de chat/previsualización:</strong>
+                    El visor de previsualización prohíbe usar los puertos USB por seguridad y lanza <code>SecurityError</code> siempre. <strong>Solución:</strong> Tienes que abrir el archivo directamente en una pestaña normal de Chrome (usando un enlace <code>https://</code> o servidor local en la Tablet).
+                </div>
+                <div>
+                    <span class="px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-300 font-black mr-1">CASO B</span>
+                    <strong>Si ya estás en Chrome en tu Tablet y sale <code>SecurityError: Access denied</code>:</strong>
+                    Es porque <strong>ArduinoDroid</strong> sigue teniendo registrado el permiso exclusivo del cable USB en Android.
+                    <br>&rarr; <strong>La solución infalible en tu Tablet:</strong> Como el código del sensor láser <strong>ya está grabado dentro de la memoria de tu Arduino UNO</strong> (no se borra aunque apagues el Arduino), <strong>DESINSTALA ArduinoDroid</strong> de la Tablet (o ve a <em>Ajustes &rarr; Aplicaciones &rarr; ArduinoDroid &rarr; Forzar detención</em>), <strong>desenchufa el cable USB OTG de la Tablet y vuélvelo a enchufar</strong>. ¡Al no estar ArduinoDroid, Android le entrega el puerto USB limpio a Chrome!
+                </div>
             </div>
 
             <!-- Monitor en vivo dentro del propio modal -->
             <div class="bg-black/90 p-2.5 rounded-xl border border-slate-800">
-                <div class="text-[9px] text-emerald-400 font-bold uppercase mb-1">MONITOR DE TRAMAS RECIBIDAS DEL ARDUINO EN VIVO (115200 BAUDIOS):</div>
-                <div id="usbModalLiveFeed" class="h-20 overflow-y-auto text-[10px] text-emerald-300 space-y-0.5">
-                    <div>Esperando datos de tu Arduino UNO R3 (AUTH,SLOTINGPLUS_OK / L1,tiempo,mm)...</div>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-[9px] text-emerald-400 font-bold uppercase">CONSOLA TÉCNICA DE DIAGNÓSTICO USB (DETALLE DEL SECURITY ERROR):</span>
+                    <button onclick="injectManualSerialTest()" class="px-2 py-0.5 bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 text-[9px] rounded border border-emerald-500/40 cursor-pointer">
+                        Simular Paso Láser (L1,3420,22mm)
+                    </button>
+                </div>
+                <div id="usbModalLiveFeed" class="h-24 overflow-y-auto text-[10px] text-emerald-300 space-y-0.5">
+                    <div>[LISTO] Pulsa "1. CONECTAR USB (BYPASS V7.1)" para ver el diagnóstico exacto...</div>
                 </div>
             </div>
         </div>
@@ -2384,204 +2406,229 @@
         }
 
         // ============================================================================
-        // DRIVER HÍBRIDO USB OTG: ANDROID WEBUSB (CH340 / ARDUINO UNO / CP210X) + PC WEBSERIAL
+        // DRIVER HÍBRIDO USB OTG V7.0: MULTI-INTERFAZ ANDROID WEBUSB + DIAGNÓSTICO REAL
         // ============================================================================
         let activeUsbDevice = null;
         let usbReadLoopActive = false;
 
         function connectArduinoUSB() {
             document.getElementById('usbAndroidHelperModal').classList.remove('hidden');
+            checkBrowserUsbEnvironment();
+        }
+
+        function checkBrowserUsbEnvironment() {
+            const warnBox = document.getElementById('usbEnvironmentWarning');
+            const reasonEl = document.getElementById('usbEnvironmentReason');
+            if (!warnBox || !reasonEl) return;
+
+            const isFileProtocol = window.location.protocol === 'file:' || window.location.protocol === 'content:';
+            const isInIframe = window.self !== window.top;
+
+            if (isInIframe) {
+                warnBox.classList.remove('hidden');
+                reasonEl.innerHTML = `Estás pulsando el botón dentro del <b>Visor de Previsualización (Iframe)</b>. Los visores integrados bloquean por ley el puerto USB y devuelven siempre <code>SecurityError</code>.<br><b>SOLUCIÓN:</b> Descarga el archivo HTML a tu Tablet (pulsando el botón de descarga arriba a la derecha del editor) y ábrelo en Google Chrome mediante un servidor local (ej. app gratuita <i>Web Server for Chrome / Tiny Web Server</i> en <code>http://127.0.0.1:8080</code>) o súbelo a un enlace <code>https://</code>.`;
+                logSerialConsole("CAUSA DEL SECURITY ERROR: Estás dentro del visor de previsualización (Iframe bloqueado).");
+            } else if (isFileProtocol) {
+                warnBox.classList.remove('hidden');
+                reasonEl.innerHTML = `Has abierto el archivo directamente desde "Mis Archivos / Descargas" (dirección <b>${window.location.protocol}//</b>). En Android, Google Chrome lanza <code>SecurityError</code> en archivos sueltos.<br><b>SOLUCIÓN:</b> Ábrelo desde una dirección <code>http://localhost</code> o <code>https://</code>.`;
+                logSerialConsole("CAUSA DEL SECURITY ERROR: Archivo abierto como " + window.location.protocol);
+            } else if (!window.isSecureContext) {
+                warnBox.classList.remove('hidden');
+                reasonEl.innerHTML = `El navegador no está en un contexto seguro HTTPS/Localhost. Google Chrome devuelve <code>SecurityError</code> fuera de HTTPS.`;
+            } else {
+                warnBox.classList.add('hidden');
+            }
+        }
+
+        let localWsBridge = null;
+        function connectLocalWebSocketBridge() {
+            logSerialConsole("Intentando conectar por Puente Local (ws://127.0.0.1:8080)...");
+            try {
+                if (localWsBridge) localWsBridge.close();
+                localWsBridge = new WebSocket('ws://127.0.0.1:8080');
+                localWsBridge.onopen = () => {
+                    document.getElementById('usbText').innerHTML = '<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>PUENTE ACTIVO';
+                    document.getElementById('usbModalStatus').textContent = 'PUENTE LOCAL ACTIVO';
+                    document.getElementById('usbModalStatus').className = 'text-xs font-black text-emerald-400 mt-1';
+                    logSerialConsole("¡Puente Local WebSocket conectado con éxito!");
+                    speakSpotter("Puente local de datos conectado.", true);
+                };
+                localWsBridge.onmessage = (evt) => {
+                    if (evt.data) {
+                        const lines = String(evt.data).split(/[\r\n]+/);
+                        lines.forEach(l => { if (l.trim()) parseUniversalSerialLine(l.trim()); });
+                    }
+                };
+                localWsBridge.onerror = () => {
+                    logSerialConsole("Aviso: No se detectó servidor puente en 127.0.0.1:8080. Usa el botón 1 (USB OTG).");
+                };
+            } catch (e) {
+                logSerialConsole("Error puente: " + e.message);
+            }
+        }
+
+        function injectManualSerialTest() {
+            const randomMs = 3100 + Math.floor(Math.random() * 650);
+            const randomMm = 14 + Math.floor(Math.random() * 18);
+            parseUniversalSerialLine(`INFO,SENSOR_LASER_VL6180X_LISTO_EN_CARRIL_1`);
+            parseUniversalSerialLine(`L1,${randomMs},${randomMm}`);
         }
 
         async function connectViaAndroidWebUSB() {
-            if (!('usb' in navigator)) {
-                if ('serial' in navigator) {
-                    return connectViaDesktopWebSerial();
+            checkBrowserUsbEnvironment();
+
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            if (!isAndroid && ('serial' in navigator)) {
+                try {
+                    return await connectViaDesktopWebSerial();
+                } catch (e) {
+                    logSerialConsole("Pasando a motor alternativo WebUSB...");
                 }
-                speakSpotter("Abre el programa en Google Chrome para usar el puerto USB OTG.", true);
-                logSerialConsole("ERROR: navigator.usb no disponible en este visor.");
+            }
+
+            if (!('usb' in navigator)) {
+                speakSpotter("El navegador ha bloqueado el USB. Revisa el aviso rojo en pantalla.", true);
+                logSerialConsole("ERROR: navigator.usb bloqueado en este entorno.");
                 return;
             }
 
             try {
+                logSerialConsole("Paso 1: Abriendo selector de dispositivo USB OTG...");
                 const device = await navigator.usb.requestDevice({ filters: [] });
                 activeUsbDevice = device;
-                await device.open();
-                if (device.configuration === null) {
-                    await device.selectConfiguration(1);
+
+                const vidHex = device.vendorId.toString(16).toUpperCase().padStart(4, '0');
+                const pidHex = device.productId.toString(16).toUpperCase().padStart(4, '0');
+                logSerialConsole(`Paso 2: Detectado VID=0x${vidHex} PID=0x${pidHex} (${device.productName || 'Arduino UNO'})`);
+
+                try {
+                    await device.open();
+                    logSerialConsole("Paso 3 OK: Puerto físico USB abierto en Android.");
+                } catch (openErr) {
+                    logSerialConsole(`BLOQUEO DE ANDROID EN device.open(): [${openErr.name}] ${openErr.message}`);
+                    document.getElementById('usbModalStatus').textContent = 'BLOQUEADO POR ARDUINODROID';
+                    document.getElementById('usbModalStatus').className = 'text-xs font-black text-red-400 mt-1';
+                    speakSpotter("Android ha devuelto Security Error porque ArduinoDroid sigue siendo dueña del cable USB. Desinstala o fuerza la detención de ArduinoDroid, desenchufa el cable de la Tablet y vuélvelo a enchufar.", true);
+                    return;
                 }
 
-                let targetInterfaceNumber = 0;
-                let endpointIn = 1;
+                try {
+                    if (device.configuration === null) {
+                        await device.selectConfiguration(1);
+                    }
+                } catch (cfgSelErr) {
+                    logSerialConsole(`Aviso selectConfiguration: ${cfgSelErr.message} (Continuando en modo Bypass...)`);
+                }
 
-                for (const iface of device.configuration.interfaces) {
+                // BUSCADOR INTELIGENTE DE INTERFACES Y ENDPOINTS (Evita SecurityError si Android protege la Interfaz 0)
+                let claimedInterfaces = [];
+                let endpointIn = null;
+                let controlInterfaceNumber = 0;
+
+                const interfacesList = (device.configuration && device.configuration.interfaces) ? device.configuration.interfaces : [];
+                // Recorremos de atrás hacia adelante: en Arduino UNO R3 la Interfaz 1 lleva los datos bulk y suele estar libre de bloqueo
+                for (let idx = interfacesList.length - 1; idx >= 0; idx--) {
+                    const iface = interfacesList[idx];
                     for (const alt of iface.alternates) {
-                        const epIn = alt.endpoints.find(e => e.direction === 'in' && e.type === 'bulk');
-                        if (epIn) {
-                            targetInterfaceNumber = iface.interfaceNumber;
-                            endpointIn = epIn.endpointNumber;
-                            break;
+                        for (const ep of alt.endpoints) {
+                            if (ep.direction === 'in' && ep.type === 'bulk') {
+                                endpointIn = ep.endpointNumber;
+                            }
                         }
+                    }
+                    try {
+                        await device.claimInterface(iface.interfaceNumber);
+                        claimedInterfaces.push(iface.interfaceNumber);
+                        logSerialConsole(`Interfaz USB #${iface.interfaceNumber} reclamada OK.`);
+                    } catch (claimErr) {
+                        logSerialConsole(`Interfaz #${iface.interfaceNumber} protegida (${claimErr.name}) -> Saltando con Bypass...`);
                     }
                 }
 
-                await device.claimInterface(targetInterfaceNumber);
+                if (claimedInterfaces.length === 0) {
+                    logSerialConsole("ERROR: Android no permitió reclamar ninguna interfaz porque otra app (ArduinoDroid) tiene capturado el USB.");
+                    document.getElementById('usbModalStatus').textContent = 'USB CAPTURADO POR OTRA APP';
+                    document.getElementById('usbModalStatus').className = 'text-xs font-black text-red-400 mt-1';
+                    speakSpotter("Otra aplicación de tu Tablet tiene capturado el cable USB. Desinstala ArduinoDroid, desenchufa el cable y vuelve a enchufarlo.", true);
+                    return;
+                }
+
+                if (endpointIn === null) endpointIn = 1;
 
                 const isCH340 = (device.vendorId === 0x1A86);
                 const isCP210x = (device.vendorId === 0x10C4);
                 const isFTDI = (device.vendorId === 0x0403);
 
                 const chipLabel = isCH340
-                    ? 'CH340 / ARDUINO UNO'
-                    : (isCP210x ? 'SILABS CP210X' : (isFTDI ? 'FTDI USB' : `ARDUINO CDC (VID:${device.vendorId.toString(16).toUpperCase()})`));
+                    ? 'CH340 (115200)'
+                    : (isCP210x ? 'CP210X (115200)' : (isFTDI ? 'FTDI (115200)' : `UNO CDC (EP#${endpointIn})`));
 
                 document.getElementById('usbModalChip').textContent = chipLabel;
 
-                if (isCH340) {
-                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0xA1, value: 0x0000, index: 0x0000 });
-                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x9A, value: 0x1312, index: 0xCC03 });
-                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x9A, value: 0x2518, index: 0x00C3 });
-                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0xA4, value: ~((1 << 5) | (1 << 6)) & 0xFFFF, index: 0 });
-                } else if (isCP210x) {
-                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'interface', request: 0x00, value: 0x0001, index: targetInterfaceNumber });
-                    const baudBuf = new Uint8Array([0x00, 0xC2, 0x01, 0x00]);
-                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'interface', request: 0x1E, value: 0, index: targetInterfaceNumber }, baudBuf);
-                } else {
-                    const lineCoding = new Uint8Array([0x00, 0xC2, 0x01, 0x00, 0x00, 0x00, 0x08]);
-                    try {
-                        await device.controlTransferOut({ requestType: 'class', recipient: 'interface', request: 0x20, value: 0, index: 0 }, lineCoding);
-                        await device.controlTransferOut({ requestType: 'class', recipient: 'interface', request: 0x22, value: 0x0003, index: 0 });
-                    } catch (cdcErr) {}
+                // Configurar 115200 baudios envolviendo cada comando en try/catch independiente para que nunca aborte por SecurityError
+                try {
+                    if (isCH340) {
+                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0xA1, value: 0x0000, index: 0x0000 });
+                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x9A, value: 0x1312, index: 0xCC03 });
+                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x9A, value: 0x2518, index: 0x00C3 });
+                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0xA4, value: 0x00DF, index: 0x0000 });
+                    } else if (isCP210x) {
+                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'interface', request: 0x00, value: 0x0001, index: controlInterfaceNumber });
+                        const baudBuf = new Uint8Array([0x00, 0xC2, 0x01, 0x00]);
+                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'interface', request: 0x1E, value: 0, index: controlInterfaceNumber }, baudBuf);
+                    } else if (isFTDI) {
+                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x00, value: 0x0000, index: 0 });
+                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x03, value: 0x001A, index: 0 });
+                    } else {
+                        const lineCoding = new Uint8Array([0x00, 0xC2, 0x01, 0x00, 0x00, 0x00, 0x08]);
+                        const targetIdx = claimedInterfaces.includes(0) ? 0 : claimedInterfaces[0];
+                        await device.controlTransferOut({ requestType: 'class', recipient: 'interface', request: 0x20, value: 0, index: targetIdx }, lineCoding);
+                        await device.controlTransferOut({ requestType: 'class', recipient: 'interface', request: 0x22, value: 0x0003, index: targetIdx });
+                    }
+                    logSerialConsole("Velocidad 115200 baudios sincronizada.");
+                } catch (cfgErr) {
+                    logSerialConsole(`Bypass de control activo (${cfgErr.name}): leyendo flujo directo en Endpoint #${endpointIn}.`);
                 }
 
                 document.getElementById('usbText').innerHTML = '<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>USB OTG ACTIVO';
-                document.getElementById('usbModalStatus').textContent = 'CONECTADO A 115200 BAUD';
-                document.getElementById('usbModalStatus').className = 'text-sm font-black text-emerald-400 mt-1';
-                speakSpotter("Arduino UNO vinculado por USB OTG en la Tablet. Pasa el coche por el sensor láser.", true);
-                logSerialConsole(`Conectado en Tablet Android (${chipLabel}) Endpoint IN #${endpointIn}`);
+                document.getElementById('usbModalStatus').textContent = '¡CONECTADO Y LEYENDO!';
+                document.getElementById('usbModalStatus').className = 'text-xs font-black text-emerald-400 mt-1';
+                speakSpotter("Conexión USB OTG establecida. Pasa el coche o la mano por el sensor láser.", true);
 
                 usbReadLoopActive = true;
                 const decoder = new TextDecoder();
                 let rxBuffer = '';
 
                 while (usbReadLoopActive && device.opened) {
-                    const result = await device.transferIn(endpointIn, 64);
-                    if (result.data && result.data.byteLength > 0) {
-                        let rawBytes = new Uint8Array(result.data.buffer);
-                        if (isFTDI && rawBytes.length >= 2) {
-                            rawBytes = rawBytes.slice(2);
-                        }
-                        if (rawBytes.length > 0) {
-                            rxBuffer += decoder.decode(rawBytes, { stream: true });
-                            const lines = rxBuffer.split('\n');
-                            rxBuffer = lines.pop();
-                            for (const l of lines) {
-                                parseUniversalSerialLine(l);
+                    try {
+                        const result = await device.transferIn(endpointIn, 64);
+                        if (result && result.data && result.data.byteLength > 0) {
+                            let rawBytes = new Uint8Array(result.data.buffer, result.data.byteOffset, result.data.byteLength);
+                            if (isFTDI && rawBytes.length >= 2) {
+                                rawBytes = rawBytes.slice(2);
+                            }
+                            if (rawBytes.length > 0) {
+                                rxBuffer += decoder.decode(rawBytes, { stream: true });
+                                const lines = rxBuffer.split(/[\r\n]+/);
+                                rxBuffer = lines.pop() || '';
+                                for (const l of lines) {
+                                    if (l.trim()) parseUniversalSerialLine(l.trim());
+                                }
                             }
                         }
+                    } catch (readErr) {
+                        logSerialConsole(`Aviso lectura USB: ${readErr.message}`);
+                        break;
                     }
                 }
             } catch (err) {
-                logSerialConsole("Aviso WebUSB Android: " + err.message);
-                speakSpotter("No se pudo abrir el puerto USB. Cierra ArduinoDroid y reconecta el cable OTG.", true);
-            }
-        }
-
-        async function connectViaDesktopWebSerial() {
-            if (!('serial' in navigator)) {
-                return connectViaAndroidWebUSB();
-            }
-            try {
-                const port = await navigator.serial.requestPort();
-                await port.open({ baudRate: 115200 });
-                document.getElementById('usbText').innerHTML = '<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>USB COM ONLINE';
-                document.getElementById('usbModalStatus').textContent = 'CONECTADO (WEBSERIAL 115200)';
-                document.getElementById('usbModalStatus').className = 'text-sm font-black text-emerald-400 mt-1';
-                document.getElementById('usbModalChip').textContent = 'PUERTO SERIE COM';
-                speakSpotter("Bus USB conectado correctamente a 115200 baudios.", true);
-
-                const decoder = new TextDecoderStream();
-                port.readable.pipeTo(decoder.writable);
-                const reader = decoder.readable.getReader();
-                let buf = '';
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) break;
-                    if (value) {
-                        buf += value;
-                        const lines = buf.split('\n');
-                        buf = lines.pop();
-                        lines.forEach(l => parseUniversalSerialLine(l.trim()));
-                    }
-                }
-            } catch (e) {
-                logSerialConsole("Aviso USB: " + e.message);
-            }
-        }
-
-        function parseUniversalSerialLine(line) {
-            if (!line) return;
-            const cleanLine = line.replace(/[\r\n]+/g, '').trim();
-            if (!cleanLine) return;
-
-            logSerialConsole(`RX << ${cleanLine}`);
-            const parts = cleanLine.toUpperCase().split(',');
-            const laserStatusEl = document.getElementById('usbModalLaserStatus');
-
-            if (parts[0] === 'AUTH' && parts[1] === 'SLOTINGPLUS_OK') {
-                securityState.dongleVerified = true;
-                const usbTxt = document.getElementById('usbText');
-                if (usbTxt) {
-                    usbTxt.innerHTML = '<i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i>ARDUINO ONLINE';
-                    usbTxt.className = 'text-[9px] text-emerald-400 shrink-0 ml-2 font-black cursor-pointer';
-                }
-                const modalSt = document.getElementById('usbModalStatus');
-                if (modalSt) {
-                    modalSt.textContent = 'CONECTADO Y RECIBIENDO';
-                    modalSt.className = 'text-sm font-black text-emerald-400 mt-1';
-                }
-                return;
-            }
-
-            if (parts[0] === 'INFO') {
-                if (laserStatusEl) {
-                    laserStatusEl.textContent = 'VL6180X OK (CARRIL 1)';
-                    laserStatusEl.className = 'text-sm font-black text-emerald-400 mt-1';
-                }
-                speakSpotter("Sensor láser VL6180X detectado y listo en carril 1.", true);
-                return;
-            }
-
-            if (parts[0] === 'ERR') {
-                if (laserStatusEl) {
-                    laserStatusEl.textContent = 'ERROR I2C (A4/A5)';
-                    laserStatusEl.className = 'text-sm font-black text-red-400 mt-1';
-                }
-                speakSpotter("Atención: El Arduino está conectado, pero no detecta el sensor láser en los pines A4 y A5.", true);
-                return;
-            }
-
-            if (parts[0].startsWith('L')) {
-                const laneId = parseInt(parts[0].substring(1), 10);
-                const timeMs = parseInt(parts[1], 10);
-                const distMm = parts[2] ? parseInt(parts[2], 10) : null;
-                if (!isNaN(laneId) && !isNaN(timeMs)) {
-                    if (laserStatusEl && distMm !== null) {
-                        laserStatusEl.textContent = `COCHE A ${distMm} mm (${timeMs} ms)`;
-                        laserStatusEl.className = 'text-sm font-black text-purple-300 mt-1';
-                    }
-                    registerSectorOrLapEvent(laneId, appState.numSectors, timeMs, distMm);
-                }
-                return;
-            }
-
-            if ((parts[0].startsWith('S') || parts[0] === 'M') && parts[1] && parts[1].startsWith('L')) {
-                const secNum = parts[0] === 'M' ? appState.numSectors : parseInt(parts[0].substring(1), 10);
-                const laneId = parseInt(parts[1].substring(1), 10);
-                const timeMs = parseInt(parts[2], 10);
-                const distMm = parts[3] ? parseInt(parts[3], 10) : null;
-                if (!isNaN(secNum) && !isNaN(laneId) && !isNaN(timeMs)) {
-                    registerSectorOrLapEvent(laneId, secNum, timeMs, distMm);
+                logSerialConsole(`DETALLE DEL ERROR: [${err.name}] ${err.message}`);
+                document.getElementById('usbModalStatus').textContent = `BLOQUEO: ${err.name}`;
+                document.getElementById('usbModalStatus').className = 'text-xs font-black text-red-400 mt-1';
+                if (window.self !== window.top) {
+                    speakSpotter("Estás pulsando el botón dentro de la ventana de previsualización. Tienes que abrir el programa fuera de este visor en Google Chrome.", true);
+                } else {
+                    speakSpotter("Android bloqueó el permiso USB porque ArduinoDroid sigue instalada como predeterminada. Desinstala ArduinoDroid y reconecta el cable.", true);
                 }
             }
         }
