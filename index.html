@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="KRONOS PRO">
-    <title>KRONOS SLOT PRO OS v7.5 // Full Suite + 1-10 Lanes IR Ready</title>
+    <title>KRONOS SLOT PRO OS v7.6 // USB Sniffer + Test de Datos en Vivo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -136,18 +136,26 @@
             border-color: rgba(251, 146, 60, 0.75) !important;
         }
         .card-last-glow {
-            background: linear-gradient(145deg, rgba(239, 68, 68, 0.20) 0%, rgba(15, 23, 42, 0.96) 60%, rgba(153, 27, 27, 0.12) 100%) !important;
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.20) 0%, rgba(15, 23, 42, 0.96) 60%, rgba(153, 27, 27, 0.12) !important;
             box-shadow: 0 0 24px -4px rgba(239, 68, 68, 0.45), inset 0 0 14px rgba(239, 68, 68, 0.12) !important;
             border-color: rgba(239, 68, 68, 0.7) !important;
         }
 
-        #portraitWarningOverlay {
-            display: none;
+        /* Testigos LED del Laboratorio de Datos */
+        .sensor-test-lamp {
+            transition: all 0.08s ease;
         }
-        @media screen and (orientation: portrait) and (max-width: 900px) {
-            #portraitWarningOverlay {
-                display: flex !important;
-            }
+        .sensor-test-lamp.lamp-triggered {
+            background: #10b981 !important;
+            color: #04070f !important;
+            border-color: #a7f3d0 !important;
+            box-shadow: 0 0 25px #10b981;
+            transform: scale(1.04);
+        }
+
+        /* El cartel de giro queda desactivado por defecto para no bloquear jamás el visor dividido */
+        #portraitWarningOverlay {
+            display: none !important;
         }
 
         ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -156,87 +164,226 @@
     </style>
 </head>
 
-<body class="h-screen w-screen overflow-hidden flex flex-col justify-between p-2 md:px-3.5 md:py-2.5 bg-[#04070f]">
+<body class="h-screen w-screen overflow-hidden flex flex-col justify-between p-2 md:px-3.5 md:py-2 bg-[#04070f]">
 
     <!-- ========================================================================================
-         MODAL DE DIAGNÓSTICO Y CONEXIÓN USB OTG
+         BARRA DIRECTA DE TEST DE DATOS ARDUINO EN VIVO (SIEMPRE VISIBLE ARRIBA)
          ======================================================================================== -->
-    <div id="usbAndroidHelperModal" class="hidden fixed inset-0 z-[58] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-4">
-        <div class="glass-panel rounded-3xl max-w-2xl w-full p-5 border-2 border-sky-500/60 shadow-[0_0_50px_rgba(56,189,248,0.25)] space-y-3.5 font-mono max-h-[95vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+    <div id="liveHardwareTestStrip" class="bg-slate-950 border-2 border-sky-500/80 rounded-2xl px-3 py-1.5 mb-1.5 flex flex-wrap items-center justify-between gap-2 shrink-0 shadow-[0_0_25px_rgba(56,189,248,0.2)] font-mono text-xs">
+        <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 bg-sky-500 text-slate-950 font-black text-[10px] rounded uppercase animate-pulse">
+                <i class="fa-solid fa-microscope mr-1"></i>TEST DATOS ARDUINO
+            </span>
+            <select id="stripBaudSelect" onchange="changeSerialBaudRate(this.value)" class="bg-slate-900 text-amber-300 font-black text-[11px] px-2 py-1 rounded-lg border border-amber-500/50 cursor-pointer">
+                <option value="115200" selected>115200 Baudios</option>
+                <option value="9600">9600 Baudios</option>
+                <option value="57600">57600 Baudios</option>
+            </select>
+            <button onclick="connectViaAndroidWebUSB()" class="px-2.5 py-1 bg-sky-600 hover:bg-sky-500 text-white font-black text-[10px] rounded-lg shadow cursor-pointer">
+                <i class="fa-brands fa-usb mr-1"></i>1. Conectar USB
+            </button>
+            <button onclick="connectViaDesktopWebSerial()" class="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white font-black text-[10px] rounded-lg shadow cursor-pointer">
+                <i class="fa-solid fa-plug mr-1"></i>2. WebSerial PC/Mac
+            </button>
+            <button onclick="runFullSimulatedHardwareTest()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] rounded-lg shadow cursor-pointer">
+                <i class="fa-solid fa-vial mr-1"></i>3. Test Simulado S1-S2-M
+            </button>
+            <button onclick="openStandaloneUnlockedWindow()" class="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-[10px] rounded-lg shadow cursor-pointer" title="Abre fuera del visor para que Chrome desbloquee el puerto USB">
+                <i class="fa-solid fa-up-right-from-square mr-1"></i>4. Abrir Libre (Desbloquear USB)
+            </button>
+            <button onclick="connectArduinoUSB()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold text-[10px] rounded-lg border border-slate-600 cursor-pointer">
+                Monitor Completo
+            </button>
+        </div>
+
+        <!-- Testigos en vivo en la barra principal -->
+        <div class="flex items-center gap-1.5">
+            <span id="stripLamp-S1" onclick="parseUniversalSerialLine('S1,L1,1240,0')" class="sensor-test-lamp px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-black text-slate-300 cursor-pointer" title="Haz clic para probar S1">
+                D2/S1: <b id="stripVal-S1">OFF</b>
+            </span>
+            <span id="stripLamp-S2" onclick="parseUniversalSerialLine('S2,L1,1310,0')" class="sensor-test-lamp px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-black text-slate-300 cursor-pointer" title="Haz clic para probar S2">
+                D3/S2: <b id="stripVal-S2">OFF</b>
+            </span>
+            <span id="stripLamp-META" onclick="parseUniversalSerialLine('M,L1,1190,0')" class="sensor-test-lamp px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-black text-slate-300 cursor-pointer" title="Haz clic para probar META">
+                D4/META: <b id="stripVal-META">OFF</b>
+            </span>
+            <div class="bg-black px-2.5 py-0.5 rounded-lg border border-emerald-500/50 text-[10px] text-emerald-300 font-bold max-w-[260px] truncate" id="stripLastRawData">
+                RX: Esperando datos del cable USB...
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================================
+         MODAL LABORATORIO DE TEST Y DIAGNÓSTICO EN VIVO DE DATOS ARDUINO USB (SNIFFER v7.6)
+         ======================================================================================== -->
+    <div id="usbAndroidHelperModal" class="hidden fixed inset-0 z-[58] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-3 md:p-4">
+        <div class="glass-panel rounded-3xl max-w-4xl w-full p-4 md:p-5 border-2 border-sky-500/70 shadow-[0_0_50px_rgba(56,189,248,0.28)] space-y-3 font-mono max-h-[96vh] overflow-y-auto">
+            
+            <!-- Cabecera del Laboratorio -->
+            <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-800 pb-2.5">
                 <div class="flex items-center gap-3">
                     <div class="w-11 h-11 rounded-2xl bg-sky-500/20 border border-sky-400 flex items-center justify-center text-2xl text-sky-400">
-                        <i class="fa-brands fa-usb"></i>
+                        <i class="fa-solid fa-microscope"></i>
                     </div>
                     <div>
-                        <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[9px] font-black uppercase rounded border border-emerald-500/40">
-                            MOTOR V7.5: CONEXIÓN DIRECTA DATA-INTERFACE
-                        </span>
-                        <h3 class="text-base font-black text-white uppercase mt-0.5">CONEXIÓN DIRECTA AL ARDUINO UNO / ELEGOO R3</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[9px] font-black uppercase rounded border border-emerald-500/40">
+                                SNIFFER DE DATOS USB EN TIEMPO REAL v7.6
+                            </span>
+                            <span id="usbLiveCounterBadge" class="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-[9px] font-black uppercase rounded border border-purple-500/40">
+                                0 BYTES RECIBIDOS
+                            </span>
+                        </div>
+                        <h3 class="text-sm md:text-base font-black text-white uppercase mt-0.5">
+                            LABORATORIO DE TEST DE DATOS RECIBIDOS DESDE ARDUINO UNO / ELEGOO R3
+                        </h3>
                     </div>
                 </div>
-                <button onclick="document.getElementById('usbAndroidHelperModal').classList.add('hidden')" class="px-3 py-1.5 bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white rounded-xl text-xs font-bold cursor-pointer">
-                    <i class="fa-solid fa-xmark mr-1"></i>Cerrar
-                </button>
+
+                <div class="flex items-center gap-2">
+                    <!-- Selector Crítico de Baud Rate -->
+                    <div class="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1 rounded-xl border border-amber-500/50">
+                        <span class="text-[9px] text-amber-300 font-black">VELOCIDAD (BAUD):</span>
+                        <select id="usbBaudRateSelect" onchange="changeSerialBaudRate(this.value)" class="bg-slate-950 text-amber-400 font-black text-xs px-2 py-0.5 rounded border border-slate-700 cursor-pointer">
+                            <option value="115200" selected>115200 (Rápido)</option>
+                            <option value="9600">9600 (Estándar Arduino)</option>
+                            <option value="57600">57600</option>
+                            <option value="38400">38400</option>
+                        </select>
+                    </div>
+                    <button onclick="document.getElementById('usbAndroidHelperModal').classList.add('hidden')" class="px-3 py-1.5 bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white rounded-xl text-xs font-bold cursor-pointer">
+                        <i class="fa-solid fa-xmark mr-1"></i>Cerrar
+                    </button>
+                </div>
             </div>
 
-            <!-- Alerta de Entorno -->
-            <div id="usbEnvironmentWarning" class="hidden bg-amber-950/95 border-2 border-amber-400 rounded-2xl p-3.5 text-xs text-amber-100 space-y-2.5 shadow-lg">
-                <div class="font-black text-amber-300 uppercase text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-unlock-keyhole text-lg"></i>
-                    <span>ESTÁS DENTRO DEL VISOR DE PREVISUALIZACIÓN (IFRAME)</span>
+            <!-- Alerta automática si está dentro de un visor Iframe bloqueado -->
+            <div id="usbEnvironmentWarning" class="hidden bg-amber-950/95 border-2 border-amber-400 rounded-2xl p-3 text-xs text-amber-100 space-y-2 shadow-lg">
+                <div class="font-black text-amber-300 uppercase text-xs flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-base"></i>
+                    <span>IMPORTANTE: ABRE EL PROGRAMA FUERA DE ESTE VISOR PARA LEER EL CABLE USB</span>
                 </div>
                 <div id="usbEnvironmentReason" class="text-[11px] leading-relaxed"></div>
                 <div class="flex flex-wrap gap-2 pt-1">
-                    <button onclick="openStandaloneUnlockedWindow()" class="px-3.5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs rounded-xl shadow cursor-pointer flex items-center gap-1.5">
+                    <button onclick="openStandaloneUnlockedWindow()" class="px-3.5 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs rounded-xl shadow cursor-pointer flex items-center gap-1.5">
                         <i class="fa-solid fa-up-right-from-square"></i> ABRIR EN PESTAÑA LIBRE DESBLOQUEADA
                     </button>
-                    <button onclick="downloadStandaloneHtmlFile()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-600 cursor-pointer flex items-center gap-1.5">
+                    <button onclick="downloadStandaloneHtmlFile()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-600 cursor-pointer flex items-center gap-1.5">
                         <i class="fa-solid fa-download"></i> Descargar Archivo HTML Independiente
                     </button>
                 </div>
             </div>
 
-            <!-- Estado en Tiempo Real -->
-            <div class="grid grid-cols-3 gap-2.5 text-xs">
+            <!-- Botones de Conexión y Ping -->
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                <button onclick="connectViaAndroidWebUSB()" class="py-2.5 px-3 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-[11px] rounded-xl shadow-lg border border-sky-300/50 cursor-pointer flex items-center justify-center gap-1.5">
+                    <i class="fa-brands fa-usb text-sm"></i> 1. CONECTAR WEBUSB (TABLET/PC)
+                </button>
+                <button onclick="connectViaDesktopWebSerial()" class="py-2.5 px-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-[11px] rounded-xl shadow-lg border border-purple-300/50 cursor-pointer flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-plug-circle-bolt text-sm"></i> 2. CONECTAR WEBSERIAL (PC)
+                </button>
+                <button onclick="sendPingToArduino()" class="py-2.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-[11px] rounded-xl shadow-lg border border-amber-200 cursor-pointer flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-satellite-dish text-sm"></i> 3. ENVIAR PING AL ARDUINO
+                </button>
+                <button onclick="runFullSimulatedHardwareTest()" class="py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-[11px] rounded-xl shadow-lg border border-emerald-300/50 cursor-pointer flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-vial-circle-check text-sm"></i> 4. AUTO-TEST DE TRAMAS
+                </button>
+            </div>
+
+            <!-- TESTIGOS VISUALES DE SENSORES (PINES 2, 3, 4 / CARRILES) -->
+            <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2">
+                <div class="flex justify-between items-center text-[10px]">
+                    <span class="text-sky-400 font-black uppercase">
+                        <i class="fa-solid fa-bolt mr-1"></i>TESTIGOS EN VIVO DE SENSORES (SE ILUMINAN AL PASAR EL COCHE O PULSAR PRUEBA):
+                    </span>
+                    <span id="usbTestDiagnosticVerdict" class="text-amber-300 font-bold">
+                        Esperando datos desde el puerto USB...
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-4 gap-2 text-center">
+                    <div id="testLamp-S1" onclick="parseUniversalSerialLine('S1,L1,1240,0')" class="sensor-test-lamp bg-slate-900 p-2 rounded-xl border border-slate-700 cursor-pointer">
+                        <div class="text-[9px] text-slate-400 font-bold">PIN D2 / SENSOR S1</div>
+                        <div class="text-xs font-black text-white mt-0.5" id="testLampVal-S1">SIN SEÑAL</div>
+                    </div>
+                    <div id="testLamp-S2" onclick="parseUniversalSerialLine('S2,L1,1310,0')" class="sensor-test-lamp bg-slate-900 p-2 rounded-xl border border-slate-700 cursor-pointer">
+                        <div class="text-[9px] text-slate-400 font-bold">PIN D3 / SENSOR S2</div>
+                        <div class="text-xs font-black text-white mt-0.5" id="testLampVal-S2">SIN SEÑAL</div>
+                    </div>
+                    <div id="testLamp-META" onclick="parseUniversalSerialLine('M,L1,1190,0')" class="sensor-test-lamp bg-slate-900 p-2 rounded-xl border border-slate-700 cursor-pointer">
+                        <div class="text-[9px] text-slate-400 font-bold">PIN D4 / SENSOR META</div>
+                        <div class="text-xs font-black text-white mt-0.5" id="testLampVal-META">SIN SEÑAL</div>
+                    </div>
+                    <div id="testLamp-RAW" class="sensor-test-lamp bg-slate-900 p-2 rounded-xl border border-slate-700">
+                        <div class="text-[9px] text-slate-400 font-bold">CUALQUIER DATO USB</div>
+                        <div class="text-xs font-black text-amber-300 mt-0.5" id="testLampVal-RAW">0 PAQUETES</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estado Técnico en 4 Columnas -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                 <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
                     <div class="text-[9px] text-slate-400 uppercase">ESTADO PUERTO USB:</div>
-                    <div id="usbModalStatus" class="text-xs font-black text-amber-400 mt-1">ESPERANDO CONEXIÓN</div>
+                    <div id="usbModalStatus" class="text-xs font-black text-amber-400 mt-0.5">SIN CONECTAR</div>
                 </div>
                 <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
                     <div class="text-[9px] text-slate-400 uppercase">CHIP / ENDPOINT:</div>
-                    <div id="usbModalChip" class="text-xs font-black text-sky-400 mt-1">AUTO-DETECCIÓN</div>
+                    <div id="usbModalChip" class="text-xs font-black text-sky-400 mt-0.5">AUTO-DETECCIÓN</div>
                 </div>
                 <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                    <div class="text-[9px] text-slate-400 uppercase">SENSORES IR / LÁSER:</div>
-                    <div id="usbModalLaserStatus" class="text-xs font-black text-emerald-400 mt-1">ESPERANDO TRAMA</div>
+                    <div class="text-[9px] text-slate-400 uppercase">ÚLTIMA TRAMA TRADUCIDA:</div>
+                    <div id="usbModalLaserStatus" class="text-xs font-black text-emerald-400 mt-0.5 truncate">NINGUNA AÚN</div>
+                </div>
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                    <div class="text-[9px] text-slate-400 uppercase">BYTES / LÍNEAS RX:</div>
+                    <div id="usbModalPacketStats" class="text-xs font-black text-purple-300 mt-0.5">0 B / 0 Líneas</div>
                 </div>
             </div>
 
-            <!-- Botones de Conexión Directa -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <button onclick="connectViaAndroidWebUSB()" class="py-3 px-3 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-xs rounded-2xl shadow-lg border border-sky-300/50 cursor-pointer flex items-center justify-center gap-2">
-                    <i class="fa-brands fa-usb text-base"></i> 1. CONECTAR WEBUSB (ANDROID/PC)
-                </button>
-                <button onclick="connectViaDesktopWebSerial()" class="py-3 px-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs rounded-2xl shadow-lg border border-purple-300/50 cursor-pointer flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-plug-circle-bolt text-base"></i> 2. WEBSERIAL (PC / ELEGOO)
-                </button>
-                <button onclick="connectLocalWebSocketBridge()" class="py-3 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs rounded-2xl shadow-lg border border-emerald-300/50 cursor-pointer flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-tower-broadcast text-base"></i> 3. PUENTE LOCAL (WS:8080)
-                </button>
+            <!-- DOBLE MONITOR EN VIVO: 1) SNIFFER DE BYTES EN CRUDO (SIN FILTRO) Y 2) INTÉRPRETE KRONOS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                <!-- Monitor 1: Bytes en Crudo (ASCII + HEX) -->
+                <div class="bg-black/95 p-2.5 rounded-xl border border-amber-500/40">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[9px] text-amber-400 font-black uppercase">
+                            <i class="fa-solid fa-wave-square mr-1"></i>1. MONITOR DE BYTES EN CRUDO (TODO LO QUE ENVÍA EL ARDUINO):
+                        </span>
+                        <button onclick="clearUsbSnifferLogs()" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[9px] rounded cursor-pointer">
+                            Limpiar
+                        </button>
+                    </div>
+                    <div id="usbRawByteSnifferBox" class="h-32 overflow-y-auto text-[10px] text-amber-200 space-y-1 font-mono">
+                        <div class="text-slate-500">[ESPERANDO BYTES] Si el Arduino hace Serial.println(...) verás aquí exactamente cada letra y byte hexadecimal que entra por el cable...</div>
+                    </div>
+                </div>
+
+                <!-- Monitor 2: Registro e Inyector de Tramas -->
+                <div class="bg-black/95 p-2.5 rounded-xl border border-emerald-500/40">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[9px] text-emerald-400 font-black uppercase">
+                            <i class="fa-solid fa-check-double mr-1"></i>2. TRADUCTOR DE VUELTAS Y DIAGNÓSTICO:
+                        </span>
+                        <button onclick="copyDiagnosticReport()" class="px-2 py-0.5 bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 text-[9px] rounded border border-emerald-500/40 cursor-pointer">
+                            Copiar Diagnóstico
+                        </button>
+                    </div>
+                    <div id="usbModalLiveFeed" class="h-32 overflow-y-auto text-[10px] text-emerald-300 space-y-1 font-mono">
+                        <div>[READY] Pulsa el botón 1 (WebUSB) o 2 (WebSerial) y pasa la mano por los sensores IR.</div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Monitor en vivo -->
-            <div class="bg-black/90 p-2.5 rounded-xl border border-slate-800">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-[9px] text-emerald-400 font-bold uppercase">REGISTRO TÉCNICO EN VIVO DEL PUERTO USB:</span>
-                    <button onclick="injectManualSerialTest()" class="px-2 py-0.5 bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 text-[9px] rounded border border-emerald-500/40 cursor-pointer">
-                        Probar Trama S1 (S1,L1,1280)
+            <!-- Inyector manual directo para probar el traductor -->
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[10px]">
+                <span class="text-slate-300 font-bold">PROBAR COMANDO COMO SI VINIERA DEL ARDUINO:</span>
+                <div class="flex items-center gap-1.5 flex-1 max-w-md">
+                    <input id="modalTestSerialInput" type="text" value="S1,L1,1250,0" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-emerald-300 font-bold"/>
+                    <button onclick="parseUniversalSerialLine(document.getElementById('modalTestSerialInput').value)" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-lg cursor-pointer">
+                        Probar Trama
                     </button>
                 </div>
-                <div id="usbModalLiveFeed" class="h-28 overflow-y-auto text-[10px] text-emerald-300 space-y-0.5">
-                    <div>[READY] Motor v7.5 listo. Pulsa el botón 1 (WebUSB) o el botón 2 (WebSerial).</div>
-                </div>
+                <span class="text-slate-400">¿No entra nada al pasar el coche? Prueba a cambiar <b>VELOCIDAD (BAUD)</b> arriba a <b>9600</b>.</span>
             </div>
         </div>
     </div>
@@ -357,29 +504,15 @@
         </div>
     </div>
 
-    <!-- AVISO AUTOMÁTICO SI LA TABLET SE PONE EN VERTICAL -->
-    <div id="portraitWarningOverlay" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex-col items-center justify-center p-6 text-center">
-        <div class="w-16 h-16 rounded-2xl bg-sky-500/20 border border-sky-400 flex items-center justify-center text-3xl text-sky-400 mb-4 animate-bounce">
+    <!-- AVISO DE ROTACIÓN DESACTIVADO PARA NO BLOQUEAR EL VISOR -->
+    <div id="portraitWarningOverlay" onclick="this.style.display='none'" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex-col items-center justify-center p-6 text-center cursor-pointer">
+        <div class="w-16 h-16 rounded-2xl bg-sky-500/20 border border-sky-400 flex items-center justify-center text-3xl text-sky-400 mb-4">
             <i class="fa-solid fa-rotate"></i>
         </div>
-        <h2 class="text-xl font-black text-white uppercase tracking-tight">Modo Horizontal Requerido</h2>
+        <h2 class="text-xl font-black text-white uppercase tracking-tight">Diseño Panorámico Horizontal</h2>
         <p class="text-xs font-mono text-slate-300 max-w-xs mt-2">
-            KRONOS SLOT PRO está diseñado para formato panorámico de competición en Tablet, PC y Mac. Gira tu dispositivo en horizontal para ver los carriles y sectores.
+            Pulsa en cualquier parte para entrar directamente a KRONOS SLOT PRO.
         </p>
-    </div>
-
-    <!-- ========================================================================================
-         PANTALLA DE BLOQUEO CRIPTOGRÁFICO
-         ======================================================================================== -->
-    <div id="securityLicenseModal" class="hidden fixed inset-0 z-[60] bg-slate-950/98 backdrop-blur-xl flex items-center justify-center p-4">
-        <!-- Contenido omitido por brevedad, igual que en v7.2 -->
-    </div>
-
-    <div id="portraitWarningOverlay" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex-col items-center justify-center p-6 text-center">
-        <div class="w-16 h-16 rounded-2xl bg-sky-500/20 border border-sky-400 flex items-center justify-center text-3xl text-sky-400 mb-4 animate-bounce">
-            <i class="fa-solid fa-rotate"></i>
-        </div>
-        <h2 class="text-xl font-black text-white uppercase tracking-tight">Modo Horizontal Requerido</h2>
     </div>
 
     <header id="topRaceBar" class="glass-panel rounded-2xl px-3.5 py-2 mb-2 grid grid-cols-12 items-center gap-3 shrink-0">
@@ -461,13 +594,13 @@
             <div class="grid grid-cols-3 gap-1.5">
                 <button onclick="startF1Sequence()" class="py-2 px-2 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-mono font-black text-xs rounded-xl shadow-lg border border-emerald-300/50 cursor-pointer"><i class="fa-solid fa-traffic-light"></i> SALIDA</button>
                 <button onclick="toggleTrackCall()" class="py-2 px-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-mono font-black text-xs rounded-xl shadow-lg border border-amber-200 cursor-pointer"><i class="fa-solid fa-triangle-exclamation"></i> PAUSA</button>
-                <button onclick="toggleAutoDemo()" id="btnAutoDemo" class="py-2 px-2 bg-purple-600/35 hover:bg-purple-600/60 text-purple-100 font-mono font-black text-xs rounded-xl border border-purple-400/50 cursor-pointer"><i class="fa-solid fa-robot"></i> AUTO-SIM</button>
+                <button onclick="connectArduinoUSB()" id="btnTestUsbTop" class="py-2 px-2 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-mono font-black text-xs rounded-xl shadow-lg border border-sky-300 cursor-pointer animate-pulse"><i class="fa-solid fa-microscope"></i> TEST USB</button>
             </div>
             <div class="grid grid-cols-6 gap-1">
                 <button onclick="finishAndOpenOfficialReport()" class="py-1.5 bg-emerald-500/25 text-emerald-300 font-mono font-black text-[10px] rounded-lg border border-emerald-400/40 cursor-pointer"><i class="fa-solid fa-flag-checkered"></i> ACTA</button>
                 <button onclick="announceFullStandingsWithHumor()" class="py-1.5 bg-amber-500/25 text-amber-300 font-mono font-bold text-[10px] rounded-lg border border-amber-400/40 cursor-pointer"><i class="fa-solid fa-microphone-lines"></i> PODIO</button>
                 <button onclick="toggleVoiceSpotter()" id="btnVoice" class="py-1.5 bg-indigo-600/30 text-indigo-200 font-mono font-bold text-[10px] rounded-lg border border-indigo-400/40 cursor-pointer"><span id="voiceIcon"><i class="fa-solid fa-volume-high"></i></span></button>
-                <button onclick="connectArduinoUSB()" id="btnConnectUsbHeader" class="py-1.5 bg-sky-600/40 text-sky-200 font-mono font-black text-[10px] rounded-lg border border-sky-400/60 cursor-pointer"><i class="fa-solid fa-plug"></i> USB</button>
+                <button onclick="toggleAutoDemo()" id="btnAutoDemo" class="py-1.5 bg-purple-600/35 text-purple-200 font-mono font-black text-[10px] rounded-lg border border-purple-400/50 cursor-pointer"><i class="fa-solid fa-robot"></i> SIM</button>
                 <button onclick="resetRaceSession()" class="py-1.5 bg-slate-800 text-slate-200 font-mono font-bold text-[10px] rounded-lg border border-slate-700 cursor-pointer"><i class="fa-solid fa-rotate-right"></i> RESET</button>
                 <button onclick="toggleFullScreenMode()" id="btnFullscreen" class="py-1.5 bg-sky-500/25 text-sky-300 font-mono font-black text-[10px] rounded-lg border border-sky-400/50 cursor-pointer"><i class="fa-solid fa-expand"></i> FULL</button>
             </div>
@@ -481,7 +614,7 @@
             <button onclick="switchTab('analytics')" id="tabBtn-analytics" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">3. TELEMETRÍA</button>
             <button onclick="switchTab('rotation')" id="tabBtn-rotation" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">4. BD CLUB</button>
             <button onclick="switchTab('mobile')" id="tabBtn-mobile" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-emerald-300 hover:text-white border border-emerald-500/30 transition cursor-pointer shrink-0">5. MÓVIL QR</button>
-            <button onclick="switchTab('config')" id="tabBtn-config" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">6. REGLAMENTO</button>
+            <button onclick="switchTab('config')" id="tabBtn-config" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">6. REGLAMENTO &amp; TEST USB</button>
             <button onclick="switchTab('security')" id="tabBtn-security" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-amber-300 hover:text-white border border-amber-500/30 transition cursor-pointer shrink-0">7. INSTALAR</button>
         </div>
         <div class="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1 rounded-xl border border-slate-700/80 overflow-x-auto max-w-full">
@@ -532,7 +665,7 @@
                 </div>
                 <div class="mt-2 pt-1.5 border-t border-slate-800 flex items-center justify-between text-[10px] font-mono text-slate-400 shrink-0">
                     <span id="spotterMessage" class="truncate text-sky-300">Spotter IA en espera...</span>
-                    <span id="usbText" onclick="connectArduinoUSB()" class="text-[9px] text-amber-400 cursor-pointer shrink-0 ml-2 font-black underline">CONECTAR USB</span>
+                    <span id="usbText" onclick="connectArduinoUSB()" class="text-[9px] text-amber-400 cursor-pointer shrink-0 ml-2 font-black underline">ABRIR TEST USB</span>
                 </div>
             </div>
         </div>
@@ -864,28 +997,29 @@
 
         <div class="col-span-6 glass-panel rounded-2xl p-4 space-y-3 flex flex-col justify-between overflow-y-auto min-h-0">
             <div class="space-y-2">
-                <h2 class="text-sm font-bold text-emerald-400 font-mono uppercase"><i class="fa-solid fa-microchip mr-1.5"></i>CONEXIÓN ARDUINO UNO / ELEGOO R3 + SENSORES IR / LÁSER</h2>
+                <h2 class="text-sm font-bold text-emerald-400 font-mono uppercase"><i class="fa-solid fa-microscope mr-1.5"></i>LABORATORIO DE TEST DE DATOS ARDUINO Y SENSORES IR</h2>
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    Pulsa el botón de abajo para abrir el asistente de vinculación directa con tu Arduino UNO R3 (compatible con sensores Infrarrojos IR en pines 2, 3 y 4 o sensores láser):
+                    Pulsa el botón de abajo para abrir el <strong>Sniffer de Datos USB en Vivo</strong>. Ahí podrás ver cada byte crudo que llega desde el Arduino, cambiar la velocidad entre <strong>9600 y 115200 baudios</strong> y probar los sensores:
                 </p>
                 <button onclick="connectArduinoUSB()" class="w-full py-2.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-mono font-black text-xs rounded-xl shadow-lg cursor-pointer">
-                    <i class="fa-brands fa-usb mr-1.5"></i>ABRIR PANEL DE CONEXIÓN ANDROID WEBUSB / PC WEBSERIAL
+                    <i class="fa-solid fa-microscope mr-1.5"></i>ABRIR LABORATORIO DE TEST DE DATOS USB (SNIFFER EN VIVO)
                 </button>
                 <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] space-y-1.5">
-                    <div><span class="text-sky-400 font-bold">&bull; Modo 1 Sector (Solo Meta):</span> <code class="text-amber-300">L1,3842,0</code> (Carril 1, 3842 ms)</div>
-                    <div><span class="text-sky-400 font-bold">&bull; Modo 2 ó 3 Sectores (IR):</span> <code class="text-emerald-300">S1,L1,1320,0</code> &rarr; <code class="text-emerald-300">S2,L1,1410,0</code> &rarr; <code class="text-purple-300">M,L1,1112,0</code></div>
+                    <div><span class="text-sky-400 font-bold">&bull; Formatos soportados automáticamente:</span></div>
+                    <div>1. Estándar KRONOS: <code class="text-emerald-300">S1,L1,1320,0</code> / <code class="text-amber-300">L1,3842,0</code></div>
+                    <div>2. Simplificado Arduino: <code class="text-purple-300">1,3842</code> o simplemente <code class="text-purple-300">S1</code> / <code class="text-purple-300">S2</code> / <code class="text-purple-300">META</code> (KRONOS calcula el tiempo automáticamente si el Arduino solo envía el pulso del pin).</div>
                 </div>
             </div>
 
             <div class="flex gap-2">
-                <input id="manualSerialInput" type="text" placeholder="Ej: L1,3540,22 o S1,L1,1280,0" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-mono text-emerald-300"/>
+                <input id="manualSerialInput" type="text" placeholder="Ej: L1,3540,22 o S1,L1,1280,0 o solo S1" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-mono text-emerald-300"/>
                 <button onclick="injectManualSerial()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs rounded-xl cursor-pointer">
                     Inyectar Trama
                 </button>
             </div>
 
             <div id="serialRawConsole" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-40 overflow-y-auto font-mono text-[10px] text-emerald-400 space-y-1">
-                <div>[BOOT] KRONOS SLOT PRO v7.5 — Driver Direct Bulk USB + WebSerial + IR 1-10 Carriles inicializado.</div>
+                <div>[BOOT] KRONOS SLOT PRO v7.6 — Sniffer de Datos Crudos + Traductor Universal listo.</div>
             </div>
         </div>
     </section>
@@ -1179,7 +1313,7 @@
 
         function saveLocalDatabase() {
             const payload = {
-                version: '7.5',
+                version: '7.6',
                 lastSaved: new Date().toISOString(),
                 appTitle: appState.appTitle,
                 activeLanes: appState.activeLanes,
@@ -2073,7 +2207,7 @@
             if (appState.raceStatus === 'TRACK_CALL') return;
 
             const sCount = appState.numSectors;
-            const secTime = timeMsFromHardware !== null
+            const secTime = (timeMsFromHardware !== null && timeMsFromHardware > 0)
                 ? (timeMsFromHardware / 1000.0)
                 : (lane.lastSectorPassTime > 0 ? (now - lane.lastSectorPassTime) / 1000.0 : 1.35);
 
@@ -2092,7 +2226,6 @@
                     completeFullLap(laneId, secTime);
                 }
                 lane.nextExpectedSector = 1;
-                // Limpieza crítica de sectores al cruzar la meta para sensores IR
                 lane.currentLapSectors = { 1: null, 2: null, 3: null };
             } else {
                 processSingleSectorMetrics(laneId, sectorIndex, secTime);
@@ -2198,7 +2331,7 @@
                 document.getElementById(`deltaBadge-${laneId}`).innerHTML = `&Delta; ${deltaStr}`;
                 document.getElementById(`tofStatus-${laneId}`).textContent = `IR/ToF ${lane.tofMm}mm`;
                 document.getElementById(`optimalLapTag-${laneId}`).textContent =
-                    optLap < Infinity ? `Ópt: ${optLap.toFixed(3)}s` : `Media: ${meanLap.toFixed(3)}s`;
+                    optLap < Infinity ? `Ópt: ${optLap.toFixed(3) + 's'}` : `Media: ${meanLap.toFixed(3) + 's'}`;
 
                 const meanTag = document.getElementById(`meanLapTag-${laneId}`);
                 if (meanTag) meanTag.textContent = `Media: ${meanLap.toFixed(3)}s | Total: ${lane.history.length} V.`;
@@ -2306,7 +2439,7 @@
             if (appState.autoDemoTimer) {
                 clearInterval(appState.autoDemoTimer);
                 appState.autoDemoTimer = null;
-                if (btn) btn.className = 'py-2 px-2 bg-purple-600/35 hover:bg-purple-600/60 text-purple-100 font-mono font-black text-xs rounded-xl border border-purple-400/50 transition flex items-center justify-center gap-1.5 cursor-pointer';
+                if (btn) btn.className = 'py-1.5 bg-purple-600/35 text-purple-200 font-mono font-black text-[10px] rounded-lg border border-purple-400/50 cursor-pointer';
                 speakSpotter("Simulación automática detenida.", true);
             } else {
                 if (appState.raceStatus === 'STANDBY' || appState.raceStatus === 'FINISHED') {
@@ -2319,7 +2452,7 @@
                     updateRaceBadge('<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>AUTO-SIM EN CURSO', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
                     startMasterClock();
                 }
-                if (btn) btn.className = 'py-2 px-2 bg-purple-600 text-white font-mono font-black text-xs rounded-xl border border-purple-300 shadow-lg transition flex items-center justify-center gap-1.5 cursor-pointer';
+                if (btn) btn.className = 'py-1.5 bg-purple-600 text-white font-mono font-black text-[10px] rounded-lg border border-purple-300 shadow-lg cursor-pointer';
                 appState.autoDemoTimer = setInterval(() => {
                     if (appState.raceStatus !== 'RACING') return;
                     const randomLane = 1 + Math.floor(Math.random() * appState.activeLanes);
@@ -2330,11 +2463,137 @@
         }
 
         // ============================================================================
-        // PARSER UNIVERSAL DE TRAMAS SERIE (SENSORES IR Y LÁSER VL6180X)
+        // SNIFFER DE DATOS EN CRUDO Y LABORATORIO DE DIAGNÓSTICO ARDUINO (v7.6)
+        // ============================================================================
+        const usbSnifferStats = {
+            totalBytes: 0,
+            totalChunks: 0,
+            totalLines: 0,
+            selectedBaudRate: 115200
+        };
+
+        function flashSensorTestLamp(lampId, valueText) {
+            const lamp = document.getElementById(`testLamp-${lampId}`);
+            const valEl = document.getElementById(`testLampVal-${lampId}`);
+            if (valEl && valueText) valEl.textContent = valueText;
+            if (lamp) {
+                lamp.classList.add('lamp-triggered');
+                setTimeout(() => lamp.classList.remove('lamp-triggered'), 420);
+            }
+
+            const stripLamp = document.getElementById(`stripLamp-${lampId}`);
+            const stripVal = document.getElementById(`stripVal-${lampId}`);
+            if (stripVal && valueText) stripVal.textContent = valueText;
+            if (stripLamp) {
+                stripLamp.classList.add('lamp-triggered');
+                setTimeout(() => stripLamp.classList.remove('lamp-triggered'), 420);
+            }
+        }
+
+        function recordRawUsbChunk(uint8Bytes) {
+            if (!uint8Bytes || uint8Bytes.length === 0) return;
+            usbSnifferStats.totalBytes += uint8Bytes.length;
+            usbSnifferStats.totalChunks++;
+
+            // Actualizar contadores visuales
+            const badge = document.getElementById('usbLiveCounterBadge');
+            if (badge) badge.textContent = `${usbSnifferStats.totalBytes} BYTES RECIBIDOS`;
+            const statBox = document.getElementById('usbModalPacketStats');
+            if (statBox) statBox.textContent = `${usbSnifferStats.totalBytes} B / ${usbSnifferStats.totalLines} Lín.`;
+
+            flashSensorTestLamp('RAW', `${usbSnifferStats.totalChunks} PKTS`);
+
+            // Formatear vista HEX + ASCII legible
+            let hexArr = [];
+            let asciiStr = '';
+            let nonPrintableCount = 0;
+            for (let i = 0; i < uint8Bytes.length; i++) {
+                const b = uint8Bytes[i];
+                hexArr.push(b.toString(16).toUpperCase().padStart(2, '0'));
+                if (b >= 32 && b <= 126) {
+                    asciiStr += String.fromCharCode(b);
+                } else if (b === 10) {
+                    asciiStr += '\\n';
+                } else if (b === 13) {
+                    asciiStr += '\\r';
+                } else {
+                    asciiStr += '·';
+                    nonPrintableCount++;
+                }
+            }
+
+            const stripRawEl = document.getElementById('stripLastRawData');
+            if (stripRawEl) {
+                stripRawEl.innerHTML = `RX (${usbSnifferStats.totalBytes}B): <b class="text-white">"${asciiStr}"</b>`;
+            }
+
+            const snifferBox = document.getElementById('usbRawByteSnifferBox');
+            if (snifferBox) {
+                if (usbSnifferStats.totalChunks === 1) snifferBox.innerHTML = '';
+                const row = document.createElement('div');
+                row.className = 'border-b border-slate-800/80 pb-0.5';
+                row.innerHTML = `<span class="text-slate-400">[${new Date().toLocaleTimeString()}]</span> <b class="text-white">"${asciiStr}"</b> <span class="text-sky-400">[HEX: ${hexArr.join(' ')}]</span>`;
+                snifferBox.insertBefore(row, snifferBox.firstChild);
+                while (snifferBox.children.length > 50) snifferBox.removeChild(snifferBox.lastChild);
+            }
+
+            const verdictEl = document.getElementById('usbTestDiagnosticVerdict');
+            if (verdictEl) {
+                if (nonPrintableCount > uint8Bytes.length * 0.4) {
+                    verdictEl.innerHTML = `<span class="text-red-400 font-black">¡ALERTA BAUDIOS! Entran símbolos raros. Cambia VELOCIDAD arriba a 9600.</span>`;
+                } else {
+                    verdictEl.innerHTML = `<span class="text-emerald-400 font-black">¡CONEXIÓN VIVA! Recibiendo datos reales desde Arduino.</span>`;
+                }
+            }
+        }
+
+        function clearUsbSnifferLogs() {
+            usbSnifferStats.totalBytes = 0;
+            usbSnifferStats.totalChunks = 0;
+            usbSnifferStats.totalLines = 0;
+            const snifferBox = document.getElementById('usbRawByteSnifferBox');
+            if (snifferBox) snifferBox.innerHTML = '<div class="text-slate-500">[LIMPIO] Esperando nuevos bytes desde el puerto USB...</div>';
+            const feed = document.getElementById('usbModalLiveFeed');
+            if (feed) feed.innerHTML = '<div>[LIMPIO] Registro reiniciado.</div>';
+            document.getElementById('usbLiveCounterBadge').textContent = '0 BYTES RECIBIDOS';
+            document.getElementById('usbModalPacketStats').textContent = '0 B / 0 Líneas';
+        }
+
+        function copyDiagnosticReport() {
+            const snifferBox = document.getElementById('usbRawByteSnifferBox');
+            const feed = document.getElementById('usbModalLiveFeed');
+            const txt = `=== KRONOS USB DIAGNOSTIC ===\nEstado: ${document.getElementById('usbModalStatus').textContent}\nChip: ${document.getElementById('usbModalChip').textContent}\nBaudRate: ${usbSnifferStats.selectedBaudRate}\nBytes RX: ${usbSnifferStats.totalBytes}\n--- RAW ---\n${snifferBox ? snifferBox.innerText : ''}\n--- LOG ---\n${feed ? feed.innerText : ''}`;
+            safeCopyText(txt);
+            speakSpotter("Informe de diagnóstico copiado al portapapeles.", true);
+        }
+
+        function runFullSimulatedHardwareTest() {
+            logSerialConsole("=== INICIANDO AUTO-TEST DE TRAMAS S1 -> S2 -> META ===");
+            const enc = new TextEncoder();
+            const steps = [
+                'INFO,SENSORES_IR_ACTIVOS_OK\r\n',
+                'S1,L1,1210,0\r\n',
+                'S2,L1,1340,0\r\n',
+                'M,L1,1180,0\r\n'
+            ];
+            steps.forEach((frame, idx) => {
+                setTimeout(() => {
+                    recordRawUsbChunk(enc.encode(frame));
+                    parseUniversalSerialLine(frame.trim());
+                }, idx * 650);
+            });
+        }
+
+        // ============================================================================
+        // TRADUCTOR UNIVERSAL DE TRAMAS SERIE (ACEPTA FORMATO KRONOS Y FORMATOS SIMPLES)
         // ============================================================================
         function parseUniversalSerialLine(line) {
-            logSerialConsole(`RX <- ${line}`);
-            const clean = line.trim().toUpperCase().replace(/ /g, '');
+            usbSnifferStats.totalLines++;
+            logSerialConsole(`RX LÍNEA <- "${line}"`);
+            const statBox = document.getElementById('usbModalPacketStats');
+            if (statBox) statBox.textContent = `${usbSnifferStats.totalBytes} B / ${usbSnifferStats.totalLines} Lín.`;
+
+            const clean = line.trim().toUpperCase().replace(/\s+/g, '');
             if (!clean) return;
 
             if (clean.includes('AUTH,SLOTINGPLUS_OK')) {
@@ -2343,50 +2602,165 @@
                 return;
             }
 
-            if (clean.startsWith('INFO,')) {
-                const infoMsg = clean.substring(5);
+            if (clean.startsWith('INFO,') || clean.includes('READY') || clean.includes('OK')) {
                 const laserEl = document.getElementById('usbModalLaserStatus');
-                if (laserEl) laserEl.textContent = infoMsg;
+                if (laserEl) laserEl.textContent = clean.replace('INFO,', '');
                 return;
             }
 
-            const parts = clean.split(',');
-            // Formato 1: L1,3420,22
+            const parts = clean.split(/[,:;]/);
+
+            // Caso A: Estándar KRONOS 1 Sector: L1,3420,22
             if (parts[0].startsWith('L') && parts.length >= 2) {
                 const laneId = parseInt(parts[0].substring(1), 10);
                 const timeMs = parseFloat(parts[1]);
                 const tofMm = parts[2] ? parseInt(parts[2], 10) : null;
-                if (!isNaN(laneId) && !isNaN(timeMs)) {
+                if (!isNaN(laneId)) {
+                    const validMs = (!isNaN(timeMs) && timeMs > 15) ? timeMs : null;
+                    flashSensorTestLamp('META', validMs ? `${(validMs/1000).toFixed(2)}s` : `CH${laneId} OK`);
                     const laserEl = document.getElementById('usbModalLaserStatus');
-                    if (laserEl) laserEl.textContent = `CH${laneId}: ${(timeMs / 1000).toFixed(3)}s`;
-                    registerSectorOrLapEvent(laneId, appState.numSectors, timeMs, tofMm);
+                    if (laserEl) laserEl.textContent = `META CH${laneId}: ${validMs ? (validMs / 1000).toFixed(3) + 's' : 'PULSO'}`;
+                    registerSectorOrLapEvent(laneId, appState.numSectors, validMs, tofMm);
+                    return;
                 }
+            }
+
+            // Caso B: Estándar KRONOS Multisector: S1,L1,1280,0 o M,L1,1112,0
+            if ((parts[0].startsWith('S') || parts[0] === 'M' || parts[0] === 'META') && parts.length >= 2) {
+                const isMeta = (parts[0] === 'M' || parts[0] === 'META' || parts[0] === 'S3');
+                const secIdx = isMeta ? appState.numSectors : (parseInt(parts[0].substring(1), 10) || 1);
+                const laneId = parseInt(parts[1].replace('L', ''), 10) || 1;
+                const timeMs = parts[2] ? parseFloat(parts[2]) : null;
+                const tofMm = parts[3] ? parseInt(parts[3], 10) : null;
+                const validMs = (timeMs !== null && !isNaN(timeMs) && timeMs > 15) ? timeMs : null;
+
+                const lampKey = isMeta ? 'META' : (secIdx === 1 ? 'S1' : 'S2');
+                flashSensorTestLamp(lampKey, validMs ? `${(validMs/1000).toFixed(2)}s` : `CH${laneId} PULSO`);
+
+                const laserEl = document.getElementById('usbModalLaserStatus');
+                if (laserEl) laserEl.textContent = `${parts[0]} CH${laneId}: ${validMs ? (validMs / 1000).toFixed(3) + 's' : 'AUTO-CRONO'}`;
+                registerSectorOrLapEvent(laneId, secIdx, validMs, tofMm);
                 return;
             }
 
-            // Formato 2: S1,L1,1280,0 o M,L1,1112,0
-            if ((parts[0].startsWith('S') || parts[0] === 'M') && parts.length >= 3) {
-                const secIdx = parts[0] === 'M' ? appState.numSectors : (parseInt(parts[0].substring(1), 10) || 1);
-                const laneId = parseInt(parts[1].replace('L', ''), 10);
-                const timeMs = parseFloat(parts[2]);
-                const tofMm = parts[3] ? parseInt(parts[3], 10) : null;
-                if (!isNaN(laneId) && !isNaN(timeMs)) {
-                    const laserEl = document.getElementById('usbModalLaserStatus');
-                    if (laserEl) laserEl.textContent = `${parts[0]} CH${laneId}: ${(timeMs / 1000).toFixed(3)}s`;
-                    registerSectorOrLapEvent(laneId, secIdx, timeMs, tofMm);
-                }
+            // Caso C: Tramas simples sin prefijo o solo nombre de sensor ("S1", "S2", "META", "1,3450", "1")
+            if (clean === 'S1' || clean.includes('SECTOR1') || clean === 'PIN2' || clean === 'D2') {
+                flashSensorTestLamp('S1', 'PULSO S1');
+                registerSectorOrLapEvent(1, 1, null, null);
+                return;
+            }
+            if (clean === 'S2' || clean.includes('SECTOR2') || clean === 'PIN3' || clean === 'D3') {
+                flashSensorTestLamp('S2', 'PULSO S2');
+                registerSectorOrLapEvent(1, 2, null, null);
+                return;
+            }
+            if (clean === 'M' || clean === 'META' || clean === 'S3' || clean.includes('LAP') || clean === 'PIN4' || clean === 'D4') {
+                flashSensorTestLamp('META', 'PULSO META');
+                registerSectorOrLapEvent(1, appState.numSectors, null, null);
+                return;
+            }
+
+            // Caso D: Número de carril seguido de milisegundos ("1,3420") o solo número de carril ("1" o "2")
+            const firstNum = parseInt(parts[0], 10);
+            if (!isNaN(firstNum) && firstNum >= 1 && firstNum <= 10) {
+                const secondNum = parts[1] ? parseFloat(parts[1]) : null;
+                const validMs = (secondNum !== null && !isNaN(secondNum) && secondNum > 20) ? secondNum : null;
+                const lane = appState.lanes[firstNum];
+                const targetSec = lane ? lane.nextExpectedSector : appState.numSectors;
+                const lampKey = targetSec === 1 && appState.numSectors > 1 ? 'S1' : (targetSec === 2 && appState.numSectors === 3 ? 'S2' : 'META');
+                flashSensorTestLamp(lampKey, `CH${firstNum}`);
+                registerSectorOrLapEvent(firstNum, targetSec, validMs, null);
             }
         }
 
         // ============================================================================
-        // DRIVER HÍBRIDO USB OTG V7.5: ACCESO DIRECTO AL CANAL DE DATOS BULK (0x0A)
+        // DRIVER HÍBRIDO USB OTG V7.6: SOPORTE BAUDIOS VARIABLES + PING TX + SNIFFER
         // ============================================================================
         let activeUsbDevice = null;
+        let activeSerialPort = null;
+        let activeUsbEndpointOut = null;
         let usbReadLoopActive = false;
 
         function connectArduinoUSB() {
             document.getElementById('usbAndroidHelperModal').classList.remove('hidden');
             checkBrowserUsbEnvironment();
+        }
+
+        async function changeSerialBaudRate(newBaud) {
+            usbSnifferStats.selectedBaudRate = parseInt(newBaud, 10) || 115200;
+            const s1 = document.getElementById('usbBaudRateSelect');
+            if (s1) s1.value = String(usbSnifferStats.selectedBaudRate);
+            const s2 = document.getElementById('stripBaudSelect');
+            if (s2) s2.value = String(usbSnifferStats.selectedBaudRate);
+            logSerialConsole(`Velocidad ajustada a ${usbSnifferStats.selectedBaudRate} baudios.`);
+            if (activeUsbDevice && activeUsbDevice.opened) {
+                await applyWebUsbBaudRate(activeUsbDevice, usbSnifferStats.selectedBaudRate, 0);
+            }
+        }
+
+        async function applyWebUsbBaudRate(device, baudRate, interfaceIndex = 0) {
+            const isCH340 = (device.vendorId === 0x1A86);
+            const isCP210x = (device.vendorId === 0x10C4);
+            const isFTDI = (device.vendorId === 0x0403);
+
+            try {
+                if (isCH340) {
+                    // Valores divisores CH340 para 9600 vs 115200
+                    const val1312 = (baudRate === 9600) ? 0xB202 : 0xCC03;
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0xA1, value: 0x0000, index: 0x0000 });
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x9A, value: 0x1312, index: val1312 });
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x9A, value: 0x2518, index: 0x00C3 });
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0xA4, value: 0x00DF, index: 0x0000 });
+                    logSerialConsole(`CH340 configurado a ${baudRate} baudios.`);
+                } else if (isCP210x) {
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'interface', request: 0x00, value: 0x0001, index: interfaceIndex });
+                    const bBuf = new Uint8Array(4);
+                    new DataView(bBuf.buffer).setUint32(0, baudRate, true);
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'interface', request: 0x1E, value: 0, index: interfaceIndex }, bBuf);
+                    logSerialConsole(`CP210x configurado a ${baudRate} baudios.`);
+                } else if (isFTDI) {
+                    const divisor = (baudRate === 9600) ? 0x4138 : 0x001A;
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x00, value: 0x0000, index: 0 });
+                    await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x03, value: divisor, index: 0 });
+                    logSerialConsole(`FTDI configurado a ${baudRate} baudios.`);
+                } else {
+                    // Estándar CDC ACM (Arduino UNO R3 original ATmega16U2)
+                    const lineCoding = new Uint8Array(7);
+                    new DataView(lineCoding.buffer).setUint32(0, baudRate, true);
+                    lineCoding[4] = 0; // 1 bit de parada
+                    lineCoding[5] = 0; // Sin paridad
+                    lineCoding[6] = 8; // 8 bits de datos
+                    await device.controlTransferOut({ requestType: 'class', recipient: 'interface', request: 0x20, value: 0, index: 0 }, lineCoding);
+                    await device.controlTransferOut({ requestType: 'class', recipient: 'interface', request: 0x22, value: 0x0003, index: 0 }); // DTR + RTS ON
+                    logSerialConsole(`CDC-ACM configurado a ${baudRate} baudios (DTR+RTS activos).`);
+                }
+            } catch (e) {
+                logSerialConsole(`Aviso ajuste de baudios (${e.name}): operando en escucha directa.`);
+            }
+        }
+
+        async function sendPingToArduino() {
+            const msg = "PING_KRONOS\r\n";
+            const bytes = new TextEncoder().encode(msg);
+            try {
+                if (activeUsbDevice && activeUsbDevice.opened && activeUsbEndpointOut !== null) {
+                    await activeUsbDevice.transferOut(activeUsbEndpointOut, bytes);
+                    logSerialConsole(`TX -> PING enviado por WebUSB (Endpoint OUT #${activeUsbEndpointOut}). Mira si parpadea el LED RX de tu Arduino.`);
+                    playTone(880, 90, 'sine', 0.15);
+                    return;
+                }
+                if (activeSerialPort && activeSerialPort.writable) {
+                    const writer = activeSerialPort.writable.getWriter();
+                    await writer.write(bytes);
+                    writer.releaseLock();
+                    logSerialConsole(`TX -> PING enviado por WebSerial. Mira si parpadea el LED RX de tu Arduino.`);
+                    playTone(880, 90, 'sine', 0.15);
+                    return;
+                }
+                logSerialConsole("Para enviar un PING al Arduino, primero pulsa el Botón 1 (WebUSB) o el Botón 2 (WebSerial).");
+            } catch (e) {
+                logSerialConsole(`Error enviando PING: ${e.message}`);
+            }
         }
 
         function openStandaloneUnlockedWindow() {
@@ -2406,7 +2780,7 @@
                 const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
-                a.download = 'KRONOS_SLOT_PRO_v7_5_COMPLETO.html';
+                a.download = 'KRONOS_SLOT_PRO_v7_6_TEST_USB.html';
                 a.click();
             } catch (e) {}
         }
@@ -2419,72 +2793,43 @@
             const isInIframe = window.self !== window.top;
             if (isInIframe) {
                 warnBox.classList.remove('hidden');
-                reasonEl.innerHTML = `Estás ejecutando KRONOS dentro del visor de previsualización de esta página. Los visores integrados bloquean los puertos USB por política del navegador. Pulsa <b>"ABRIR EN PESTAÑA LIBRE DESBLOQUEADA"</b> aquí abajo (o descárgalo) para que Chrome te deje abrir el puerto USB sin restricciones.`;
+                reasonEl.innerHTML = `Estás ejecutando KRONOS dentro del visor de previsualización de esta página. Los visores integrados bloquean los puertos USB por seguridad del navegador. Pulsa <b>"ABRIR EN PESTAÑA LIBRE DESBLOQUEADA"</b> aquí abajo (o descárgalo) para que Chrome te deje recibir datos del puerto USB.`;
             } else {
                 warnBox.classList.add('hidden');
             }
         }
 
-        let localWsBridge = null;
-        function connectLocalWebSocketBridge() {
-            logSerialConsole("Conectando a Puente Local (ws://127.0.0.1:8080)...");
-            try {
-                if (localWsBridge) localWsBridge.close();
-                localWsBridge = new WebSocket('ws://127.0.0.1:8080');
-                localWsBridge.onopen = () => {
-                    document.getElementById('usbText').innerHTML = '<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>PUENTE ACTIVO';
-                    document.getElementById('usbModalStatus').textContent = 'PUENTE LOCAL ACTIVO';
-                    document.getElementById('usbModalStatus').className = 'text-xs font-black text-emerald-400 mt-1';
-                    logSerialConsole("¡Puente Local WebSocket conectado!");
-                    speakSpotter("Puente local conectado.", true);
-                };
-                localWsBridge.onmessage = (evt) => {
-                    if (evt.data) {
-                        const lines = String(evt.data).split(/[\r\n]+/);
-                        lines.forEach(l => { if (l.trim()) parseUniversalSerialLine(l.trim()); });
-                    }
-                };
-                localWsBridge.onerror = () => {
-                    logSerialConsole("No se detectó servidor puente en 127.0.0.1:8080.");
-                };
-            } catch (e) {
-                logSerialConsole("Error WebSocket: " + e.message);
-            }
-        }
-
-        function injectManualSerialTest() {
-            const s1Ms = 1150 + Math.floor(Math.random() * 250);
-            parseUniversalSerialLine(`INFO,SENSORES_IR_ACTIVOS_OK`);
-            parseUniversalSerialLine(`S1,L1,${s1Ms},0`);
-        }
-
         async function connectViaDesktopWebSerial() {
             if (!('serial' in navigator)) {
-                logSerialConsole("WebSerial no está disponible en este navegador. Pulsa el Botón 1 (WebUSB).");
+                logSerialConsole("WebSerial no disponible en este navegador. Pulsa el Botón 1 (WebUSB).");
                 return;
             }
             try {
-                logSerialConsole("Solicitando puerto mediante API WebSerial...");
+                const baud = usbSnifferStats.selectedBaudRate || 115200;
+                logSerialConsole(`Solicitando puerto mediante WebSerial a ${baud} baudios...`);
                 const port = await navigator.serial.requestPort();
-                await port.open({ baudRate: 115200 });
+                await port.open({ baudRate: baud });
+                activeSerialPort = port;
+
                 document.getElementById('usbText').innerHTML = '<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>WEBSERIAL ACTIVO';
                 document.getElementById('usbModalStatus').textContent = 'WEBSERIAL CONECTADO';
-                document.getElementById('usbModalStatus').className = 'text-xs font-black text-emerald-400 mt-1';
-                document.getElementById('usbModalChip').textContent = 'SERIE 115200 BAUD';
-                logSerialConsole("¡Puerto WebSerial abierto a 115200 baudios!");
-                speakSpotter("Puerto serie conectado.", true);
+                document.getElementById('usbModalStatus').className = 'text-xs font-black text-emerald-400 mt-0.5';
+                document.getElementById('usbModalChip').textContent = `SERIE ${baud} BAUD`;
+                logSerialConsole(`¡Puerto WebSerial abierto a ${baud} baudios! Esperando datos...`);
+                speakSpotter("Puerto serie conectado. Pasa el coche por el sensor.", true);
 
-                const decoder = new TextDecoderStream();
-                port.readable.pipeTo(decoder.writable);
-                const reader = decoder.readable.getReader();
-                let buffer = '';
+                const reader = port.readable.getReader();
+                const decoder = new TextDecoder();
+                let rxBuffer = '';
+
                 while (true) {
                     const { value, done } = await reader.read();
                     if (done) break;
-                    if (value) {
-                        buffer += value;
-                        const lines = buffer.split(/[\r\n]+/);
-                        buffer = lines.pop() || '';
+                    if (value && value.byteLength > 0) {
+                        recordRawUsbChunk(value);
+                        rxBuffer += decoder.decode(value, { stream: true });
+                        const lines = rxBuffer.split(/[\r\n]+/);
+                        rxBuffer = lines.pop() || '';
                         for (const l of lines) {
                             if (l.trim()) parseUniversalSerialLine(l.trim());
                         }
@@ -2493,7 +2838,7 @@
             } catch (err) {
                 logSerialConsole(`WebSerial [${err.name}]: ${err.message}`);
                 document.getElementById('usbModalStatus').textContent = `ERROR: ${err.name}`;
-                document.getElementById('usbModalStatus').className = 'text-xs font-black text-red-400 mt-1';
+                document.getElementById('usbModalStatus').className = 'text-xs font-black text-red-400 mt-0.5';
             }
         }
 
@@ -2501,7 +2846,7 @@
             checkBrowserUsbEnvironment();
 
             if (!('usb' in navigator)) {
-                logSerialConsole("ERROR: navigator.usb no disponible en este marco. Abre la App en una pestaña nueva de Chrome.");
+                logSerialConsole("ERROR: navigator.usb no disponible en este marco. Abre la App en una pestaña libre de Chrome.");
                 speakSpotter("Abre la aplicación en una pestaña libre de Chrome para usar el puerto USB.", true);
                 return;
             }
@@ -2530,11 +2875,7 @@
                 logSerialConsole("3. Dispositivo físico abierto (device.open OK).");
 
                 if (device.configuration === null) {
-                    try {
-                        await device.selectConfiguration(1);
-                    } catch (e) {
-                        logSerialConsole(`Nota selectConfiguration: ${e.message}`);
-                    }
+                    try { await device.selectConfiguration(1); } catch (e) {}
                 }
 
                 let dataInterfaceNumber = null;
@@ -2555,7 +2896,7 @@
                                 endpointIn = bulkInEp.endpointNumber;
                                 if (bulkOutEp) endpointOut = bulkOutEp.endpointNumber;
                                 claimedAny = true;
-                                logSerialConsole(`4. Canal de Datos USB reclamado en Interfaz #${dataInterfaceNumber} (Endpoint IN #${endpointIn}).`);
+                                logSerialConsole(`4. Canal de Datos USB reclamado en Interfaz #${dataInterfaceNumber} (EP IN #${endpointIn}).`);
                                 break;
                             } catch (claimErr) {
                                 logSerialConsole(`Aviso Interfaz #${iface.interfaceNumber}: [${claimErr.name}] ${claimErr.message}`);
@@ -2574,58 +2915,36 @@
                             for (const alt of iface.alternates) {
                                 for (const ep of alt.endpoints) {
                                     if (ep.direction === 'in') endpointIn = ep.endpointNumber;
+                                    if (ep.direction === 'out') endpointOut = ep.endpointNumber;
                                 }
                             }
                             logSerialConsole(`4. Interfaz alternativa #${iface.interfaceNumber} reclamada OK.`);
                             break;
-                        } catch (e) {
-                            logSerialConsole(`Interfaz #${iface.interfaceNumber} ocupada por el sistema (${e.name}).`);
-                        }
+                        } catch (e) {}
                     }
                 }
 
                 if (!claimedAny) {
                     if ('serial' in navigator) {
-                        logSerialConsole("El sistema operativo gestiona este Arduino como puerto COM estándar -> Abriendo con WebSerial...");
+                        logSerialConsole("El sistema gestiona este Arduino como puerto COM -> Abriendo con WebSerial...");
                         return await connectViaDesktopWebSerial();
                     }
                     throw new Error("El sistema operativo mantiene bloqueadas las interfaces USB de esta placa.");
                 }
 
                 if (endpointIn === null) endpointIn = 1;
+                activeUsbEndpointOut = endpointOut;
 
-                const isCH340 = (device.vendorId === 0x1A86);
-                const isCP210x = (device.vendorId === 0x10C4);
+                const baud = usbSnifferStats.selectedBaudRate || 115200;
                 const isFTDI = (device.vendorId === 0x0403);
+                document.getElementById('usbModalChip').textContent = `IF#${dataInterfaceNumber}/EP#${endpointIn} @${baud}`;
 
-                document.getElementById('usbModalChip').textContent = `IF#${dataInterfaceNumber} / EP#${endpointIn}`;
-
-                try {
-                    if (isCH340) {
-                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0xA1, value: 0x0000, index: 0x0000 });
-                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x9A, value: 0x1312, index: 0xCC03 });
-                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x9A, value: 0x2518, index: 0x00C3 });
-                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0xA4, value: 0x00DF, index: 0x0000 });
-                    } else if (isCP210x) {
-                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'interface', request: 0x00, value: 0x0001, index: dataInterfaceNumber });
-                        const baudBuf = new Uint8Array([0x00, 0xC2, 0x01, 0x00]);
-                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'interface', request: 0x1E, value: 0, index: dataInterfaceNumber }, baudBuf);
-                    } else if (isFTDI) {
-                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x00, value: 0x0000, index: 0 });
-                        await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x03, value: 0x001A, index: 0 });
-                    } else {
-                        const lineCoding = new Uint8Array([0x00, 0xC2, 0x01, 0x00, 0x00, 0x00, 0x08]);
-                        await device.controlTransferOut({ requestType: 'class', recipient: 'interface', request: 0x20, value: 0, index: 0 }, lineCoding);
-                        await device.controlTransferOut({ requestType: 'class', recipient: 'interface', request: 0x22, value: 0x0003, index: 0 });
-                    }
-                } catch (ctrlErr) {
-                    logSerialConsole(`Lectura directa sin cabecera de control (${ctrlErr.name}). Escuchando Endpoint #${endpointIn}...`);
-                }
+                await applyWebUsbBaudRate(device, baud, dataInterfaceNumber);
 
                 document.getElementById('usbText').innerHTML = '<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>USB ACTIVO';
-                document.getElementById('usbModalStatus').textContent = '¡CONECTADO Y ESCUCHANDO!';
-                document.getElementById('usbModalStatus').className = 'text-xs font-black text-emerald-400 mt-1';
-                speakSpotter("Puerto USB abierto. Pasa el coche por los sensores.", true);
+                document.getElementById('usbModalStatus').textContent = '¡ESCUCHANDO BYTES!';
+                document.getElementById('usbModalStatus').className = 'text-xs font-black text-emerald-400 mt-0.5';
+                speakSpotter("Escuchando puerto USB. Pasa el coche por los sensores.", true);
 
                 usbReadLoopActive = true;
                 const decoder = new TextDecoder();
@@ -2639,6 +2958,7 @@
                             rawBytes = rawBytes.slice(2);
                         }
                         if (rawBytes.length > 0) {
+                            recordRawUsbChunk(rawBytes);
                             rxBuffer += decoder.decode(rawBytes, { stream: true });
                             const lines = rxBuffer.split(/[\r\n]+/);
                             rxBuffer = lines.pop() || '';
@@ -2649,17 +2969,18 @@
                     }
                 }
             } catch (err) {
-                logSerialConsole(`ERROR REAL DEVUELTO POR EL NAVEGADOR: [${err.name}] ${err.message}`);
+                logSerialConsole(`ERROR USB: [${err.name}] ${err.message}`);
                 document.getElementById('usbModalStatus').textContent = `${err.name}`;
-                document.getElementById('usbModalStatus').className = 'text-xs font-black text-red-400 mt-1';
-                speakSpotter(`Aviso del navegador: ${err.name}. Revisa la consola inferior.`, true);
+                document.getElementById('usbModalStatus').className = 'text-xs font-black text-red-400 mt-0.5';
             }
         }
 
         function injectManualSerial() {
             const input = document.getElementById('manualSerialInput');
             if (input.value.trim()) {
-                parseUniversalSerialLine(input.value.trim());
+                const raw = input.value.trim();
+                recordRawUsbChunk(new TextEncoder().encode(raw + '\r\n'));
+                parseUniversalSerialLine(raw);
                 input.value = '';
             }
         }
