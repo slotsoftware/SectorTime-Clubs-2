@@ -598,9 +598,9 @@
             </div>
             <div class="grid grid-cols-6 gap-1">
                 <button onclick="finishAndOpenOfficialReport()" class="py-1.5 bg-emerald-500/25 text-emerald-300 font-mono font-black text-[10px] rounded-lg border border-emerald-400/40 cursor-pointer"><i class="fa-solid fa-flag-checkered"></i> ACTA</button>
-                <button onclick="announceFullStandingsWithHumor()" class="py-1.5 bg-amber-500/25 text-amber-300 font-mono font-bold text-[10px] rounded-lg border border-amber-400/40 cursor-pointer"><i class="fa-solid fa-microphone-lines"></i> PODIO</button>
+                <button onclick="announceFullStandingsWithHumor()" class="py-1.5 bg-amber-500/25 text-amber-300 font-mono font-bold text-[10px] rounded-lg border border-amber-400/40 cursor-pointer" title="Narrador Principal: Clasificación y Podio"><i class="fa-solid fa-microphone-lines"></i> PODIO</button>
+                <button onclick="announceLiveSectorGapsAnalysis()" class="py-1.5 bg-pink-500/25 hover:bg-pink-500/40 text-pink-300 font-mono font-black text-[10px] rounded-lg border border-pink-400/50 cursor-pointer" title="2ª Comentarista: Análisis de Sectores y Décimas"><i class="fa-solid fa-headset"></i> SECTORES</button>
                 <button onclick="toggleVoiceSpotter()" id="btnVoice" class="py-1.5 bg-indigo-600/30 text-indigo-200 font-mono font-bold text-[10px] rounded-lg border border-indigo-400/40 cursor-pointer"><span id="voiceIcon"><i class="fa-solid fa-volume-high"></i></span></button>
-                <button onclick="toggleAutoDemo()" id="btnAutoDemo" class="py-1.5 bg-purple-600/35 text-purple-200 font-mono font-black text-[10px] rounded-lg border border-purple-400/50 cursor-pointer"><i class="fa-solid fa-robot"></i> SIM</button>
                 <button onclick="resetRaceSession()" class="py-1.5 bg-slate-800 text-slate-200 font-mono font-bold text-[10px] rounded-lg border border-slate-700 cursor-pointer"><i class="fa-solid fa-rotate-right"></i> RESET</button>
                 <button onclick="toggleFullScreenMode()" id="btnFullscreen" class="py-1.5 bg-sky-500/25 text-sky-300 font-mono font-black text-[10px] rounded-lg border border-sky-400/50 cursor-pointer"><i class="fa-solid fa-expand"></i> FULL</button>
             </div>
@@ -663,9 +663,15 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="mt-2 pt-1.5 border-t border-slate-800 flex items-center justify-between text-[10px] font-mono text-slate-400 shrink-0">
-                    <span id="spotterMessage" class="truncate text-sky-300">Spotter IA en espera...</span>
-                    <span id="usbText" onclick="connectArduinoUSB()" class="text-[9px] text-amber-400 cursor-pointer shrink-0 ml-2 font-black underline">ABRIR TEST USB</span>
+                <div class="mt-2 pt-1.5 border-t border-slate-800 flex flex-col gap-1 text-[10px] font-mono text-slate-400 shrink-0">
+                    <div class="flex items-center justify-between">
+                        <span id="spotterMessage" class="truncate text-sky-300 font-bold"><i class="fa-solid fa-microphone mr-1"></i>Narrador 1: En espera...</span>
+                        <span id="usbText" onclick="connectArduinoUSB()" class="text-[9px] text-amber-400 cursor-pointer shrink-0 ml-2 font-black underline">ABRIR TEST USB</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-pink-950/30 border border-pink-500/30 rounded-lg px-2 py-0.5">
+                        <span id="sectorAnalystMessage" class="truncate text-pink-300 font-bold"><i class="fa-solid fa-headset mr-1"></i>Comentarista 2 (Sectores): Lista para cantar décimas...</span>
+                        <button onclick="toggleSectorAnalystVoice()" id="btnAnalystToggle" class="text-[9px] text-pink-200 bg-pink-600/40 px-1.5 py-0.2 rounded border border-pink-400/50 font-black cursor-pointer shrink-0 ml-1">ON</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1294,6 +1300,8 @@
             overallBestDriver: '',
             overallBestSectors: { 1: Infinity, 2: Infinity, 3: Infinity },
             overallBestSectorDrivers: { 1: '', 2: '', 3: '' },
+            sectorAnalystEnabled: true,
+            lastSectorSpeechTime: 0,
             autoDemoTimer: null,
             clockInterval: null,
             lanes: {},
@@ -1729,6 +1737,7 @@
                     lastSectors: { 1: null, 2: null, 3: null },
                     bestSectors: { 1: Infinity, 2: Infinity, 3: Infinity },
                     sectorColors: { 1: '', 2: '', 3: '' },
+                    sectorDeltas: { 1: null, 2: null, 3: null },
                     lastSectorPassTime: 0,
                     lastLapPassTime: 0
                 };
@@ -1760,15 +1769,108 @@
 
         function speakSpotter(text, priority = false) {
             const el = document.getElementById('spotterMessage');
-            if (el) el.textContent = text;
+            if (el) el.innerHTML = `<i class="fa-solid fa-microphone mr-1"></i>${text}`;
             if (!appState.voiceEnabled || !('speechSynthesis' in window)) return;
             try {
                 if (priority) window.speechSynthesis.cancel();
                 const utter = new SpeechSynthesisUtterance(text);
                 utter.lang = 'es-ES';
-                utter.rate = 1.22;
+                const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('es'));
+                if (voices.length > 0) utter.voice = voices[0];
+                utter.pitch = 0.92;
+                utter.rate = 1.20;
                 window.speechSynthesis.speak(utter);
             } catch (e) {}
+        }
+
+        // ============================================================================
+        // SEGUNDA COMENTARISTA: INGENIERA DE TELEMETRÍA Y DIFERENCIAS EN SECTORES
+        // ============================================================================
+        function speakSectorAnalyst(text, priority = false) {
+            const el = document.getElementById('sectorAnalystMessage');
+            if (el) el.innerHTML = `<i class="fa-solid fa-headset mr-1"></i>${text}`;
+            if (!appState.voiceEnabled || !appState.sectorAnalystEnabled || !('speechSynthesis' in window)) return;
+
+            const now = performance.now();
+            if (!priority && window.speechSynthesis.speaking && (now - appState.lastSectorSpeechTime < 2200)) {
+                return;
+            }
+            try {
+                if (priority) window.speechSynthesis.cancel();
+                appState.lastSectorSpeechTime = now;
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.lang = 'es-ES';
+                const esVoices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('es'));
+                const femaleVoice = esVoices.find(v => /monica|paulina|helena|laura|lucia|elvira|female|mujer|google/i.test(v.name));
+                if (femaleVoice) {
+                    utter.voice = femaleVoice;
+                } else if (esVoices.length > 1) {
+                    utter.voice = esVoices[1];
+                }
+                // Tono y cadencia diferenciados para que suene claramente como una segunda comentarista
+                utter.pitch = 1.32;
+                utter.rate = 1.26;
+                window.speechSynthesis.speak(utter);
+            } catch (e) {}
+        }
+
+        function toggleSectorAnalystVoice() {
+            appState.sectorAnalystEnabled = !appState.sectorAnalystEnabled;
+            const btn = document.getElementById('btnAnalystToggle');
+            if (btn) {
+                btn.textContent = appState.sectorAnalystEnabled ? 'ON' : 'OFF';
+                btn.className = appState.sectorAnalystEnabled
+                    ? 'text-[9px] text-pink-200 bg-pink-600/40 px-1.5 py-0.2 rounded border border-pink-400/50 font-black cursor-pointer shrink-0 ml-1'
+                    : 'text-[9px] text-slate-400 bg-slate-800 px-1.5 py-0.2 rounded border border-slate-700 font-bold cursor-pointer shrink-0 ml-1';
+            }
+            if (appState.sectorAnalystEnabled) {
+                speakSectorAnalyst("Hola, soy la segunda comentarista de telemetría. Cantaré los sectores y las décimas de ventaja o desventaja.", true);
+            }
+        }
+
+        function formatSpokenGap(diffSec) {
+            const abs = Math.abs(diffSec);
+            if (abs < 0.05) return "en la misma décima";
+            if (abs < 1.0) {
+                const tenths = Math.max(1, Math.round(abs * 10));
+                return `${tenths} décima${tenths === 1 ? '' : 's'}`;
+            }
+            const wholeSec = Math.floor(abs);
+            const remTenths = Math.round((abs - wholeSec) * 10);
+            if (remTenths === 0 || remTenths === 10) {
+                const finalSec = remTenths === 10 ? wholeSec + 1 : wholeSec;
+                return `${finalSec} segundo${finalSec === 1 ? '' : 's'}`;
+            }
+            return `${wholeSec} segundo${wholeSec === 1 ? '' : 's'} y ${remTenths} décima${remTenths === 1 ? '' : 's'}`;
+        }
+
+        function announceLiveSectorGapsAnalysis() {
+            const activeList = [];
+            for (let i = 1; i <= appState.activeLanes; i++) activeList.push(appState.lanes[i]);
+            activeList.sort((a, b) => (b.laps !== a.laps) ? (b.laps - a.laps) : (a.totalRaceTime - b.totalRaceTime));
+
+            const leader = activeList[0];
+            const second = activeList[1];
+            let reportMsg = `Informe de telemetría: `;
+
+            if (appState.overallBestSectors[1] < Infinity) {
+                reportMsg += `El récord del sector 1 lo tiene ${appState.overallBestSectorDrivers[1]} con ${appState.overallBestSectors[1].toFixed(2)} segundos. `;
+            }
+            if (appState.numSectors >= 2 && appState.overallBestSectors[2] < Infinity) {
+                reportMsg += `En el sector 2 manda ${appState.overallBestSectorDrivers[2]} con ${appState.overallBestSectors[2].toFixed(2)}. `;
+            }
+            if (leader && second && (leader.laps > 0 || second.laps > 0)) {
+                const lapDiff = leader.laps - second.laps;
+                if (lapDiff > 0) {
+                    reportMsg += `En carrera, ${leader.name} le saca ${lapDiff} vuelta${lapDiff > 1 ? 's' : ''} a ${second.name}.`;
+                } else {
+                    const gapSec = Math.abs(second.totalRaceTime - leader.totalRaceTime);
+                    reportMsg += `${leader.name} lidera sacándole ${formatSpokenGap(gapSec)} a ${second.name}.`;
+                }
+            } else {
+                reportMsg += `Esperando pasos por sensores para comparar décimas entre pilotos.`;
+            }
+            speakSectorAnalyst(reportMsg, true);
         }
 
         function toggleVoiceSpotter() {
@@ -1956,24 +2058,28 @@
 
                 let sectorsHtml = '';
                 if (sCount >= 2) {
-                    const s1Val = lane.lastSectors[1] !== null ? lane.lastSectors[1].toFixed(3) + 's' : '--.---';
-                    const s2Val = lane.lastSectors[2] !== null ? lane.lastSectors[2].toFixed(3) + 's' : '--.---';
-                    const s3Val = lane.lastSectors[3] !== null ? lane.lastSectors[3].toFixed(3) + 's' : '--.---';
+                    const formatSecBoxVal = (sIdx) => {
+                        const val = lane.lastSectors[sIdx];
+                        if (val === null) return '--.---';
+                        const d = lane.sectorDeltas ? lane.sectorDeltas[sIdx] : null;
+                        const dStr = (d !== null && isFinite(d)) ? ` (${d > 0 ? '+' : ''}${d.toFixed(2)}s)` : '';
+                        return `${val.toFixed(3)}s<span class="text-[9px] ml-1 opacity-90">${dStr}</span>`;
+                    };
 
                     sectorsHtml = `
                         <div class="grid grid-cols-${sCount} gap-1.5 shrink-0">
-                            <div id="secBox-${i}-1" class="bg-indigo-950/70 px-2.5 py-1 rounded-xl border border-indigo-500/40 flex justify-between items-center ${isUltraCompact ? 'text-[10px]' : 'text-xs'} font-mono-num ${lane.sectorColors[1]}">
-                                <span class="text-indigo-300 font-black">SECTOR 1</span>
-                                <span id="secVal-${i}-1" class="font-black text-white">${s1Val}</span>
+                            <div id="secBox-${i}-1" class="bg-indigo-950/70 px-2 py-1 rounded-xl border border-indigo-500/40 flex justify-between items-center ${isUltraCompact ? 'text-[10px]' : 'text-xs'} font-mono-num ${lane.sectorColors[1]}">
+                                <span class="text-indigo-300 font-black">S1</span>
+                                <span id="secVal-${i}-1" class="font-black text-white">${formatSecBoxVal(1)}</span>
                             </div>
-                            <div id="secBox-${i}-2" class="bg-indigo-950/70 px-2.5 py-1 rounded-xl border border-indigo-500/40 flex justify-between items-center ${isUltraCompact ? 'text-[10px]' : 'text-xs'} font-mono-num ${lane.sectorColors[2]}">
-                                <span class="text-indigo-300 font-black">${sCount === 2 ? 'META' : 'SECTOR 2'}</span>
-                                <span id="secVal-${i}-2" class="font-black text-white">${s2Val}</span>
+                            <div id="secBox-${i}-2" class="bg-indigo-950/70 px-2 py-1 rounded-xl border border-indigo-500/40 flex justify-between items-center ${isUltraCompact ? 'text-[10px]' : 'text-xs'} font-mono-num ${lane.sectorColors[2]}">
+                                <span class="text-indigo-300 font-black">${sCount === 2 ? 'META' : 'S2'}</span>
+                                <span id="secVal-${i}-2" class="font-black text-white">${formatSecBoxVal(2)}</span>
                             </div>
                             ${sCount === 3 ? `
-                            <div id="secBox-${i}-3" class="bg-indigo-950/70 px-2.5 py-1 rounded-xl border border-indigo-500/40 flex justify-between items-center ${isUltraCompact ? 'text-[10px]' : 'text-xs'} font-mono-num ${lane.sectorColors[3]}">
-                                <span class="text-indigo-300 font-black">SECTOR 3</span>
-                                <span id="secVal-${i}-3" class="font-black text-white">${s3Val}</span>
+                            <div id="secBox-${i}-3" class="bg-indigo-950/70 px-2 py-1 rounded-xl border border-indigo-500/40 flex justify-between items-center ${isUltraCompact ? 'text-[10px]' : 'text-xs'} font-mono-num ${lane.sectorColors[3]}">
+                                <span class="text-indigo-300 font-black">S3</span>
+                                <span id="secVal-${i}-3" class="font-black text-white">${formatSecBoxVal(3)}</span>
                             </div>` : ''}
                         </div>
                     `;
@@ -2242,20 +2348,75 @@
             lane.currentLapSectors[sIdx] = secTime;
             lane.lastSectors[sIdx] = secTime;
 
+            const prevOverallBestSec = appState.overallBestSectors[sIdx];
+            const prevOverallDriver = appState.overallBestSectorDrivers[sIdx];
+            const prevPersonalBestSec = lane.bestSectors[sIdx];
+
+            // Buscar rival de referencia para comparar décimas en este mismo sector
+            let rivalDriver = '';
+            let rivalSecTime = Infinity;
+            for (let i = 1; i <= appState.activeLanes; i++) {
+                if (i === laneId) continue;
+                const other = appState.lanes[i];
+                const candidateTime = other.lastSectors[sIdx] !== null ? other.lastSectors[sIdx] : other.bestSectors[sIdx];
+                if (candidateTime < rivalSecTime) {
+                    rivalSecTime = candidateTime;
+                    rivalDriver = other.name;
+                }
+            }
+
+            let deltaVsRef = 0;
+            if (prevOverallBestSec < Infinity) {
+                deltaVsRef = secTime - prevOverallBestSec;
+            }
+            if (!lane.sectorDeltas) lane.sectorDeltas = { 1: null, 2: null, 3: null };
+            lane.sectorDeltas[sIdx] = deltaVsRef;
+
             let secColor = 'sector-yellow';
-            if (secTime < appState.overallBestSectors[sIdx]) {
+            if (secTime < prevOverallBestSec) {
                 appState.overallBestSectors[sIdx] = secTime;
                 appState.overallBestSectorDrivers[sIdx] = lane.name;
                 lane.bestSectors[sIdx] = secTime;
                 secColor = 'sector-purple';
                 playTone(1046.5, 70, 'triangle', 0.14);
                 renderPurpleSectorsBox();
-            } else if (secTime < lane.bestSectors[sIdx]) {
+
+                if (prevOverallBestSec < Infinity && prevOverallDriver) {
+                    const gain = prevOverallBestSec - secTime;
+                    if (prevOverallDriver !== lane.name) {
+                        speakSectorAnalyst(`¡Sector ${sIdx} morado para ${lane.name}! Le mete ${formatSpokenGap(gain)} a ${prevOverallDriver}.`);
+                    } else {
+                        speakSectorAnalyst(`¡${lane.name} vuela en el sector ${sIdx}! Baja su récord en ${formatSpokenGap(gain)}.`);
+                    }
+                } else {
+                    speakSectorAnalyst(`${lane.name} marca la referencia en el sector ${sIdx}: ${secTime.toFixed(2)} segundos.`);
+                }
+            } else if (secTime < prevPersonalBestSec) {
                 lane.bestSectors[sIdx] = secTime;
                 secColor = 'sector-green';
                 playTone(784.0, 60, 'sine', 0.12);
+
+                const lossToBest = secTime - prevOverallBestSec;
+                if (prevOverallDriver && prevOverallDriver !== lane.name) {
+                    speakSectorAnalyst(`Sector ${sIdx} verde para ${lane.name}, mejora su ritmo pero cede ${formatSpokenGap(lossToBest)} con ${prevOverallDriver}.`);
+                } else {
+                    const gainSelf = prevPersonalBestSec < Infinity ? (prevPersonalBestSec - secTime) : 0;
+                    if (gainSelf > 0.04) {
+                        speakSectorAnalyst(`Sector ${sIdx} verde para ${lane.name}, gana ${formatSpokenGap(gainSelf)}.`);
+                    }
+                }
             } else {
                 playTone(523.25, 50, 'sine', 0.08);
+                if (rivalDriver && rivalSecTime < Infinity) {
+                    const diffRival = secTime - rivalSecTime;
+                    if (diffRival > 0.08) {
+                        speakSectorAnalyst(`Atención en el sector ${sIdx}: ${lane.name} va más lento y pierde ${formatSpokenGap(diffRival)} respecto a ${rivalDriver}.`);
+                    } else if (diffRival < -0.08) {
+                        speakSectorAnalyst(`Buen sector ${sIdx} de ${lane.name}, le recorta ${formatSpokenGap(Math.abs(diffRival))} a ${rivalDriver}.`);
+                    }
+                } else if (prevPersonalBestSec < Infinity && (secTime - prevPersonalBestSec) > 0.15) {
+                    speakSectorAnalyst(`${lane.name} se deja ${formatSpokenGap(secTime - prevPersonalBestSec)} en el sector ${sIdx}.`);
+                }
             }
 
             lane.sectorColors[sIdx] = secColor;
@@ -2263,8 +2424,10 @@
             const boxEl = document.getElementById(`secBox-${laneId}-${sIdx}`);
             const valEl = document.getElementById(`secVal-${laneId}-${sIdx}`);
             if (boxEl && valEl) {
-                boxEl.className = `px-2 py-1 rounded-lg border flex justify-between items-center text-[10px] font-mono-num transition-all ${secColor}`;
-                valEl.textContent = `${secTime.toFixed(3)}s`;
+                const dSign = deltaVsRef > 0 ? '+' : '';
+                const dTag = prevOverallBestSec < Infinity ? `<span class="text-[9px] ml-1 opacity-90">(${dSign}${deltaVsRef.toFixed(2)}s)</span>` : '';
+                boxEl.className = `px-2 py-1 rounded-xl border flex justify-between items-center text-xs font-mono-num transition-all ${secColor}`;
+                valEl.innerHTML = `${secTime.toFixed(3)}s${dTag}`;
             }
 
             const sectorDistMeters = appState.trackLengthMeters * (appState.numSectors === 2 ? 0.5 : appState.sectorWeights[sIdx - 1]);
@@ -2384,6 +2547,54 @@
             } else if (appState.activeLanes <= 4 || lapColor === 'sector-green') {
                 speakSpotter(`${lane.name}, ${secInt} con ${dec}`);
             }
+
+            // Comentario de diferencias en meta por la 2ª Comentarista si hay lucha directa con otro piloto
+            if (standings.length > 1 && lane.laps >= 2) {
+                const myIdx = standings.findIndex(s => s.id === laneId);
+                if (myIdx === 0 && standings[1].laps === lane.laps) {
+                    const advantage = Math.abs(standings[1].totalRaceTime - lane.totalRaceTime);
+                    if (advantage < 2.5) {
+                        setTimeout(() => {
+                            speakSectorAnalyst(`¡Qué batalla! ${lane.name} mantiene el liderato por solo ${formatSpokenGap(advantage)} sobre ${standings[1].name}.`);
+                        }, 1400);
+                    }
+                } else if (myIdx > 0) {
+                    const ahead = standings[myIdx - 1];
+                    if (ahead.laps === lane.laps) {
+                        const gapAhead = Math.abs(lane.totalRaceTime - ahead.totalRaceTime);
+                        if (gapAhead < 2.0) {
+                            setTimeout(() => {
+                                speakSectorAnalyst(`${lane.name} está pegado al alerón de ${ahead.name}, a solo ${formatSpokenGap(gapAhead)}.`);
+                            }, 1400);
+                        }
+                    }
+                }
+            }
+        }
+
+        function getDriverOptimalLap(lane) {
+            if (!lane) return Infinity;
+            const sCount = appState.numSectors;
+            if (sCount === 1) return lane.bestLap;
+            let sum = 0;
+            for (let s = 1; s <= sCount; s++) {
+                if (lane.bestSectors[s] === Infinity) return Infinity;
+                sum += lane.bestSectors[s];
+            }
+            return sum;
+        }
+
+        function getDriverMeanLap(lane) {
+            if (!lane || !lane.history || !lane.history.length) return 0;
+            return lane.history.reduce((a, b) => a + b, 0) / lane.history.length;
+        }
+
+        function updateRaceBadge(text, classes) {
+            const badge = document.getElementById('raceStateBadge');
+            if (badge) {
+                badge.innerHTML = text;
+                badge.className = `px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border ${classes}`;
+            }
         }
 
         function announceFullStandingsWithHumor(isFinalFlag = false) {
@@ -2399,47 +2610,21 @@
             const p2 = activeList[1];
             const last = activeList[activeList.length - 1];
             const bromaTemplate = FRASES_CACHONDEO_ULTIMO[Math.floor(Math.random() * FRASES_CACHONDEO_ULTIMO.length)];
-            const bromaLast = bromaTemplate.replace('{name}', last.name);
+            const bromaLast = last ? bromaTemplate.replace('{name}', last.name) : '';
 
             let speech = isFinalFlag
-                ? `¡Final de carrera! Victoria para ${p1.name}. `
-                : `Lidera ${p1.name} en primera posición. `;
+                ? `¡Final de carrera! Victoria para ${p1 ? p1.name : 'el líder'}. `
+                : `Lidera ${p1 ? p1.name : 'el líder'} en primera posición. `;
             if (p2) speech += `Segundo es ${p2.name}. `;
             if (last && activeList.length > 1) speech += bromaLast;
 
             speakSpotter(speech, true);
         }
 
-        function getDriverOptimalLap(lane) {
-            const sCount = appState.numSectors;
-            if (sCount === 1) return lane.bestLap;
-            let sum = 0;
-            for (let s = 1; s <= sCount; s++) {
-                if (lane.bestSectors[s] === Infinity) return Infinity;
-                sum += lane.bestSectors[s];
-            }
-            return sum;
-        }
-
-        function getDriverMeanLap(lane) {
-            if (!lane.history.length) return 0;
-            return lane.history.reduce((a, b) => a + b, 0) / lane.history.length;
-        }
-
-        function updateRaceBadge(text, classes) {
-            const badge = document.getElementById('raceStateBadge');
-            if (badge) {
-                badge.innerHTML = text;
-                badge.className = `px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border ${classes}`;
-            }
-        }
-
         function toggleAutoDemo() {
-            const btn = document.getElementById('btnAutoDemo');
             if (appState.autoDemoTimer) {
                 clearInterval(appState.autoDemoTimer);
                 appState.autoDemoTimer = null;
-                if (btn) btn.className = 'py-1.5 bg-purple-600/35 text-purple-200 font-mono font-black text-[10px] rounded-lg border border-purple-400/50 cursor-pointer';
                 speakSpotter("Simulación automática detenida.", true);
             } else {
                 if (appState.raceStatus === 'STANDBY' || appState.raceStatus === 'FINISHED') {
@@ -2452,19 +2637,15 @@
                     updateRaceBadge('<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>AUTO-SIM EN CURSO', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
                     startMasterClock();
                 }
-                if (btn) btn.className = 'py-1.5 bg-purple-600 text-white font-mono font-black text-[10px] rounded-lg border border-purple-300 shadow-lg cursor-pointer';
                 appState.autoDemoTimer = setInterval(() => {
                     if (appState.raceStatus !== 'RACING') return;
                     const randomLane = 1 + Math.floor(Math.random() * appState.activeLanes);
                     triggerNextCheckpoint(randomLane);
-                }, 480);
+                }, 650);
                 speakSpotter("Simulador automático activado.", true);
             }
         }
 
-        // ============================================================================
-        // SNIFFER DE DATOS EN CRUDO Y LABORATORIO DE DIAGNÓSTICO ARDUINO (v7.6)
-        // ============================================================================
         const usbSnifferStats = {
             totalBytes: 0,
             totalChunks: 0,
@@ -2472,78 +2653,70 @@
             selectedBaudRate: 115200
         };
 
-        function flashSensorTestLamp(lampId, valueText) {
-            const lamp = document.getElementById(`testLamp-${lampId}`);
-            const valEl = document.getElementById(`testLampVal-${lampId}`);
-            if (valEl && valueText) valEl.textContent = valueText;
-            if (lamp) {
-                lamp.classList.add('lamp-triggered');
-                setTimeout(() => lamp.classList.remove('lamp-triggered'), 420);
+        function flashSensorTestLamp(sensorKey, labelText) {
+            const modalLamp = document.getElementById(`testLamp-${sensorKey}`);
+            const modalVal = document.getElementById(`testLampVal-${sensorKey}`);
+            if (modalLamp && modalVal) {
+                modalLamp.classList.add('lamp-triggered');
+                modalVal.textContent = labelText || '¡SEÑAL OK!';
+                setTimeout(() => modalLamp.classList.remove('lamp-triggered'), 450);
             }
 
-            const stripLamp = document.getElementById(`stripLamp-${lampId}`);
-            const stripVal = document.getElementById(`stripVal-${lampId}`);
-            if (stripVal && valueText) stripVal.textContent = valueText;
-            if (stripLamp) {
+            const stripLamp = document.getElementById(`stripLamp-${sensorKey}`);
+            const stripVal = document.getElementById(`stripVal-${sensorKey}`);
+            if (stripLamp && stripVal) {
                 stripLamp.classList.add('lamp-triggered');
-                setTimeout(() => stripLamp.classList.remove('lamp-triggered'), 420);
+                stripVal.textContent = labelText || 'OK';
+                setTimeout(() => stripLamp.classList.remove('lamp-triggered'), 450);
             }
         }
 
-        function recordRawUsbChunk(uint8Bytes) {
-            if (!uint8Bytes || uint8Bytes.length === 0) return;
-            usbSnifferStats.totalBytes += uint8Bytes.length;
+        function recordRawUsbChunk(uint8Arr) {
+            if (!uint8Arr || uint8Arr.length === 0) return;
+            usbSnifferStats.totalBytes += uint8Arr.length;
             usbSnifferStats.totalChunks++;
 
-            // Actualizar contadores visuales
             const badge = document.getElementById('usbLiveCounterBadge');
             if (badge) badge.textContent = `${usbSnifferStats.totalBytes} BYTES RECIBIDOS`;
+
             const statBox = document.getElementById('usbModalPacketStats');
             if (statBox) statBox.textContent = `${usbSnifferStats.totalBytes} B / ${usbSnifferStats.totalLines} Lín.`;
 
-            flashSensorTestLamp('RAW', `${usbSnifferStats.totalChunks} PKTS`);
-
-            // Formatear vista HEX + ASCII legible
-            let hexArr = [];
-            let asciiStr = '';
-            let nonPrintableCount = 0;
-            for (let i = 0; i < uint8Bytes.length; i++) {
-                const b = uint8Bytes[i];
-                hexArr.push(b.toString(16).toUpperCase().padStart(2, '0'));
-                if (b >= 32 && b <= 126) {
-                    asciiStr += String.fromCharCode(b);
-                } else if (b === 10) {
-                    asciiStr += '\\n';
-                } else if (b === 13) {
-                    asciiStr += '\\r';
-                } else {
-                    asciiStr += '·';
-                    nonPrintableCount++;
-                }
+            const rawLamp = document.getElementById('testLamp-RAW');
+            const rawVal = document.getElementById('testLampVal-RAW');
+            if (rawLamp && rawVal) {
+                rawLamp.classList.add('lamp-triggered');
+                rawVal.textContent = `${usbSnifferStats.totalChunks} PKTS (${usbSnifferStats.totalBytes}B)`;
+                setTimeout(() => rawLamp.classList.remove('lamp-triggered'), 250);
             }
 
-            const stripRawEl = document.getElementById('stripLastRawData');
-            if (stripRawEl) {
-                stripRawEl.innerHTML = `RX (${usbSnifferStats.totalBytes}B): <b class="text-white">"${asciiStr}"</b>`;
+            const asciiPreview = Array.from(uint8Arr).map(b => {
+                if (b === 10) return '\\n';
+                if (b === 13) return '\\r';
+                if (b >= 32 && b <= 126) return String.fromCharCode(b);
+                return '.';
+            }).join('');
+
+            const hexPreview = Array.from(uint8Arr.slice(0, 16))
+                .map(b => b.toString(16).toUpperCase().padStart(2, '0'))
+                .join(' ');
+
+            const stripRaw = document.getElementById('stripLastRawData');
+            if (stripRaw) stripRaw.textContent = `RX (${usbSnifferStats.totalBytes}B): "${asciiPreview}"`;
+
+            const verdict = document.getElementById('usbTestDiagnosticVerdict');
+            if (verdict) {
+                verdict.textContent = `¡Recibiendo datos por USB! (${usbSnifferStats.totalBytes} bytes)`;
+                verdict.className = 'text-emerald-400 font-black';
             }
 
             const snifferBox = document.getElementById('usbRawByteSnifferBox');
             if (snifferBox) {
-                if (usbSnifferStats.totalChunks === 1) snifferBox.innerHTML = '';
                 const row = document.createElement('div');
                 row.className = 'border-b border-slate-800/80 pb-0.5';
-                row.innerHTML = `<span class="text-slate-400">[${new Date().toLocaleTimeString()}]</span> <b class="text-white">"${asciiStr}"</b> <span class="text-sky-400">[HEX: ${hexArr.join(' ')}]</span>`;
+                row.innerHTML = `<span class="text-slate-400">[#${usbSnifferStats.totalChunks}]</span> <b class="text-emerald-300">"${asciiPreview}"</b> <span class="text-amber-400/80">[HEX: ${hexPreview}]</span>`;
                 snifferBox.insertBefore(row, snifferBox.firstChild);
-                while (snifferBox.children.length > 50) snifferBox.removeChild(snifferBox.lastChild);
-            }
-
-            const verdictEl = document.getElementById('usbTestDiagnosticVerdict');
-            if (verdictEl) {
-                if (nonPrintableCount > uint8Bytes.length * 0.4) {
-                    verdictEl.innerHTML = `<span class="text-red-400 font-black">¡ALERTA BAUDIOS! Entran símbolos raros. Cambia VELOCIDAD arriba a 9600.</span>`;
-                } else {
-                    verdictEl.innerHTML = `<span class="text-emerald-400 font-black">¡CONEXIÓN VIVA! Recibiendo datos reales desde Arduino.</span>`;
-                }
+                while (snifferBox.children.length > 35) snifferBox.removeChild(snifferBox.lastChild);
             }
         }
 
@@ -3104,8 +3277,15 @@
                 const formatSecCell = (sIdx) => {
                     const last = lane.lastSectors[sIdx] !== null ? lane.lastSectors[sIdx].toFixed(3) + 's' : '--.---';
                     const best = lane.bestSectors[sIdx] < Infinity ? lane.bestSectors[sIdx].toFixed(3) + 's' : '--.---';
-                    const isPurple = lane.bestSectors[sIdx] === appState.overallBestSectors[sIdx] && lane.bestSectors[sIdx] < Infinity;
-                    return `<span class="text-white font-bold">${last}</span> <span class="text-[10px] ${isPurple ? 'text-purple-400 font-black' : 'text-emerald-400'}">(Best: ${best})</span>`;
+                    const overallBestS = appState.overallBestSectors[sIdx];
+                    const gapToPurple = (lane.bestSectors[sIdx] < Infinity && overallBestS < Infinity)
+                        ? (lane.bestSectors[sIdx] - overallBestS)
+                        : null;
+                    const isPurple = gapToPurple !== null && Math.abs(gapToPurple) < 0.0005;
+                    const gapBadge = gapToPurple !== null
+                        ? (isPurple ? '<span class="ml-1 px-1 py-0.2 rounded bg-purple-500/30 text-purple-200 text-[9px] font-black">RÉCORD</span>' : `<span class="ml-1 text-rose-400 text-[9px] font-bold">(+${gapToPurple.toFixed(2)}s)</span>`)
+                        : '';
+                    return `<span class="text-white font-bold">${last}</span> <span class="text-[10px] ${isPurple ? 'text-purple-400 font-black' : 'text-emerald-400'}">(Best: ${best})</span>${gapBadge}`;
                 };
 
                 return `
