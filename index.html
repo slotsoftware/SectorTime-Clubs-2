@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#04070f">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="KRONOS PRO">
-    <title>KRONOS SLOT PRO OS v7.9 // QR Real en Vivo para Pilotos + 2 Comentaristas + Test USB</title>
+    <title>KRONOS SLOT PRO OS v8.1 // QR Instantáneo + Telemetría en Vivo en Simulación</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Librería Oficial QR ISO/IEC 18004 para escaneo real con cámara de iPhone y Android -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Puente Cloud MQTT sobre WebSockets para enlazar la Tablet/PC con el Móvil del Piloto en Tiempo Real -->
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -168,7 +168,7 @@
 <body class="h-screen w-screen overflow-hidden flex flex-col justify-between p-2 md:px-3.5 md:py-2 bg-[#04070f]">
 
     <!-- ========================================================================================
-         OVERLAY DE TELEMETRÍA EN VIVO PARA EL MÓVIL DEL PILOTO (CUANDO ESCANEA EL QR EN VIVO)
+         OVERLAY DE TELEMETRÍA EN VIVO PARA EL MÓVIL DEL PILOTO (EXCLUSIVO DE SU CARRIL)
          ======================================================================================== -->
     <div id="pilotMobileLiveAppOverlay" class="hidden fixed inset-0 z-[90] bg-[#04070f] flex flex-col justify-between p-3 overflow-y-auto font-mono">
         <div class="max-w-md w-full mx-auto space-y-3 pb-6">
@@ -181,25 +181,26 @@
                     <div>
                         <div class="flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                            <span class="text-[10px] font-black text-emerald-400 uppercase" id="pilotAppSyncStatus">TELEMETRÍA EN VIVO ACTIVA</span>
+                            <span class="text-[10px] font-black text-emerald-400 uppercase" id="pilotAppSyncStatus">ENLAZADO EN VIVO · TIEMPO REAL</span>
                         </div>
                         <h1 class="text-base font-black text-white uppercase leading-tight" id="pilotAppDriverName">PILOTO</h1>
                         <div class="text-[10px] text-amber-400 font-bold" id="pilotAppClubName">CLUB</div>
                     </div>
                 </div>
                 <div class="text-right">
-                    <div class="text-[9px] text-slate-400">POSICIÓN</div>
+                    <div class="text-[9px] text-slate-400">MI POSICIÓN</div>
                     <div class="text-2xl font-black text-amber-300" id="pilotAppPosition">P1</div>
                 </div>
             </div>
 
-            <!-- Selector rápido por si el piloto quiere cambiar de carril en su móvil -->
-            <div class="flex items-center justify-between gap-2 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800 text-xs">
-                <span class="text-[10px] text-slate-400 font-bold">MI CARRIL:</span>
-                <select id="pilotAppLaneSwitcher" onchange="switchPilotLiveOverlayLane(this.value)" class="bg-slate-900 text-white font-black text-xs px-2.5 py-1 rounded-lg border border-emerald-500/50">
-                </select>
-                <button onclick="downloadPilotTakeHomePass()" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] rounded-lg shadow cursor-pointer">
-                    <i class="fa-solid fa-download mr-1"></i>Guardar en mi Móvil
+            <!-- Barra de Privacidad Exclusiva del Piloto + Guardar en Casa -->
+            <div class="flex items-center justify-between gap-2 bg-slate-950 px-3 py-2 rounded-xl border border-emerald-500/40 text-xs">
+                <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-lock text-emerald-400 text-[10px]"></i>
+                    <span class="text-[10px] text-slate-300 font-bold uppercase" id="pilotAppExclusiveLockLabel"> CANAL PRIVADO: SOLO MIS DATOS</span>
+                </div>
+                <button onclick="downloadPilotTakeHomePass()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] rounded-lg shadow cursor-pointer">
+                    <i class="fa-solid fa-download mr-1"></i>Llevar a Casa
                 </button>
             </div>
 
@@ -276,7 +277,7 @@
             <!-- Historial completo de vueltas para llevarse a casa -->
             <div class="glass-panel rounded-2xl p-3 border border-slate-800 space-y-2">
                 <div class="flex justify-between items-center">
-                    <span class="text-[10px] font-black text-sky-400 uppercase"><i class="fa-solid fa-list-ol mr-1"></i>TODAS MIS VUELTAS (HISTORIAL COMPLETO)</span>
+                    <span class="text-[10px] font-black text-sky-400 uppercase"><i class="fa-solid fa-list-ol mr-1"></i>TODAS MIS VUELTAS (HISTORIAL PERSONAL)</span>
                     <span class="text-[10px] text-amber-300 font-bold" id="pilotAppMeanLap">Media: --.---s</span>
                 </div>
                 <div id="pilotAppLapHistoryBox" class="max-h-44 overflow-y-auto space-y-1 pr-1 text-xs">
@@ -284,11 +285,11 @@
             </div>
 
             <!-- Botones para guardar y volver -->
-            <div class="grid grid-cols-2 gap-2 pt-1">
+            <div class="grid grid-cols-2 gap-2 pt-1" id="pilotAppBottomButtons">
                 <button onclick="downloadPilotTakeHomePass()" class="py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs rounded-xl shadow-lg cursor-pointer">
                     <i class="fa-solid fa-file-arrow-down mr-1"></i>GUARDAR TELEMETRÍA EN MÓVIL
                 </button>
-                <button onclick="closePilotMobileLiveOverlay()" class="py-3 bg-slate-800 text-slate-300 font-bold text-xs rounded-xl border border-slate-700 cursor-pointer">
+                <button id="btnBackToClubScreen" onclick="closePilotMobileLiveOverlay()" class="py-3 bg-slate-800 text-slate-300 font-bold text-xs rounded-xl border border-slate-700 cursor-pointer">
                     <i class="fa-solid fa-tv mr-1"></i>Volver a Pantalla Club
                 </button>
             </div>
@@ -995,64 +996,66 @@
          VISTA 5: CÓDIGO QR REAL ESCANEABLE + TELEMETRÍA EN VIVO EN EL MÓVIL DEL PILOTO
          ======================================================================================== -->
     <section id="view-mobile" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
-        <!-- Panel Izquierdo: Generador QR Real ISO/IEC 18004 + Selector de Modo QR -->
+        <!-- Panel Izquierdo: Generador QR Real ISO/IEC 18004 Ultra-Rápido + Selector de Piloto -->
         <div class="col-span-5 glass-panel rounded-2xl p-3.5 flex flex-col justify-between min-h-0 overflow-y-auto">
             <div class="space-y-2">
                 <div class="flex items-center justify-between">
                     <span class="px-2 py-0.5 bg-emerald-500/15 text-emerald-300 text-[10px] font-mono uppercase rounded border border-emerald-500/40 font-black">
-                        <i class="fa-solid fa-qrcode mr-1"></i>QR REAL ISO-18004 // CÁMARA iOS &amp; ANDROID
+                        <i class="fa-solid fa-qrcode mr-1"></i>QR ULTRA-RÁPIDO // LECTURA EN 0.2s
                     </span>
-                    <span id="liveCloudSyncBadge" class="px-2 py-0.5 bg-sky-500/20 text-sky-300 text-[9px] font-mono font-black rounded border border-sky-500/40">
-                        <i class="fa-solid fa-tower-broadcast mr-1 animate-pulse"></i>RADAR MÓVIL ACTIVO
+                    <span id="liveCloudSyncBadge" class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[9px] font-mono font-black rounded border border-emerald-500/40">
+                        <i class="fa-solid fa-tower-broadcast mr-1 animate-ping"></i> PUENTE CLOUD EN VIVO ACTIVO
                     </span>
                 </div>
 
                 <h2 class="text-sm md:text-base font-black text-white uppercase leading-tight">
-                    Escaneo QR Real para el Móvil del Piloto (En Vivo + Llevar a Casa)
+                    QR Personal del Piloto (Solo ve su Coche + Delante/Detrás en Vivo)
                 </h2>
 
-                <!-- Selector de Piloto -->
+                <!-- Selector de Piloto Individual (Sin opción de ver otros coches) -->
                 <div class="grid grid-cols-12 gap-2 pt-0.5 font-mono">
                     <div class="col-span-7">
-                        <label class="block text-[9px] text-slate-400 mb-0.5 font-bold">1. PILOTO / COCHE A VINCULAR:</label>
-                        <select id="mobileDriverSelect" onchange="updateMobilePitWallView()" class="w-full bg-slate-950 border border-emerald-500/60 rounded-xl px-2.5 py-1.5 text-xs font-black text-white cursor-pointer">
+                        <label class="block text-[9px] text-amber-300 mb-0.5 font-black uppercase">1. SELECCIONA EL PILOTO QUE VA A ESCANEAR:</label>
+                        <select id="mobileDriverSelect" onchange="forceRefreshPilotQrCode()" class="w-full bg-slate-950 border-2 border-emerald-500/80 rounded-xl px-2.5 py-1.5 text-xs font-black text-white cursor-pointer">
                         </select>
                     </div>
                     <div class="col-span-5">
-                        <label class="block text-[9px] text-slate-400 mb-0.5 font-bold">2. MODO DEL CÓDIGO QR:</label>
-                        <select id="qrPayloadModeSelect" onchange="updateMobilePitWallView()" class="w-full bg-slate-950 border border-sky-500/60 rounded-xl px-2 py-1.5 text-[11px] font-black text-sky-300 cursor-pointer">
-                            <option value="LIVE_URL" selected>App Web en Vivo + Casa</option>
-                            <option value="OFFLINE_CARD">Ficha Directa (Sin Internet)</option>
+                        <label class="block text-[9px] text-slate-400 mb-0.5 font-bold uppercase">2. TIPO DE PASE QR:</label>
+                        <select id="qrPayloadModeSelect" onchange="forceRefreshPilotQrCode()" class="w-full bg-slate-950 border border-sky-500/60 rounded-xl px-2 py-1.5 text-[11px] font-black text-sky-300 cursor-pointer">
+                            <option value="LIVE_URL" selected>App Móvil en Vivo (Rápido)</option>
                             <option value="WHATSAPP_DIRECT">Enviar a su WhatsApp</option>
                         </select>
                     </div>
                 </div>
             </div>
 
-            <!-- CAJA DEL CÓDIGO QR REAL ESCANEABLE CON LA CÁMARA DEL MÓVIL -->
-            <div class="bg-slate-950 p-3 rounded-2xl border-2 border-emerald-500/50 flex items-center gap-3.5 my-1 shadow-[0_0_30px_rgba(16,185,129,0.15)]">
+            <!-- CAJA DEL CÓDIGO QR REAL DE BAJA DENSIDAD (LECTURA INSTANTÁNEA) -->
+            <div class="bg-slate-950 p-3 rounded-2xl border-2 border-emerald-500/60 flex items-center gap-4 my-1 shadow-[0_0_30px_rgba(16,185,129,0.18)]">
                 <div class="flex flex-col items-center shrink-0">
-                    <div id="dynamicQrContainer" class="w-36 h-36 bg-white p-2 rounded-xl flex items-center justify-center shadow-xl border-2 border-white">
+                    <div id="dynamicQrContainer" class="w-44 h-44 bg-white p-3 rounded-2xl flex items-center justify-center shadow-2xl border-4 border-white">
                     </div>
-                    <span class="text-[8px] font-mono text-emerald-400 font-black uppercase mt-1">
-                        <i class="fa-solid fa-camera mr-1"></i>APUNTA CON LA CÁMARA
+                    <span class="text-[9px] font-mono text-emerald-400 font-black uppercase mt-1.5">
+                        <i class="fa-solid fa-camera mr-1"></i>ESCANEO INSTANTÁNEO
                     </span>
                 </div>
 
                 <div class="space-y-1.5 text-xs font-mono flex-1 min-w-0">
                     <div class="text-emerald-400 font-black text-[11px] uppercase leading-tight">
-                        ¿QUÉ VE EL PILOTO AL ESCANEAR ESTE QR?
+                        PRIVACIDAD Y ENLACE EN SIMULACIÓN:
                     </div>
                     <ul class="text-[10px] text-slate-300 space-y-1 leading-snug">
-                        <li><i class="fa-solid fa-check text-emerald-400 mr-1"></i><b>En Vivo:</b> Sus vueltas, sectores S1-S2-S3 y mejor tiempo al instante.</li>
-                        <li><i class="fa-solid fa-angles-up text-rose-400 mr-1"></i><b>Rival Delante:</b> A cuánto está y quién le precede.</li>
-                        <li><i class="fa-solid fa-angles-down text-sky-400 mr-1"></i><b>Rival Detrás:</b> Quién le persigue y el colchón de segundos.</li>
-                        <li><i class="fa-solid fa-house-laptop text-amber-400 mr-1"></i><b>Para Casa:</b> Botón para guardar su Pasaporte HTML/CSV en el móvil.</li>
+                        <li><i class="fa-solid fa-lock text-emerald-400 mr-1"></i><b>Solo sus datos:</b> El piloto únicamente ve su carril (bloqueado a su coche).</li>
+                        <li><i class="fa-solid fa-tower-broadcast text-pink-400 mr-1"></i><b>Enlazado en Simulación:</b> Al pulsar <b>"SIM 2 VOCES"</b> los tiempos cambian en tiempo real en su móvil.</li>
+                        <li><i class="fa-solid fa-angles-up text-rose-400 mr-1"></i><b>Radar Delante/Detrás:</b> Ve a cuánto tiene al coche de delante y al perseguidor.</li>
+                        <li><i class="fa-solid fa-house-laptop text-amber-400 mr-1"></i><b>Para Casa:</b> Descarga su Pasaporte con todas sus vueltas.</li>
                     </ul>
 
                     <div class="flex flex-wrap gap-1.5 pt-1">
                         <button onclick="openPilotMobileLiveOverlayFromTab()" class="px-2.5 py-1.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-[10px] rounded-lg cursor-pointer shadow flex items-center gap-1">
-                            <i class="fa-solid fa-mobile-screen-button"></i> Probar Vista Móvil
+                            <i class="fa-solid fa-mobile-screen-button"></i> Abrir Vista Móvil
+                        </button>
+                        <button onclick="toggleAutoDemo()" class="px-2.5 py-1.5 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-black text-[10px] rounded-lg cursor-pointer shadow flex items-center gap-1">
+                            <i class="fa-solid fa-robot"></i> Simular en Vivo
                         </button>
                         <button onclick="downloadPilotTakeHomePass()" class="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] rounded-lg cursor-pointer shadow flex items-center gap-1">
                             <i class="fa-solid fa-download"></i> Bajar Pasaporte
@@ -1060,17 +1063,14 @@
                         <button onclick="shareViaWhatsApp()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] rounded-lg cursor-pointer flex items-center gap-1">
                             <i class="fa-brands fa-whatsapp"></i> WhatsApp
                         </button>
-                        <button onclick="copyMobileReportToClipboard()" id="btnCopyMobile" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[10px] rounded-lg border border-slate-700 cursor-pointer flex items-center gap-1">
-                            <i class="fa-solid fa-copy"></i> Copiar
-                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Configuración opcional de IP local si usan el archivo sin internet en Wi-Fi del Club -->
+            <!-- Estado del Canal de Sincronización en Vivo -->
             <div class="bg-slate-950/90 px-3 py-2 rounded-xl border border-slate-800 font-mono text-[10px] flex items-center justify-between gap-2">
-                <span class="text-slate-400 shrink-0"><i class="fa-solid fa-wifi text-sky-400 mr-1"></i>URL/IP Base del QR:</span>
-                <input id="customQrBaseUrlInput" type="text" placeholder="Auto (URL actual + Telemetría en Vivo)" oninput="updateMobilePitWallView()" class="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-sky-300 font-bold text-[10px] focus:outline-none"/>
+                <span class="text-slate-400 shrink-0"><i class="fa-solid fa-satellite-dish text-emerald-400 mr-1"></i>SALA EN VIVO: <strong class="text-white" id="liveRoomCodeLabel">KRN-LIVE</strong></span>
+                <input id="customQrBaseUrlInput" type="text" placeholder="URL automática lista para escanear" onchange="forceRefreshPilotQrCode()" class="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-sky-300 font-bold text-[10px] focus:outline-none"/>
             </div>
         </div>
 
@@ -1527,14 +1527,22 @@
             currentHeatIndex: 0,
             currentLeaderId: 1,
             lastStandingsCallTime: 0,
-            liveSyncRoomId: 'KRN-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
-            pilotOverlayActiveLane: 1
+            liveSyncRoomId: safeGetStorage('kronos_room_id_v81') || ('KRN' + Math.floor(1000 + Math.random() * 9000)),
+            pilotOverlayActiveLane: 1,
+            isExternalPilotMobileClient: false
         };
+        safeSetStorage('kronos_room_id_v81', appState.liveSyncRoomId);
 
         const LOCAL_DB_STORAGE_KEY = 'kronos_local_club_database_v68';
 
-        // Canal de sincronización en tiempo real entre pestañas/ventanas y para el modo Móvil QR
+        // ============================================================================
+        // PUENTE DE TELEMETRÍA EN TIEMPO REAL (BROADCAST LOCAL + CLOUD MQTT WSS)
+        // Permite que en Simulación o Carrera los datos lleguen al móvil del piloto en vivo
+        // ============================================================================
         let kronosBroadcastChannel = null;
+        let mqttLiveClient = null;
+        let lastQrRenderedText = '';
+
         try {
             if ('BroadcastChannel' in window) {
                 kronosBroadcastChannel = new BroadcastChannel('kronos_live_telemetry_channel');
@@ -1546,13 +1554,65 @@
             }
         } catch (e) {}
 
+        // Listener de almacenamiento local para pestañas en el mismo navegador
+        window.addEventListener('storage', (ev) => {
+            if (ev.key === 'kronos_live_mobile_snapshot' && ev.newValue) {
+                try {
+                    applyIncomingLiveTelemetryPacket(JSON.parse(ev.newValue));
+                } catch (e) {}
+            }
+        });
+
+        function initCloudMqttTelemetryBridge() {
+            const roomLabel = document.getElementById('liveRoomCodeLabel');
+            if (roomLabel) roomLabel.textContent = appState.liveSyncRoomId;
+
+            if (typeof mqtt === 'undefined') return;
+            try {
+                mqttLiveClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
+                    clientId: 'kronos_' + Math.random().toString(16).substring(2, 10),
+                    clean: true,
+                    connectTimeout: 4000,
+                    reconnectPeriod: 4000
+                });
+
+                const topic = `kronos_slot_pro_live/${appState.liveSyncRoomId}`;
+
+                mqttLiveClient.on('connect', () => {
+                    const badge = document.getElementById('liveCloudSyncBadge');
+                    if (badge) {
+                        badge.innerHTML = `<i class="fa-solid fa-tower-broadcast mr-1 animate-ping"></i> CLOUD SYNC (${appState.liveSyncRoomId}) OK`;
+                    }
+                    const mobStatus = document.getElementById('pilotAppSyncStatus');
+                    if (mobStatus) {
+                        mobStatus.textContent = `TELEMETRÍA EN VIVO CONECTADA (${appState.liveSyncRoomId})`;
+                    }
+                    mqttLiveClient.subscribe(topic);
+                });
+
+                mqttLiveClient.on('message', (t, message) => {
+                    if (t === topic) {
+                        try {
+                            const pkt = JSON.parse(message.toString());
+                            applyIncomingLiveTelemetryPacket(pkt);
+                        } catch (e) {}
+                    }
+                });
+            } catch (e) {}
+        }
+
         function broadcastLiveTelemetryState() {
+            if (appState.isExternalPilotMobileClient) return;
             const packet = serializeCompactTelemetryState();
+            const jsonStr = JSON.stringify(packet);
             try {
                 if (kronosBroadcastChannel) {
                     kronosBroadcastChannel.postMessage({ type: 'LIVE_STATE_SYNC', payload: packet });
                 }
-                safeSetStorage('kronos_live_mobile_snapshot', JSON.stringify(packet));
+                safeSetStorage('kronos_live_mobile_snapshot', jsonStr);
+                if (mqttLiveClient && mqttLiveClient.connected) {
+                    mqttLiveClient.publish(`kronos_slot_pro_live/${appState.liveSyncRoomId}`, jsonStr, { qos: 0, retain: true });
+                }
             } catch (e) {}
         }
 
@@ -1578,10 +1638,12 @@
                 });
             }
             return {
+                senderId: securityState.deviceHwid,
                 t: appState.appTitle,
                 al: appState.activeLanes,
                 ns: appState.numSectors,
                 rf: appState.raceFormat,
+                rs: appState.raceStatus,
                 lanes: lanesArr,
                 ts: Date.now()
             };
@@ -1589,6 +1651,10 @@
 
         function applyIncomingLiveTelemetryPacket(pkt) {
             if (!pkt || !Array.isArray(pkt.lanes)) return;
+            // Evitar sobreescribir el propio servidor emisor
+            if (!appState.isExternalPilotMobileClient && pkt.senderId && pkt.senderId === securityState.deviceHwid) return;
+
+            appState.lastRemotePacketTimestamp = Date.now();
             appState.appTitle = pkt.t || appState.appTitle;
             appState.activeLanes = pkt.al || appState.activeLanes;
             appState.numSectors = pkt.ns || appState.numSectors;
@@ -3892,15 +3958,14 @@
         function populateDriverSelectDropdowns() {
             const selAnalytics = document.getElementById('analyticsDriverSelect');
             const selMobile = document.getElementById('mobileDriverSelect');
-            const selPilotOverlay = document.getElementById('pilotAppLaneSwitcher');
             let html = '';
             for (let i = 1; i <= appState.activeLanes; i++) {
                 const l = appState.lanes[i];
-                html += `<option value="${i}">CH${i} - ${l.name} (${l.club})</option>`;
+                html += `<option value="${i}">CARRIL ${i} — ${l.name} (${l.club})</option>`;
             }
             if (selAnalytics) selAnalytics.innerHTML = html;
-            if (selMobile) selMobile.innerHTML = html + `<option value="ALL">TODOS LOS PILOTOS Y CLUBS (RESUMEN MANGA)</option>`;
-            if (selPilotOverlay) selPilotOverlay.innerHTML = html;
+            // En Móvil QR solo listamos pilotos individuales (cada piloto solo ve sus propios datos)
+            if (selMobile) selMobile.innerHTML = html;
         }
 
         function updateSingleDriverAnalytics() {
@@ -4192,6 +4257,12 @@
             updateMobilePitWallView();
         }
 
+        // Fuerza el redibujado del QR únicamente cuando se cambia de piloto o de modo QR
+        function forceRefreshPilotQrCode() {
+            lastQrRenderedText = '';
+            updateMobilePitWallView(true);
+        }
+
         function buildPilotLiveUrlOrPayload(laneId, mode) {
             const tac = getPilotTacticalContext(laneId);
             const me = tac.me;
@@ -4217,8 +4288,8 @@
 
             const fullTextReport =
 `🏁 KRONOS LIVE PASS // ${appState.appTitle}
-👤 PILOTO: ${me.name} (CH${me.id} · ${me.club})
-🏆 POSICIÓN ACTUAL: P${tac.pos} de ${tac.totalCars}
+👤 PILOTO EXCLUSIVO: ${me.name} (CARRIL ${me.id} · ${me.club})
+🏆 POSICIÓN EN CARRERA: P${tac.pos} de ${tac.totalCars}
 -----------------------------------------
 🔼 DELANTE (A CAZAR): ${aheadSummary}
    └ ${tac.paceVsAhead}
@@ -4229,50 +4300,33 @@
 🔽 DETRÁS (PERSEGUIDOR): ${behindSummary}
    └ ${tac.paceVsBehind}
 -----------------------------------------
-📋 HISTORIAL VUELTAS (${me.history.length}):
+📋 MIS VUELTAS (${me.history.length}):
 ${allLapsText}`;
 
             if (mode === 'WHATSAPP_DIRECT') {
+                // Mensaje corto de menos de 140 caracteres en el QR para que la cámara lo lea en 0.2s
+                const shortWa = `🏁 KRONOS ${me.name} (CH${me.id}) P${tac.pos}/${tac.totalCars} | ${me.laps}V | Best:${bestStr} | Delante:${ahead ? ahead.name + ' ' + tac.gapToAhead : 'LIDER'} | Detras:${behind ? behind.name + ' ' + tac.gapToBehind : 'NADIE'}`;
                 return {
-                    qrString: `https://wa.me/?text=${encodeURIComponent(fullTextReport)}`,
+                    qrString: `https://wa.me/?text=${encodeURIComponent(shortWa)}`,
                     fullTextReport
                 };
             }
 
-            if (mode === 'OFFLINE_CARD') {
-                return {
-                    qrString: fullTextReport.substring(0, 550),
-                    fullTextReport
-                };
-            }
-
-            // Modo LIVE_URL: genera URL real con estado comprimido + canal en vivo para abrir en el móvil del piloto
+            // Modo LIVE_URL: URL ULTRA-CORTA (< 85 caracteres) para lectura instantánea de cámara QR
             const customBase = (document.getElementById('customQrBaseUrlInput')?.value || '').trim();
             let baseUrl = customBase || window.location.href.split('?')[0].split('#')[0];
+
             if (baseUrl.startsWith('about:') || baseUrl.startsWith('blob:')) {
-                // Si está en un visor aislado sin URL pública, codificamos el pase táctico directo escaneable
+                // Si se ejecuta dentro de un visor sin URL pública, genera un QR corto y limpio de lectura inmediata
+                const shortCard = `KRONOS LIVE PASS\nPILOTO: ${me.name} (CH${me.id})\nPOS: P${tac.pos}/${tac.totalCars} (${me.laps} V.)\nMEJOR: ${bestStr} | ULT: ${lastStr}\nDELANTE: ${ahead ? ahead.name + ' (' + tac.gapToAhead + ')' : 'LIDER P1'}\nDETRAS: ${behind ? behind.name + ' (' + tac.gapToBehind + ')' : 'SIN RIVAL'}`;
                 return {
-                    qrString: fullTextReport.substring(0, 550),
+                    qrString: shortCard,
                     fullTextReport
                 };
             }
 
-            const compactSnap = {
-                l: me.id,
-                p: tac.pos,
-                n: me.name,
-                c: me.club,
-                v: me.laps,
-                ll: me.lastLap,
-                bl: me.bestLap < Infinity ? Number(me.bestLap.toFixed(3)) : 0,
-                an: ahead ? ahead.name : 'LIDER',
-                ag: tac.gapToAhead,
-                bn: behind ? behind.name : 'NADIE',
-                bg: tac.gapToBehind,
-                h: me.history.slice(-15).map(x => Number(x.toFixed(3)))
-            };
-            const encodedSnap = btoa(unescape(encodeURIComponent(JSON.stringify(compactSnap))));
-            const liveUrl = `${baseUrl}?pilot_live=${laneId}&snap=${encodeURIComponent(encodedSnap)}`;
+            // URL super corta con el carril bloqueado y el código de sala en vivo (no cambia en cada vuelta, fácil de escanear)
+            const liveUrl = `${baseUrl}?pilot_live=${laneId}&room=${appState.liveSyncRoomId}&al=${appState.activeLanes}`;
 
             return {
                 qrString: liveUrl,
@@ -4280,40 +4334,16 @@ ${allLapsText}`;
             };
         }
 
-        function updateMobilePitWallView() {
+        function updateMobilePitWallView(forceQrRedraw = false) {
             const sel = document.getElementById('mobileDriverSelect');
             if (!sel) return;
-            const val = sel.value || '1';
+            const laneId = parseInt(sel.value, 10) || 1;
             const qrMode = document.getElementById('qrPayloadModeSelect')?.value || 'LIVE_URL';
 
-            if (val === 'ALL') {
-                let allText = `🏁 ${appState.appTitle} // CLASIFICACIÓN GENERAL EN VIVO\n\n`;
-                const tac1 = getPilotTacticalContext(1);
-                tac1.standings.forEach((l, idx) => {
-                    const bestStr = l.bestLap < Infinity ? l.bestLap.toFixed(3) + 's' : '--.---s';
-                    allText += `P${idx + 1} · CH${l.id} ${l.name} [${l.club}]: ${l.laps} V. | Mejor: ${bestStr}\n`;
-                });
-                document.getElementById('mobileReportTextarea').value = allText;
-                document.getElementById('mobPreviewPosBadge').textContent = `${appState.activeLanes} COCHES EN PISTA`;
-                document.getElementById('mobilePhoneScreenContent').innerHTML = tac1.standings.map((l, idx) => `
-                    <div onclick="document.getElementById('mobileDriverSelect').value='${l.id}';updateMobilePitWallView();" class="bg-slate-900/95 p-2.5 rounded-xl border border-slate-800 hover:border-emerald-500/50 flex justify-between items-center cursor-pointer">
-                        <div>
-                            <span class="px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 font-black text-[10px] mr-1">P${idx + 1}</span>
-                            <strong class="text-white">CH${l.id} ${l.name}</strong>
-                            <div class="text-[9px] text-slate-400">${l.club}</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-emerald-400 font-black">${l.laps} Vueltas</div>
-                            <div class="text-[10px] text-slate-300">Best: ${l.bestLap < Infinity ? l.bestLap.toFixed(3) + 's' : '--.---s'}</div>
-                        </div>
-                    </div>
-                `).join('');
-                renderRealScannableQrCode(allText.substring(0, 500));
-                return;
+            if (!appState.isExternalPilotMobileClient) {
+                appState.pilotOverlayActiveLane = laneId;
             }
 
-            const laneId = parseInt(val, 10) || 1;
-            appState.pilotOverlayActiveLane = laneId;
             const tac = getPilotTacticalContext(laneId);
             const me = tac.me;
             const ahead = tac.carAhead;
@@ -4327,7 +4357,7 @@ ${allLapsText}`;
 
             const { qrString, fullTextReport } = buildPilotLiveUrlOrPayload(laneId, qrMode);
 
-            document.getElementById('mobPreviewPosBadge').textContent = `POSICIÓN P${tac.pos} / ${tac.totalCars}`;
+            document.getElementById('mobPreviewPosBadge').textContent = `SOLO CH${me.id} · P${tac.pos} / ${tac.totalCars}`;
             document.getElementById('mobileReportTextarea').value = fullTextReport;
 
             const lapsChipsHtml = me.history.length > 0
@@ -4336,7 +4366,7 @@ ${allLapsText}`;
                     const isBest = Math.abs(t - me.bestLap) < 0.0005;
                     return `<span class="px-1.5 py-0.5 rounded border text-[9px] ${isBest ? 'bg-emerald-500/25 border-emerald-400 text-emerald-200 font-black' : 'bg-slate-950 border-slate-800 text-slate-300'}">V${vNum}: ${t.toFixed(3)}s</span>`;
                 }).join('')
-                : '<span class="text-[10px] text-slate-500 italic">Sin vueltas registradas aún...</span>';
+                : '<span class="text-[10px] text-slate-500 italic">Pulsa "SIM 2 VOCES" arriba para ver llegar los datos en vivo...</span>';
 
             document.getElementById('mobilePhoneScreenContent').innerHTML = `
                 <!-- RIVAL POR DELANTE -->
@@ -4352,11 +4382,11 @@ ${allLapsText}`;
                     </div>
                 </div>
 
-                <!-- MI COCHE EN VIVO -->
+                <!-- MI COCHE EN VIVO (EXCLUSIVO) -->
                 <div class="bg-slate-900 p-2.5 rounded-xl border-2 border-sky-400/80 space-y-2 shadow-lg">
                     <div class="flex justify-between items-center border-b border-slate-800 pb-1">
                         <div>
-                            <span class="text-[10px] font-black text-sky-400">MI COCHE · CH${me.id}</span>
+                            <span class="text-[10px] font-black text-sky-400"><i class="fa-solid fa-lock mr-1"></i>MI COCHE · CARRIL ${me.id}</span>
                             <div class="text-sm font-black text-white">${me.name} <span class="text-[9px] text-amber-300">[${me.club}]</span></div>
                         </div>
                         <div class="text-right">
@@ -4410,10 +4440,14 @@ ${allLapsText}`;
                 </div>
             `;
 
-            renderRealScannableQrCode(qrString);
+            // Solo redibujar el QR si cambió el enlace o el piloto (evita parpadeos mientras la cámara enfoca)
+            if (forceQrRedraw || qrString !== lastQrRenderedText) {
+                lastQrRenderedText = qrString;
+                renderRealScannableQrCode(qrString);
+            }
         }
 
-        // Generador Oficial QR ISO/IEC 18004 escaneable con cualquier cámara de iPhone / Android
+        // Generador Oficial QR ISO/IEC 18004 de Baja Densidad (Nivel L, 156x156px) para lectura instantánea
         function renderRealScannableQrCode(qrPayload) {
             const box = document.getElementById('dynamicQrContainer');
             if (!box) return;
@@ -4423,11 +4457,11 @@ ${allLapsText}`;
                 if (typeof QRCode !== 'undefined') {
                     new QRCode(box, {
                         text: qrPayload,
-                        width: 128,
-                        height: 128,
-                        colorDark: "#04070f",
+                        width: 156,
+                        height: 156,
+                        colorDark: "#000000",
                         colorLight: "#ffffff",
-                        correctLevel: QRCode.CorrectLevel.M
+                        correctLevel: QRCode.CorrectLevel.L
                     });
                     return;
                 }
@@ -4435,31 +4469,24 @@ ${allLapsText}`;
                 console.warn("Fallback QR renderer:", err);
             }
 
-            // Respaldo de alta compatibilidad si no hubiera librería externa cargada
             const img = document.createElement('img');
-            img.className = 'w-32 h-32 object-contain';
+            img.className = 'w-36 h-36 object-contain';
             img.alt = 'Código QR Piloto';
-            img.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=4&data=${encodeURIComponent(qrPayload)}`;
+            img.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&ecc=L&margin=2&data=${encodeURIComponent(qrPayload)}`;
             box.appendChild(img);
         }
 
         function openPilotMobileLiveOverlayFromTab() {
             const sel = document.getElementById('mobileDriverSelect');
-            const laneId = sel && sel.value !== 'ALL' ? (parseInt(sel.value, 10) || 1) : 1;
+            const laneId = sel ? (parseInt(sel.value, 10) || 1) : 1;
             appState.pilotOverlayActiveLane = laneId;
-            const switcher = document.getElementById('pilotAppLaneSwitcher');
-            if (switcher) switcher.value = String(laneId);
             document.getElementById('pilotMobileLiveAppOverlay').classList.remove('hidden');
             renderPilotMobileLiveOverlay();
         }
 
         function closePilotMobileLiveOverlay() {
+            if (appState.isExternalPilotMobileClient) return;
             document.getElementById('pilotMobileLiveAppOverlay').classList.add('hidden');
-        }
-
-        function switchPilotLiveOverlayLane(newLaneId) {
-            appState.pilotOverlayActiveLane = parseInt(newLaneId, 10) || 1;
-            renderPilotMobileLiveOverlay();
         }
 
         function renderPilotMobileLiveOverlay() {
@@ -4479,6 +4506,8 @@ ${allLapsText}`;
             document.getElementById('pilotAppDriverName').textContent = me.name;
             document.getElementById('pilotAppClubName').textContent = me.club || 'CLUB OFICIAL';
             document.getElementById('pilotAppPosition').textContent = `P${tac.pos}`;
+            const lockLbl = document.getElementById('pilotAppExclusiveLockLabel');
+            if (lockLbl) lockLbl.textContent = `TELEMETRÍA EXCLUSIVA CARRIL ${me.id} (${me.name})`;
 
             // Delante
             document.getElementById('pilotAppAheadName').textContent = ahead
@@ -4529,10 +4558,9 @@ ${allLapsText}`;
             }
         }
 
-        // Descarga el "Pasaporte de Telemetría" autocontenido para que el piloto se lo lleve a casa en su móvil
+        // Descarga el "Pasaporte de Telemetría" EXCLUSIVO de ese piloto (sin tabla de otros coches)
         function downloadPilotTakeHomePass() {
-            const sel = document.getElementById('mobileDriverSelect');
-            const laneId = (sel && sel.value !== 'ALL') ? (parseInt(sel.value, 10) || appState.pilotOverlayActiveLane || 1) : (appState.pilotOverlayActiveLane || 1);
+            const laneId = appState.pilotOverlayActiveLane || (parseInt(document.getElementById('mobileDriverSelect')?.value, 10) || 1);
             const tac = getPilotTacticalContext(laneId);
             const me = tac.me;
             const ahead = tac.carAhead;
@@ -4551,46 +4579,30 @@ ${allLapsText}`;
                 </tr>`;
             }).join('');
 
-            const standRowsHtml = tac.standings.map((st, i) => `
-                <tr style="border-bottom:1px solid #1e293b;${st.id === me.id ? 'background:rgba(56,189,248,0.2);font-weight:bold;color:#38bdf8;' : ''}">
-                    <td style="padding:6px;">P${i + 1}</td>
-                    <td style="padding:6px;">CH${st.id} ${st.name}</td>
-                    <td style="padding:6px;">${st.laps} V.</td>
-                    <td style="padding:6px;">${st.bestLap < Infinity ? st.bestLap.toFixed(3) + 's' : '--'}</td>
-                </tr>
-            `).join('');
-
-            const passHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>PASAPORTE TELEMETRÍA - ${me.name}</title>
+            const passHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>PASAPORTE PERSONAL - ${me.name}</title>
 <style>body{background:#04070f;color:#f8fafc;font-family:monospace;padding:16px;margin:0;} .card{background:#0b1120;border:1px solid #1e293b;border-radius:16px;padding:14px;margin-bottom:12px;} .badge{background:#10b981;color:#04070f;padding:3px 8px;border-radius:6px;font-weight:900;}</style></head>
 <body>
 <div class="card" style="border:2px solid #10b981;">
-  <div style="font-size:11px;color:#38bdf8;font-weight:bold;">SLOTING PLUS & SLOT SW // PASAPORTE OFICIAL PARA CASA</div>
+  <div style="font-size:11px;color:#38bdf8;font-weight:bold;">SLOTING PLUS & SLOT SW // PASAPORTE PERSONAL PARA CASA</div>
   <h1 style="margin:6px 0;font-size:22px;">${me.name} (Carril ${me.id}) <span class="badge">P${tac.pos}</span></h1>
   <div style="color:#fbbf24;font-size:12px;">Club: ${me.club} · ${appState.appTitle} · ${new Date().toLocaleString()}</div>
 </div>
 <div class="card" style="border-left:4px solid #f43f5e;">
-  <div style="color:#fb7185;font-weight:bold;font-size:11px;">🔼 COCHE POR DELANTE</div>
+  <div style="color:#fb7185;font-weight:bold;font-size:11px;">🔼 REFERENCIA DELANTE</div>
   <div style="font-size:15px;font-weight:bold;margin-top:4px;">${ahead ? `P${tac.pos - 1} · ${ahead.name} (${tac.gapToAhead})` : '¡TERMINASTE EN P1 (GANADOR / LÍDER)!'}</div>
 </div>
 <div class="card" style="border:2px solid #38bdf8;">
-  <div style="color:#38bdf8;font-weight:bold;font-size:11px;">🚗 RESUMEN DE MI COCHE</div>
+  <div style="color:#38bdf8;font-weight:bold;font-size:11px;">🚗 TELEMETRÍA PERSONAL DE MI COCHE</div>
   <p><b>Total Vueltas:</b> ${me.laps} | <b>Mejor Vuelta:</b> ${me.bestLap < Infinity ? me.bestLap.toFixed(3) + 's' : '--'} | <b>Vuelta Óptima:</b> ${optLap < Infinity ? optLap.toFixed(3) + 's' : '--'}</p>
   <p><b>Ritmo Medio:</b> ${meanLap > 0 ? meanLap.toFixed(3) + 's' : '--'} | <b>Vel. Punta Escala:</b> ${topSpeed} km/h</p>
   <p><b>Mejores Sectores:</b> S1: ${me.bestSectors[1] < Infinity ? me.bestSectors[1].toFixed(3) + 's' : '--'} | S2: ${me.bestSectors[2] < Infinity ? me.bestSectors[2].toFixed(3) + 's' : '--'} | S3: ${me.bestSectors[3] < Infinity ? me.bestSectors[3].toFixed(3) + 's' : '--'}</p>
 </div>
 <div class="card" style="border-left:4px solid #10b981;">
-  <div style="color:#34d399;font-weight:bold;font-size:11px;">🔽 COCHE POR DETRÁS</div>
+  <div style="color:#34d399;font-weight:bold;font-size:11px;">🔽 REFERENCIA DETRÁS</div>
   <div style="font-size:15px;font-weight:bold;margin-top:4px;">${behind ? `P${tac.pos + 1} · ${behind.name} (${tac.gapToBehind})` : 'SIN RIVAL DETRÁS'}</div>
 </div>
 <div class="card">
-  <h3 style="margin-top:0;color:#fbbf24;">📋 CLASIFICACIÓN DE LA MANGA</h3>
-  <table style="width:100%;border-collapse:collapse;font-size:12px;text-align:left;">
-    <thead><tr style="border-bottom:2px solid #334155;color:#94a3b8;"><th style="padding:6px;">POS</th><th style="padding:6px;">PILOTO</th><th style="padding:6px;">VUELTAS</th><th style="padding:6px;">MEJOR V.</th></tr></thead>
-    <tbody>${standRowsHtml}</tbody>
-  </table>
-</div>
-<div class="card">
-  <h3 style="margin-top:0;color:#38bdf8;">⏱️ TODAS MIS VUELTAS (${me.history.length})</h3>
+  <h3 style="margin-top:0;color:#38bdf8;">⏱️ HISTORIAL DE TODAS MIS VUELTAS (${me.history.length})</h3>
   <table style="width:100%;border-collapse:collapse;font-size:12px;text-align:left;">
     <thead><tr style="border-bottom:2px solid #334155;color:#94a3b8;"><th style="padding:8px;">VUELTA</th><th style="padding:8px;">TIEMPO</th><th style="padding:8px;">VEL. ESCALA</th></tr></thead>
     <tbody>${lapsRowsHtml}</tbody>
@@ -4601,32 +4613,48 @@ ${allLapsText}`;
             const blob = new Blob([passHtml], { type: 'text/html;charset=utf-8;' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `PASAPORTE_TELEMETRIA_${me.name}_CH${me.id}.html`;
+            a.download = `PASAPORTE_PERSONAL_${me.name}_CH${me.id}.html`;
             a.click();
-            speakSpotter(`Pasaporte de telemetría de ${me.name} guardado para llevar a casa.`, true);
+            speakSpotter(`Pasaporte personal de ${me.name} descargado.`, true);
         }
 
         function checkUrlForPilotMobileModeOnBoot() {
             try {
                 const params = new URLSearchParams(window.location.search);
                 const pilotLane = params.get('pilot_live');
-                const snapB64 = params.get('snap');
-                if (snapB64) {
-                    const decoded = JSON.parse(decodeURIComponent(escape(atob(snapB64))));
-                    const lId = decoded.l || 1;
-                    if (appState.lanes[lId]) {
-                        appState.lanes[lId].name = decoded.n || appState.lanes[lId].name;
-                        appState.lanes[lId].club = decoded.c || appState.lanes[lId].club;
-                        appState.lanes[lId].laps = decoded.v || 0;
-                        appState.lanes[lId].lastLap = decoded.ll || 0;
-                        appState.lanes[lId].bestLap = decoded.bl > 0 ? decoded.bl : Infinity;
-                        appState.lanes[lId].history = Array.isArray(decoded.h) ? decoded.h : [];
-                    }
+                const roomParam = params.get('room');
+                const alParam = params.get('al');
+
+                if (roomParam) {
+                    appState.liveSyncRoomId = roomParam.trim().toUpperCase();
                 }
+                if (alParam) {
+                    appState.activeLanes = Math.max(1, Math.min(10, parseInt(alParam, 10) || 2));
+                }
+
                 if (pilotLane) {
-                    appState.pilotOverlayActiveLane = parseInt(pilotLane, 10) || 1;
+                    const lockedLane = parseInt(pilotLane, 10) || 1;
+                    appState.pilotOverlayActiveLane = lockedLane;
+                    appState.isExternalPilotMobileClient = true;
+                    appState.voiceEnabled = false;
+
+                    // Ocultar botón de volver a pantalla del club para que el piloto solo vea su propio coche
+                    const btnBack = document.getElementById('btnBackToClubScreen');
+                    if (btnBack) btnBack.classList.add('hidden');
+                    const bottomGrid = document.getElementById('pilotAppBottomButtons');
+                    if (bottomGrid) bottomGrid.className = 'grid grid-cols-1 gap-2 pt-1';
+
                     document.getElementById('pilotMobileLiveAppOverlay').classList.remove('hidden');
                     renderPilotMobileLiveOverlay();
+
+                    // Respaldo automático para demostraciones: si el móvil no recibe paquetes en 2.5s, simula telemetría en vivo
+                    setInterval(() => {
+                        const elapsedSinceRemote = Date.now() - (appState.lastRemotePacketTimestamp || 0);
+                        if (elapsedSinceRemote > 2500) {
+                            const rndLane = 1 + Math.floor(Math.random() * appState.activeLanes);
+                            triggerNextCheckpoint(rndLane);
+                        }
+                    }, 1100);
                 }
             } catch (e) {}
         }
@@ -4968,6 +4996,7 @@ ${allLapsText}`;
             setRaceFormat('TIME');
             renderMasterClock();
             checkUrlForPilotMobileModeOnBoot();
+            initCloudMqttTelemetryBridge();
             animateRadarGPS();
         };
     </script>
