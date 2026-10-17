@@ -7,9 +7,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="KRONOS PRO">
-    <title>KRONOS SLOT PRO OS v7.8 // Simulador 1-10 Carriles + 2 Comentaristas + Test USB</title>
+    <title>KRONOS SLOT PRO OS v7.9 // QR Real en Vivo para Pilotos + 2 Comentaristas + Test USB</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Librería Oficial QR ISO/IEC 18004 para escaneo real con cámara de iPhone y Android -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -153,7 +155,6 @@
             transform: scale(1.04);
         }
 
-        /* El cartel de giro queda desactivado por defecto para no bloquear jamás el visor dividido */
         #portraitWarningOverlay {
             display: none !important;
         }
@@ -165,6 +166,134 @@
 </head>
 
 <body class="h-screen w-screen overflow-hidden flex flex-col justify-between p-2 md:px-3.5 md:py-2 bg-[#04070f]">
+
+    <!-- ========================================================================================
+         OVERLAY DE TELEMETRÍA EN VIVO PARA EL MÓVIL DEL PILOTO (CUANDO ESCANEA EL QR EN VIVO)
+         ======================================================================================== -->
+    <div id="pilotMobileLiveAppOverlay" class="hidden fixed inset-0 z-[90] bg-[#04070f] flex flex-col justify-between p-3 overflow-y-auto font-mono">
+        <div class="max-w-md w-full mx-auto space-y-3 pb-6">
+            <!-- Cabecera del Móvil del Piloto -->
+            <div class="glass-panel rounded-2xl p-3 border-2 border-emerald-500/60 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-emerald-400 text-lg font-black" id="pilotAppLaneBadge">
+                        CH1
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                            <span class="text-[10px] font-black text-emerald-400 uppercase" id="pilotAppSyncStatus">TELEMETRÍA EN VIVO ACTIVA</span>
+                        </div>
+                        <h1 class="text-base font-black text-white uppercase leading-tight" id="pilotAppDriverName">PILOTO</h1>
+                        <div class="text-[10px] text-amber-400 font-bold" id="pilotAppClubName">CLUB</div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-[9px] text-slate-400">POSICIÓN</div>
+                    <div class="text-2xl font-black text-amber-300" id="pilotAppPosition">P1</div>
+                </div>
+            </div>
+
+            <!-- Selector rápido por si el piloto quiere cambiar de carril en su móvil -->
+            <div class="flex items-center justify-between gap-2 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800 text-xs">
+                <span class="text-[10px] text-slate-400 font-bold">MI CARRIL:</span>
+                <select id="pilotAppLaneSwitcher" onchange="switchPilotLiveOverlayLane(this.value)" class="bg-slate-900 text-white font-black text-xs px-2.5 py-1 rounded-lg border border-emerald-500/50">
+                </select>
+                <button onclick="downloadPilotTakeHomePass()" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] rounded-lg shadow cursor-pointer">
+                    <i class="fa-solid fa-download mr-1"></i>Guardar en mi Móvil
+                </button>
+            </div>
+
+            <!-- RADAR TÁCTICO: PILOTO POR DELANTE Y PILOTO POR DETRÁS -->
+            <div class="space-y-2">
+                <!-- Coche de Delante (Objetivo a cazar) -->
+                <div class="bg-slate-950/95 p-3 rounded-2xl border-l-4 border-l-rose-500 border border-slate-800 flex justify-between items-center">
+                    <div>
+                        <div class="text-[9px] text-rose-400 font-black uppercase flex items-center gap-1">
+                            <i class="fa-solid fa-angles-up"></i> COCHE POR DELANTE (A CAZAR)
+                        </div>
+                        <div class="text-sm font-black text-white mt-0.5" id="pilotAppAheadName">LÍDER DE CARRERA</div>
+                        <div class="text-[10px] text-slate-400" id="pilotAppAheadBest">Mejor V.: --.---s | Última: --.---s</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-black text-rose-400" id="pilotAppAheadGap">0.000s</div>
+                        <div class="text-[9px] text-slate-400" id="pilotAppAheadPaceDiff">Ritmo: =</div>
+                    </div>
+                </div>
+
+                <!-- TU COCHE (Centro del Radar) -->
+                <div class="glass-panel p-3.5 rounded-2xl border-2 border-sky-400 shadow-[0_0_25px_rgba(56,189,248,0.2)] space-y-2.5">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                        <span class="text-[10px] text-sky-400 font-black uppercase"><i class="fa-solid fa-car-burst mr-1"></i>MI COCHE EN PISTA AHORA</span>
+                        <span class="text-[10px] text-emerald-300 font-black" id="pilotAppOptimalTag">V. Óptima: --.---s</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800">
+                            <div class="text-[9px] text-slate-400">VUELTAS</div>
+                            <div class="text-2xl font-black text-white" id="pilotAppLaps">0</div>
+                        </div>
+                        <div class="bg-slate-950 p-2 rounded-xl border border-amber-500/40">
+                            <div class="text-[9px] text-amber-300 font-bold">ÚLTIMA V.</div>
+                            <div class="text-xl font-black text-white" id="pilotAppLastLap">0.000s</div>
+                        </div>
+                        <div class="bg-slate-950 p-2 rounded-xl border border-emerald-500/40">
+                            <div class="text-[9px] text-emerald-300 font-bold">MEJOR V.</div>
+                            <div class="text-xl font-black text-emerald-400" id="pilotAppBestLap">--.---s</div>
+                        </div>
+                    </div>
+                    <!-- Sectores en vivo del piloto -->
+                    <div class="grid grid-cols-3 gap-1.5 text-center text-[10px]">
+                        <div class="bg-slate-950 py-1.5 px-2 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 block text-[8px]">SECTOR 1</span>
+                            <strong class="text-white" id="pilotAppS1">--.---s</strong>
+                        </div>
+                        <div class="bg-slate-950 py-1.5 px-2 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 block text-[8px]">SECTOR 2</span>
+                            <strong class="text-white" id="pilotAppS2">--.---s</strong>
+                        </div>
+                        <div class="bg-slate-950 py-1.5 px-2 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 block text-[8px]">SECTOR 3</span>
+                            <strong class="text-white" id="pilotAppS3">--.---s</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coche de Detrás (Amenaza / Perseguidor) -->
+                <div class="bg-slate-950/95 p-3 rounded-2xl border-l-4 border-l-emerald-500 border border-slate-800 flex justify-between items-center">
+                    <div>
+                        <div class="text-[9px] text-emerald-400 font-black uppercase flex items-center gap-1">
+                            <i class="fa-solid fa-angles-down"></i> COCHE POR DETRÁS (PERSEGUIDOR)
+                        </div>
+                        <div class="text-sm font-black text-white mt-0.5" id="pilotAppBehindName">SIN PERSEGUIDOR</div>
+                        <div class="text-[10px] text-slate-400" id="pilotAppBehindBest">Mejor V.: --.---s | Última: --.---s</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-black text-emerald-400" id="pilotAppBehindGap">0.000s</div>
+                        <div class="text-[9px] text-slate-400" id="pilotAppBehindPaceDiff">Colchón OK</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historial completo de vueltas para llevarse a casa -->
+            <div class="glass-panel rounded-2xl p-3 border border-slate-800 space-y-2">
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-black text-sky-400 uppercase"><i class="fa-solid fa-list-ol mr-1"></i>TODAS MIS VUELTAS (HISTORIAL COMPLETO)</span>
+                    <span class="text-[10px] text-amber-300 font-bold" id="pilotAppMeanLap">Media: --.---s</span>
+                </div>
+                <div id="pilotAppLapHistoryBox" class="max-h-44 overflow-y-auto space-y-1 pr-1 text-xs">
+                </div>
+            </div>
+
+            <!-- Botones para guardar y volver -->
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <button onclick="downloadPilotTakeHomePass()" class="py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs rounded-xl shadow-lg cursor-pointer">
+                    <i class="fa-solid fa-file-arrow-down mr-1"></i>GUARDAR TELEMETRÍA EN MÓVIL
+                </button>
+                <button onclick="closePilotMobileLiveOverlay()" class="py-3 bg-slate-800 text-slate-300 font-bold text-xs rounded-xl border border-slate-700 cursor-pointer">
+                    <i class="fa-solid fa-tv mr-1"></i>Volver a Pantalla Club
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ========================================================================================
          BARRA DIRECTA DE TEST DE DATOS ARDUINO EN VIVO (SIEMPRE VISIBLE ARRIBA)
@@ -228,7 +357,7 @@
                     <div>
                         <div class="flex items-center gap-2">
                             <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[9px] font-black uppercase rounded border border-emerald-500/40">
-                                SNIFFER DE DATOS USB EN TIEMPO REAL v7.6
+                                SNIFFER DE DATOS USB EN TIEMPO REAL v7.9
                             </span>
                             <span id="usbLiveCounterBadge" class="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-[9px] font-black uppercase rounded border border-purple-500/40">
                                 0 BYTES RECIBIDOS
@@ -241,7 +370,6 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <!-- Selector Crítico de Baud Rate -->
                     <div class="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1 rounded-xl border border-amber-500/50">
                         <span class="text-[9px] text-amber-300 font-black">VELOCIDAD (BAUD):</span>
                         <select id="usbBaudRateSelect" onchange="changeSerialBaudRate(this.value)" class="bg-slate-950 text-amber-400 font-black text-xs px-2 py-0.5 rounded border border-slate-700 cursor-pointer">
@@ -290,7 +418,7 @@
                 </button>
             </div>
 
-            <!-- TESTIGOS VISUALES DE SENSORES (PINES 2, 3, 4 / CARRILES) -->
+            <!-- TESTIGOS VISUALES DE SENSORES -->
             <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2">
                 <div class="flex justify-between items-center text-[10px]">
                     <span class="text-sky-400 font-black uppercase">
@@ -341,9 +469,8 @@
                 </div>
             </div>
 
-            <!-- DOBLE MONITOR EN VIVO: 1) SNIFFER DE BYTES EN CRUDO (SIN FILTRO) Y 2) INTÉRPRETE KRONOS -->
+            <!-- DOBLE MONITOR EN VIVO -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                <!-- Monitor 1: Bytes en Crudo (ASCII + HEX) -->
                 <div class="bg-black/95 p-2.5 rounded-xl border border-amber-500/40">
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-[9px] text-amber-400 font-black uppercase">
@@ -358,7 +485,6 @@
                     </div>
                 </div>
 
-                <!-- Monitor 2: Registro e Inyector de Tramas -->
                 <div class="bg-black/95 p-2.5 rounded-xl border border-emerald-500/40">
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-[9px] text-emerald-400 font-black uppercase">
@@ -374,7 +500,6 @@
                 </div>
             </div>
 
-            <!-- Inyector manual directo para probar el traductor -->
             <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[10px]">
                 <span class="text-slate-300 font-bold">PROBAR COMANDO COMO SI VINIERA DEL ARDUINO:</span>
                 <div class="flex items-center gap-1.5 flex-1 max-w-md">
@@ -504,7 +629,6 @@
         </div>
     </div>
 
-    <!-- AVISO DE ROTACIÓN DESACTIVADO PARA NO BLOQUEAR EL VISOR -->
     <div id="portraitWarningOverlay" onclick="this.style.display='none'" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex-col items-center justify-center p-6 text-center cursor-pointer">
         <div class="w-16 h-16 rounded-2xl bg-sky-500/20 border border-sky-400 flex items-center justify-center text-3xl text-sky-400 mb-4">
             <i class="fa-solid fa-rotate"></i>
@@ -618,7 +742,7 @@
             <button onclick="switchTab('sectors')" id="tabBtn-sectors" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">2. SECTORES</button>
             <button onclick="switchTab('analytics')" id="tabBtn-analytics" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">3. TELEMETRÍA</button>
             <button onclick="switchTab('rotation')" id="tabBtn-rotation" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">4. BD CLUB</button>
-            <button onclick="switchTab('mobile')" id="tabBtn-mobile" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-emerald-300 hover:text-white border border-emerald-500/30 transition cursor-pointer shrink-0">5. MÓVIL QR</button>
+            <button onclick="switchTab('mobile')" id="tabBtn-mobile" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-emerald-300 hover:text-white border border-emerald-500/30 transition cursor-pointer shrink-0">5. MÓVIL QR EN VIVO</button>
             <button onclick="switchTab('config')" id="tabBtn-config" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">6. REGLAMENTO &amp; TEST USB</button>
             <button onclick="switchTab('security')" id="tabBtn-security" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-amber-300 hover:text-white border border-amber-500/30 transition cursor-pointer shrink-0">7. INSTALAR</button>
         </div>
@@ -868,61 +992,121 @@
     </section>
 
     <!-- ========================================================================================
-         VISTA 5: ENVÍO DE TIEMPOS Y TELEMETRÍA A LOS MÓVILES DE LOS PILOTOS (MOBILE PIT-WALL)
+         VISTA 5: CÓDIGO QR REAL ESCANEABLE + TELEMETRÍA EN VIVO EN EL MÓVIL DEL PILOTO
          ======================================================================================== -->
     <section id="view-mobile" class="hidden flex-1 min-h-0 grid grid-cols-12 gap-3 overflow-hidden">
-        <div class="col-span-5 glass-panel rounded-2xl p-4 flex flex-col justify-between min-h-0">
+        <!-- Panel Izquierdo: Generador QR Real ISO/IEC 18004 + Selector de Modo QR -->
+        <div class="col-span-5 glass-panel rounded-2xl p-3.5 flex flex-col justify-between min-h-0 overflow-y-auto">
             <div class="space-y-2">
-                <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-[10px] font-mono uppercase rounded border border-emerald-500/30 font-bold">TELEMETRÍA PERSONAL EN EL BOLSILLO</span>
-                <h2 class="text-base font-black text-white uppercase"><i class="fa-solid fa-qrcode mr-1.5 text-emerald-400"></i>Envío de Tiempos a los Móviles de los Pilotos</h2>
-                <p class="text-xs text-slate-400">Selecciona un piloto (o el resumen completo de la manga) para generar al instante su <strong>Tarjeta Móvil QR</strong> y el <strong>Informe Oficial para enviar por WhatsApp / Telegram</strong>.</p>
+                <div class="flex items-center justify-between">
+                    <span class="px-2 py-0.5 bg-emerald-500/15 text-emerald-300 text-[10px] font-mono uppercase rounded border border-emerald-500/40 font-black">
+                        <i class="fa-solid fa-qrcode mr-1"></i>QR REAL ISO-18004 // CÁMARA iOS &amp; ANDROID
+                    </span>
+                    <span id="liveCloudSyncBadge" class="px-2 py-0.5 bg-sky-500/20 text-sky-300 text-[9px] font-mono font-black rounded border border-sky-500/40">
+                        <i class="fa-solid fa-tower-broadcast mr-1 animate-pulse"></i>RADAR MÓVIL ACTIVO
+                    </span>
+                </div>
 
-                <div class="pt-1">
-                    <label class="block text-[10px] font-mono text-slate-400 mb-1">SELECCIONAR PILOTO PARA ENVIAR A SU MÓVIL:</label>
-                    <select id="mobileDriverSelect" onchange="updateMobilePitWallView()" class="w-full bg-slate-950 border border-emerald-500/50 rounded-xl px-3 py-2 text-xs font-mono font-bold text-white">
-                    </select>
+                <h2 class="text-sm md:text-base font-black text-white uppercase leading-tight">
+                    Escaneo QR Real para el Móvil del Piloto (En Vivo + Llevar a Casa)
+                </h2>
+
+                <!-- Selector de Piloto -->
+                <div class="grid grid-cols-12 gap-2 pt-0.5 font-mono">
+                    <div class="col-span-7">
+                        <label class="block text-[9px] text-slate-400 mb-0.5 font-bold">1. PILOTO / COCHE A VINCULAR:</label>
+                        <select id="mobileDriverSelect" onchange="updateMobilePitWallView()" class="w-full bg-slate-950 border border-emerald-500/60 rounded-xl px-2.5 py-1.5 text-xs font-black text-white cursor-pointer">
+                        </select>
+                    </div>
+                    <div class="col-span-5">
+                        <label class="block text-[9px] text-slate-400 mb-0.5 font-bold">2. MODO DEL CÓDIGO QR:</label>
+                        <select id="qrPayloadModeSelect" onchange="updateMobilePitWallView()" class="w-full bg-slate-950 border border-sky-500/60 rounded-xl px-2 py-1.5 text-[11px] font-black text-sky-300 cursor-pointer">
+                            <option value="LIVE_URL" selected>App Web en Vivo + Casa</option>
+                            <option value="OFFLINE_CARD">Ficha Directa (Sin Internet)</option>
+                            <option value="WHATSAPP_DIRECT">Enviar a su WhatsApp</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-4 my-auto">
-                <div id="dynamicQrContainer" class="w-28 h-28 bg-white p-2 rounded-xl shrink-0 flex items-center justify-center shadow-lg">
+            <!-- CAJA DEL CÓDIGO QR REAL ESCANEABLE CON LA CÁMARA DEL MÓVIL -->
+            <div class="bg-slate-950 p-3 rounded-2xl border-2 border-emerald-500/50 flex items-center gap-3.5 my-1 shadow-[0_0_30px_rgba(16,185,129,0.15)]">
+                <div class="flex flex-col items-center shrink-0">
+                    <div id="dynamicQrContainer" class="w-36 h-36 bg-white p-2 rounded-xl flex items-center justify-center shadow-xl border-2 border-white">
+                    </div>
+                    <span class="text-[8px] font-mono text-emerald-400 font-black uppercase mt-1">
+                        <i class="fa-solid fa-camera mr-1"></i>APUNTA CON LA CÁMARA
+                    </span>
                 </div>
-                <div class="space-y-1.5 text-xs font-mono">
-                    <div class="text-emerald-400 font-bold">ESCANEAR CON CÁMARA DEL MÓVIL</div>
-                    <p class="text-[10px] text-slate-400 leading-relaxed">El piloto apunta con su móvil a la pantalla de tu Tablet y se lleva su hoja completa de tiempos, sectores y consistencia.</p>
+
+                <div class="space-y-1.5 text-xs font-mono flex-1 min-w-0">
+                    <div class="text-emerald-400 font-black text-[11px] uppercase leading-tight">
+                        ¿QUÉ VE EL PILOTO AL ESCANEAR ESTE QR?
+                    </div>
+                    <ul class="text-[10px] text-slate-300 space-y-1 leading-snug">
+                        <li><i class="fa-solid fa-check text-emerald-400 mr-1"></i><b>En Vivo:</b> Sus vueltas, sectores S1-S2-S3 y mejor tiempo al instante.</li>
+                        <li><i class="fa-solid fa-angles-up text-rose-400 mr-1"></i><b>Rival Delante:</b> A cuánto está y quién le precede.</li>
+                        <li><i class="fa-solid fa-angles-down text-sky-400 mr-1"></i><b>Rival Detrás:</b> Quién le persigue y el colchón de segundos.</li>
+                        <li><i class="fa-solid fa-house-laptop text-amber-400 mr-1"></i><b>Para Casa:</b> Botón para guardar su Pasaporte HTML/CSV en el móvil.</li>
+                    </ul>
+
                     <div class="flex flex-wrap gap-1.5 pt-1">
-                        <button onclick="shareViaWhatsApp()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] rounded-lg cursor-pointer flex items-center gap-1.5">
-                            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                        <button onclick="openPilotMobileLiveOverlayFromTab()" class="px-2.5 py-1.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-[10px] rounded-lg cursor-pointer shadow flex items-center gap-1">
+                            <i class="fa-solid fa-mobile-screen-button"></i> Probar Vista Móvil
                         </button>
-                        <button onclick="copyMobileReportToClipboard()" id="btnCopyMobile" class="px-2.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-[10px] rounded-lg cursor-pointer flex items-center gap-1.5">
-                            <i class="fa-solid fa-copy"></i> Copiar Informe
+                        <button onclick="downloadPilotTakeHomePass()" class="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] rounded-lg cursor-pointer shadow flex items-center gap-1">
+                            <i class="fa-solid fa-download"></i> Bajar Pasaporte
+                        </button>
+                        <button onclick="shareViaWhatsApp()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] rounded-lg cursor-pointer flex items-center gap-1">
+                            <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                        </button>
+                        <button onclick="copyMobileReportToClipboard()" id="btnCopyMobile" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[10px] rounded-lg border border-slate-700 cursor-pointer flex items-center gap-1">
+                            <i class="fa-solid fa-copy"></i> Copiar
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div class="text-[10px] font-mono text-slate-500 flex justify-between border-t border-slate-800 pt-2">
-                <span>ID SESIÓN: #KRN-2026-PRO</span>
-                <span class="text-emerald-400"><i class="fa-solid fa-circle text-[7px] mr-1"></i>SINCRONIZACIÓN INSTANTÁNEA</span>
+            <!-- Configuración opcional de IP local si usan el archivo sin internet en Wi-Fi del Club -->
+            <div class="bg-slate-950/90 px-3 py-2 rounded-xl border border-slate-800 font-mono text-[10px] flex items-center justify-between gap-2">
+                <span class="text-slate-400 shrink-0"><i class="fa-solid fa-wifi text-sky-400 mr-1"></i>URL/IP Base del QR:</span>
+                <input id="customQrBaseUrlInput" type="text" placeholder="Auto (URL actual + Telemetría en Vivo)" oninput="updateMobilePitWallView()" class="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-sky-300 font-bold text-[10px] focus:outline-none"/>
             </div>
         </div>
 
-        <div class="col-span-7 glass-panel rounded-2xl p-4 grid grid-cols-12 gap-4 min-h-0 overflow-hidden">
-            <div class="col-span-6 bg-slate-950 rounded-3xl p-3 border-2 border-slate-700 flex flex-col justify-between shadow-2xl min-h-0">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <span class="text-[9px] font-mono text-sky-400 font-bold" id="mobPreviewClub">KRONOS SLOT PRO</span>
-                    <span class="text-[9px] font-mono bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">LIVE PASS</span>
+        <!-- Panel Derecho: Simulación Exacta en Tiempo Real de la Pantalla del Móvil del Piloto -->
+        <div class="col-span-7 glass-panel rounded-2xl p-3.5 grid grid-cols-12 gap-3.5 min-h-0 overflow-hidden">
+            
+            <!-- Smartphone Mockup en Vivo con Rival Delante / Mi Coche / Rival Detrás -->
+            <div class="col-span-7 bg-[#050811] rounded-3xl p-3 border-2 border-slate-700 flex flex-col justify-between shadow-2xl min-h-0 overflow-hidden">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-1.5 shrink-0">
+                    <span class="text-[9px] font-mono text-sky-400 font-black flex items-center gap-1" id="mobPreviewClub">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> PANTALLA EN VIVO DEL PILOTO
+                    </span>
+                    <span class="text-[9px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-black border border-emerald-500/40" id="mobPreviewPosBadge">
+                        EN PISTA
+                    </span>
                 </div>
-                <div id="mobilePhoneScreenContent" class="my-auto space-y-2 font-mono text-xs overflow-y-auto py-2">
+
+                <div id="mobilePhoneScreenContent" class="my-auto space-y-2 font-mono text-xs overflow-y-auto py-1.5 flex-1 min-h-0 pr-1">
                 </div>
-                <div class="border-t border-slate-800 pt-1.5 text-center text-[9px] font-mono text-slate-500">
-                    TARJETA OFICIAL DE TELEMETRÍA MÓVIL
+
+                <div class="border-t border-slate-800 pt-1.5 flex justify-between items-center text-[9px] font-mono text-slate-400 shrink-0">
+                    <span>SE ACTUALIZA EN CADA VUELTA</span>
+                    <button onclick="downloadPilotTakeHomePass()" class="text-amber-300 hover:underline font-black cursor-pointer">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i>Llevar a Casa (.HTML)
+                    </button>
                 </div>
             </div>
 
-            <div class="col-span-6 flex flex-col justify-between min-h-0">
-                <div class="text-xs font-mono font-bold text-white uppercase mb-1.5"><i class="fa-solid fa-file-lines mr-1.5 text-emerald-400"></i>MENSAJE FORMATEADO PARA MÓVIL:</div>
-                <textarea id="mobileReportTextarea" readonly class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono text-[11px] text-emerald-300 focus:outline-none resize-none"></textarea>
+            <!-- Hoja de Tiempos Completa y Datos que el Piloto se lleva a casa -->
+            <div class="col-span-5 flex flex-col justify-between min-h-0">
+                <div class="flex justify-between items-center mb-1.5 shrink-0">
+                    <span class="text-[11px] font-mono font-black text-white uppercase">
+                        <i class="fa-solid fa-file-lines mr-1 text-emerald-400"></i>DATOS QUE SE LLEVA A CASA:
+                    </span>
+                </div>
+                <textarea id="mobileReportTextarea" readonly class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-xl p-2.5 font-mono text-[10px] text-emerald-300 focus:outline-none resize-none leading-relaxed"></textarea>
             </div>
         </div>
     </section>
@@ -1041,7 +1225,7 @@
                 <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] space-y-1.5">
                     <div><span class="text-sky-400 font-bold">&bull; Formatos soportados automáticamente:</span></div>
                     <div>1. Estándar KRONOS: <code class="text-emerald-300">S1,L1,1320,0</code> / <code class="text-amber-300">L1,3842,0</code></div>
-                    <div>2. Simplificado Arduino: <code class="text-purple-300">1,3842</code> o simplemente <code class="text-purple-300">S1</code> / <code class="text-purple-300">S2</code> / <code class="text-purple-300">META</code> (KRONOS calcula el tiempo automáticamente si el Arduino solo envía el pulso del pin).</div>
+                    <div>2. Simplificado Arduino: <code class="text-purple-300">1,3842</code> o simplemente <code class="text-purple-300">S1</code> / <code class="text-purple-300">S2</code> / <code class="text-purple-300">META</code>.</div>
                 </div>
             </div>
 
@@ -1053,7 +1237,7 @@
             </div>
 
             <div id="serialRawConsole" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-40 overflow-y-auto font-mono text-[10px] text-emerald-400 space-y-1">
-                <div>[BOOT] KRONOS SLOT PRO v7.6 — Sniffer de Datos Crudos + Traductor Universal listo.</div>
+                <div>[BOOT] KRONOS SLOT PRO v7.9 — Sniffer de Datos Crudos + QR Real ISO-18004 listo.</div>
             </div>
         </div>
     </section>
@@ -1342,14 +1526,155 @@
             currentDisplayedReport: null,
             currentHeatIndex: 0,
             currentLeaderId: 1,
-            lastStandingsCallTime: 0
+            lastStandingsCallTime: 0,
+            liveSyncRoomId: 'KRN-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
+            pilotOverlayActiveLane: 1
         };
 
         const LOCAL_DB_STORAGE_KEY = 'kronos_local_club_database_v68';
 
+        // Canal de sincronización en tiempo real entre pestañas/ventanas y para el modo Móvil QR
+        let kronosBroadcastChannel = null;
+        try {
+            if ('BroadcastChannel' in window) {
+                kronosBroadcastChannel = new BroadcastChannel('kronos_live_telemetry_channel');
+                kronosBroadcastChannel.onmessage = (event) => {
+                    if (event.data && event.data.type === 'LIVE_STATE_SYNC') {
+                        applyIncomingLiveTelemetryPacket(event.data.payload);
+                    }
+                };
+            }
+        } catch (e) {}
+
+        function broadcastLiveTelemetryState() {
+            const packet = serializeCompactTelemetryState();
+            try {
+                if (kronosBroadcastChannel) {
+                    kronosBroadcastChannel.postMessage({ type: 'LIVE_STATE_SYNC', payload: packet });
+                }
+                safeSetStorage('kronos_live_mobile_snapshot', JSON.stringify(packet));
+            } catch (e) {}
+        }
+
+        function serializeCompactTelemetryState() {
+            const lanesArr = [];
+            for (let i = 1; i <= appState.activeLanes; i++) {
+                const l = appState.lanes[i];
+                lanesArr.push({
+                    id: l.id,
+                    n: l.name,
+                    c: l.club,
+                    l: l.laps,
+                    ll: l.lastLap,
+                    bl: l.bestLap < Infinity ? l.bestLap : null,
+                    tt: l.totalRaceTime,
+                    s1: l.lastSectors[1],
+                    s2: l.lastSectors[2],
+                    s3: l.lastSectors[3],
+                    bs1: l.bestSectors[1] < Infinity ? l.bestSectors[1] : null,
+                    bs2: l.bestSectors[2] < Infinity ? l.bestSectors[2] : null,
+                    bs3: l.bestSectors[3] < Infinity ? l.bestSectors[3] : null,
+                    h: l.history.slice(-30)
+                });
+            }
+            return {
+                t: appState.appTitle,
+                al: appState.activeLanes,
+                ns: appState.numSectors,
+                rf: appState.raceFormat,
+                lanes: lanesArr,
+                ts: Date.now()
+            };
+        }
+
+        function applyIncomingLiveTelemetryPacket(pkt) {
+            if (!pkt || !Array.isArray(pkt.lanes)) return;
+            appState.appTitle = pkt.t || appState.appTitle;
+            appState.activeLanes = pkt.al || appState.activeLanes;
+            appState.numSectors = pkt.ns || appState.numSectors;
+            pkt.lanes.forEach(item => {
+                const target = appState.lanes[item.id];
+                if (target) {
+                    target.name = item.n;
+                    target.club = item.c;
+                    target.laps = item.l;
+                    target.lastLap = item.ll;
+                    target.bestLap = item.bl !== null ? item.bl : Infinity;
+                    target.totalRaceTime = item.tt;
+                    target.lastSectors[1] = item.s1;
+                    target.lastSectors[2] = item.s2;
+                    target.lastSectors[3] = item.s3;
+                    target.bestSectors[1] = item.bs1 !== null ? item.bs1 : Infinity;
+                    target.bestSectors[2] = item.bs2 !== null ? item.bs2 : Infinity;
+                    target.bestSectors[3] = item.bs3 !== null ? item.bs3 : Infinity;
+                    target.history = Array.isArray(item.h) ? item.h : [];
+                }
+            });
+            renderPilotMobileLiveOverlay();
+        }
+
+        // ============================================================================
+        // CÁLCULO TÁCTICO: COCHE DE DELANTE, MI COCHE Y COCHE DE DETRÁS PARA EL PILOTO
+        // ============================================================================
+        function getPilotTacticalContext(laneId) {
+            const standings = [];
+            for (let i = 1; i <= appState.activeLanes; i++) {
+                standings.push(appState.lanes[i]);
+            }
+            if (appState.raceFormat === 'QUALY') {
+                standings.sort((a, b) => a.bestLap - b.bestLap);
+            } else {
+                standings.sort((a, b) => (b.laps !== a.laps) ? (b.laps - a.laps) : (a.totalRaceTime - b.totalRaceTime));
+            }
+
+            const myIndex = standings.findIndex(s => s.id === laneId);
+            const me = standings[myIndex] || appState.lanes[laneId];
+            const leader = standings[0];
+            const carAhead = myIndex > 0 ? standings[myIndex - 1] : null;
+            const carBehind = (myIndex >= 0 && myIndex < standings.length - 1) ? standings[myIndex + 1] : null;
+
+            const formatGapBetween = (frontCar, backCar) => {
+                if (!frontCar || !backCar) return '0.000s';
+                if (appState.raceFormat === 'QUALY') {
+                    if (frontCar.bestLap < Infinity && backCar.bestLap < Infinity) {
+                        return `+${Math.abs(backCar.bestLap - frontCar.bestLap).toFixed(3)}s`;
+                    }
+                    return 'SIN TIEMPO';
+                }
+                const lapDiff = frontCar.laps - backCar.laps;
+                if (lapDiff > 0) return `${lapDiff} VUELTA${lapDiff > 1 ? 'S' : ''}`;
+                const secDiff = Math.abs(backCar.totalRaceTime - frontCar.totalRaceTime);
+                return `${secDiff.toFixed(3)}s`;
+            };
+
+            const formatPaceComparison = (refCar, myCar) => {
+                if (!refCar || !myCar || myCar.lastLap <= 0 || refCar.lastLap <= 0) return 'Esperando vuelta...';
+                const diff = myCar.lastLap - refCar.lastLap;
+                if (Math.abs(diff) < 0.03) return 'Mismo ritmo exacto';
+                return diff < 0
+                    ? `¡Le recortas ${Math.abs(diff).toFixed(3)}s/v!`
+                    : `Pierdes +${diff.toFixed(3)}s/v`;
+            };
+
+            return {
+                pos: myIndex + 1,
+                totalCars: standings.length,
+                me,
+                leader,
+                carAhead,
+                carBehind,
+                gapToLeader: myIndex === 0 ? 'LÍDER P1' : formatGapBetween(leader, me),
+                gapToAhead: carAhead ? `-${formatGapBetween(carAhead, me)}` : 'ERES EL LÍDER (P1)',
+                paceVsAhead: carAhead ? formatPaceComparison(carAhead, me) : 'Marcando el ritmo de cabeza',
+                gapToBehind: carBehind ? `+${formatGapBetween(me, carBehind)}` : 'SIN AMENAZA DETRÁS',
+                paceVsBehind: carBehind ? formatPaceComparison(carBehind, me) : 'Pista limpia por detrás',
+                standings
+            };
+        }
+
         function saveLocalDatabase() {
             const payload = {
-                version: '7.6',
+                version: '7.9',
                 lastSaved: new Date().toISOString(),
                 appTitle: appState.appTitle,
                 activeLanes: appState.activeLanes,
@@ -1811,9 +2136,6 @@
             } catch (e) {}
         }
 
-        // ============================================================================
-        // SEGUNDA COMENTARISTA: INGENIERA DE TELEMETRÍA Y DIFERENCIAS EN SECTORES
-        // ============================================================================
         function speakSectorAnalyst(text, priority = false) {
             const el = document.getElementById('sectorAnalystMessage');
             if (el) el.innerHTML = `<i class="fa-solid fa-headset mr-1"></i>${text}`;
@@ -1835,7 +2157,6 @@
                 } else if (esVoices.length > 1) {
                     utter.voice = esVoices[1];
                 }
-                // Tono y cadencia diferenciados para que suene claramente como una segunda comentarista
                 utter.pitch = 1.32;
                 utter.rate = 1.26;
                 window.speechSynthesis.speak(utter);
@@ -2175,7 +2496,7 @@
                             <div class="flex justify-between items-center">
                                 <span class="text-[9px] font-mono font-black text-emerald-300 uppercase"><i class="fa-solid fa-bolt mr-1"></i>MEJOR VUELTA</span>
                                 ${!isUltraCompact ? `
-                                <button onclick="refuelCar(${i})" class="text-[8px] font-mono font-black px-1.5 py-0.5 bg-sky-500/25 text-sky-200 rounded border border-sky-400/50 hover:bg-sky-500 hover:text-white cursor-pointer"><i class="fa-solid fa-gas-pump mr-1"></i>BOX</button>
+                                <button onclick="openQrForSpecificDriver(${i})" class="text-[8px] font-mono font-black px-1.5 py-0.5 bg-emerald-500/25 text-emerald-200 rounded border border-emerald-400/50 hover:bg-emerald-500 hover:text-slate-950 cursor-pointer" title="Ver QR de este piloto"><i class="fa-solid fa-qrcode mr-1"></i>QR</button>
                                 ` : ''}
                             </div>
                             <div id="bestLap-${i}" class="${isUltraCompact ? 'text-lg' : (isMedium ? 'text-2xl' : 'text-4xl')} font-mono-num font-black text-emerald-400 leading-none my-1">
@@ -2205,6 +2526,15 @@
             }
             container.innerHTML = html;
             updateMultiLaneStandings();
+        }
+
+        function openQrForSpecificDriver(laneId) {
+            switchTab('mobile');
+            const sel = document.getElementById('mobileDriverSelect');
+            if (sel) {
+                sel.value = String(laneId);
+                updateMobilePitWallView();
+            }
         }
 
         function renderQuickSimButtons() {
@@ -2374,6 +2704,10 @@
                     btnStep.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i>${lane.nextExpectedSector === sCount ? 'META' : 'S' + lane.nextExpectedSector}`;
                 }
             }
+
+            broadcastLiveTelemetryState();
+            updateMobilePitWallView();
+            renderPilotMobileLiveOverlay();
         }
 
         function processSingleSectorMetrics(laneId, sIdx, secTime) {
@@ -2385,7 +2719,6 @@
             const prevOverallDriver = appState.overallBestSectorDrivers[sIdx];
             const prevPersonalBestSec = lane.bestSectors[sIdx];
 
-            // Buscar rival de referencia para comparar décimas en este mismo sector
             let rivalDriver = '';
             let rivalSecTime = Infinity;
             for (let i = 1; i <= appState.activeLanes; i++) {
@@ -2549,7 +2882,9 @@
             renderConsistencyCards();
             updateAnalyticsChart();
             updateSingleDriverAnalytics();
+            broadcastLiveTelemetryState();
             updateMobilePitWallView();
+            renderPilotMobileLiveOverlay();
 
             if (appState.raceFormat === 'LAPS') {
                 renderMasterClock();
@@ -2581,7 +2916,6 @@
                 speakSpotter(`${lane.name}, ${secInt} con ${dec}`);
             }
 
-            // Comentario de diferencias en meta por la 2ª Comentarista si hay lucha directa con otro piloto
             if (standings.length > 1 && lane.laps >= 2) {
                 const myIdx = standings.findIndex(s => s.id === laneId);
                 if (myIdx === 0 && standings[1].laps === lane.laps) {
@@ -2837,9 +3171,6 @@
             });
         }
 
-        // ============================================================================
-        // TRADUCTOR UNIVERSAL DE TRAMAS SERIE (ACEPTA FORMATO KRONOS Y FORMATOS SIMPLES)
-        // ============================================================================
         function parseUniversalSerialLine(line) {
             usbSnifferStats.totalLines++;
             logSerialConsole(`RX LÍNEA <- "${line}"`);
@@ -2863,7 +3194,6 @@
 
             const parts = clean.split(/[,:;]/);
 
-            // Caso A: Estándar KRONOS 1 Sector: L1,3420,22
             if (parts[0].startsWith('L') && parts.length >= 2) {
                 const laneId = parseInt(parts[0].substring(1), 10);
                 const timeMs = parseFloat(parts[1]);
@@ -2878,7 +3208,6 @@
                 }
             }
 
-            // Caso B: Estándar KRONOS Multisector: S1,L1,1280,0 o M,L1,1112,0
             if ((parts[0].startsWith('S') || parts[0] === 'M' || parts[0] === 'META') && parts.length >= 2) {
                 const isMeta = (parts[0] === 'M' || parts[0] === 'META' || parts[0] === 'S3');
                 const secIdx = isMeta ? appState.numSectors : (parseInt(parts[0].substring(1), 10) || 1);
@@ -2896,7 +3225,6 @@
                 return;
             }
 
-            // Caso C: Tramas simples sin prefijo o solo nombre de sensor ("S1", "S2", "META", "1,3450", "1")
             if (clean === 'S1' || clean.includes('SECTOR1') || clean === 'PIN2' || clean === 'D2') {
                 flashSensorTestLamp('S1', 'PULSO S1');
                 registerSectorOrLapEvent(1, 1, null, null);
@@ -2913,7 +3241,6 @@
                 return;
             }
 
-            // Caso D: Número de carril seguido de milisegundos ("1,3420") o solo número de carril ("1" o "2")
             const firstNum = parseInt(parts[0], 10);
             if (!isNaN(firstNum) && firstNum >= 1 && firstNum <= 10) {
                 const secondNum = parts[1] ? parseFloat(parts[1]) : null;
@@ -2926,9 +3253,6 @@
             }
         }
 
-        // ============================================================================
-        // DRIVER HÍBRIDO USB OTG V7.6: SOPORTE BAUDIOS VARIABLES + PING TX + SNIFFER
-        // ============================================================================
         let activeUsbDevice = null;
         let activeSerialPort = null;
         let activeUsbEndpointOut = null;
@@ -2958,7 +3282,6 @@
 
             try {
                 if (isCH340) {
-                    // Valores divisores CH340 para 9600 vs 115200
                     const val1312 = (baudRate === 9600) ? 0xB202 : 0xCC03;
                     await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0xA1, value: 0x0000, index: 0x0000 });
                     await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x9A, value: 0x1312, index: val1312 });
@@ -2977,7 +3300,6 @@
                     await device.controlTransferOut({ requestType: 'vendor', recipient: 'device', request: 0x03, value: divisor, index: 0 });
                     logSerialConsole(`FTDI configurado a ${baudRate} baudios.`);
                 } else {
-                    // Estándar CDC ACM (Arduino UNO R3 original ATmega16U2)
                     const lineCoding = new Uint8Array(7);
                     new DataView(lineCoding.buffer).setUint32(0, baudRate, true);
                     lineCoding[4] = 0;
@@ -3033,7 +3355,7 @@
                 const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
-                a.download = 'KRONOS_SLOT_PRO_v7_8_SIM_2_COMENTARISTAS.html';
+                a.download = 'KRONOS_SLOT_PRO_v8_0_QR_VIVO.html';
                 a.click();
             } catch (e) {}
         }
@@ -3570,6 +3892,7 @@
         function populateDriverSelectDropdowns() {
             const selAnalytics = document.getElementById('analyticsDriverSelect');
             const selMobile = document.getElementById('mobileDriverSelect');
+            const selPilotOverlay = document.getElementById('pilotAppLaneSwitcher');
             let html = '';
             for (let i = 1; i <= appState.activeLanes; i++) {
                 const l = appState.lanes[i];
@@ -3577,6 +3900,7 @@
             }
             if (selAnalytics) selAnalytics.innerHTML = html;
             if (selMobile) selMobile.innerHTML = html + `<option value="ALL">TODOS LOS PILOTOS Y CLUBS (RESUMEN MANGA)</option>`;
+            if (selPilotOverlay) selPilotOverlay.innerHTML = html;
         }
 
         function updateSingleDriverAnalytics() {
@@ -3868,95 +4192,443 @@
             updateMobilePitWallView();
         }
 
+        function buildPilotLiveUrlOrPayload(laneId, mode) {
+            const tac = getPilotTacticalContext(laneId);
+            const me = tac.me;
+            const ahead = tac.carAhead;
+            const behind = tac.carBehind;
+            const bestStr = me.bestLap < Infinity ? me.bestLap.toFixed(3) + 's' : '--.---s';
+            const lastStr = me.lastLap > 0 ? me.lastLap.toFixed(3) + 's' : '0.000s';
+            const optLap = getDriverOptimalLap(me);
+            const optStr = optLap < Infinity ? optLap.toFixed(3) + 's' : '--.---s';
+            const meanLap = getDriverMeanLap(me);
+            const meanStr = meanLap > 0 ? meanLap.toFixed(3) + 's' : '--.---s';
+
+            const aheadSummary = ahead
+                ? `P${tac.pos - 1} ${ahead.name} (${tac.gapToAhead} | Best: ${ahead.bestLap < Infinity ? ahead.bestLap.toFixed(3) + 's' : '--'})`
+                : 'NINGUNO (ERES LÍDER P1)';
+            const behindSummary = behind
+                ? `P${tac.pos + 1} ${behind.name} (${tac.gapToBehind} | Best: ${behind.bestLap < Infinity ? behind.bestLap.toFixed(3) + 's' : '--'})`
+                : 'NINGUNO (CIERRAS PARRILLA)';
+
+            const allLapsText = me.history.length > 0
+                ? me.history.map((t, i) => `V${i + 1}:${t.toFixed(3)}s`).join(' ')
+                : 'Esperando primera vuelta...';
+
+            const fullTextReport =
+`🏁 KRONOS LIVE PASS // ${appState.appTitle}
+👤 PILOTO: ${me.name} (CH${me.id} · ${me.club})
+🏆 POSICIÓN ACTUAL: P${tac.pos} de ${tac.totalCars}
+-----------------------------------------
+🔼 DELANTE (A CAZAR): ${aheadSummary}
+   └ ${tac.paceVsAhead}
+🚗 MI COCHE (CH${me.id}): ${me.laps} Vueltas
+   ├ Última V.: ${lastStr} | Mejor V.: ${bestStr}
+   ├ V. Óptima: ${optStr} | Media: ${meanStr}
+   └ Sectores: S1 ${me.lastSectors[1] ? me.lastSectors[1].toFixed(3) + 's' : '--'} | S2 ${me.lastSectors[2] ? me.lastSectors[2].toFixed(3) + 's' : '--'} | S3 ${me.lastSectors[3] ? me.lastSectors[3].toFixed(3) + 's' : '--'}
+🔽 DETRÁS (PERSEGUIDOR): ${behindSummary}
+   └ ${tac.paceVsBehind}
+-----------------------------------------
+📋 HISTORIAL VUELTAS (${me.history.length}):
+${allLapsText}`;
+
+            if (mode === 'WHATSAPP_DIRECT') {
+                return {
+                    qrString: `https://wa.me/?text=${encodeURIComponent(fullTextReport)}`,
+                    fullTextReport
+                };
+            }
+
+            if (mode === 'OFFLINE_CARD') {
+                return {
+                    qrString: fullTextReport.substring(0, 550),
+                    fullTextReport
+                };
+            }
+
+            // Modo LIVE_URL: genera URL real con estado comprimido + canal en vivo para abrir en el móvil del piloto
+            const customBase = (document.getElementById('customQrBaseUrlInput')?.value || '').trim();
+            let baseUrl = customBase || window.location.href.split('?')[0].split('#')[0];
+            if (baseUrl.startsWith('about:') || baseUrl.startsWith('blob:')) {
+                // Si está en un visor aislado sin URL pública, codificamos el pase táctico directo escaneable
+                return {
+                    qrString: fullTextReport.substring(0, 550),
+                    fullTextReport
+                };
+            }
+
+            const compactSnap = {
+                l: me.id,
+                p: tac.pos,
+                n: me.name,
+                c: me.club,
+                v: me.laps,
+                ll: me.lastLap,
+                bl: me.bestLap < Infinity ? Number(me.bestLap.toFixed(3)) : 0,
+                an: ahead ? ahead.name : 'LIDER',
+                ag: tac.gapToAhead,
+                bn: behind ? behind.name : 'NADIE',
+                bg: tac.gapToBehind,
+                h: me.history.slice(-15).map(x => Number(x.toFixed(3)))
+            };
+            const encodedSnap = btoa(unescape(encodeURIComponent(JSON.stringify(compactSnap))));
+            const liveUrl = `${baseUrl}?pilot_live=${laneId}&snap=${encodeURIComponent(encodedSnap)}`;
+
+            return {
+                qrString: liveUrl,
+                fullTextReport
+            };
+        }
+
         function updateMobilePitWallView() {
             const sel = document.getElementById('mobileDriverSelect');
             if (!sel) return;
             const val = sel.value || '1';
-            const clubTitle = appState.appTitle;
-            document.getElementById('mobPreviewClub').textContent = 'SLOTING PLUS & SLOT SW';
-
-            let reportText = '';
-            let phoneHtml = '';
+            const qrMode = document.getElementById('qrPayloadModeSelect')?.value || 'LIVE_URL';
 
             if (val === 'ALL') {
-                reportText = `[SLOTING PLUS & SLOT SOFTWARE]\nCAMPEONATO: ${clubTitle}\nCLASIFICACION OFICIAL DE MANGA\n`;
-                for (let i = 1; i <= appState.activeLanes; i++) {
-                    const l = appState.lanes[i];
+                let allText = `🏁 ${appState.appTitle} // CLASIFICACIÓN GENERAL EN VIVO\n\n`;
+                const tac1 = getPilotTacticalContext(1);
+                tac1.standings.forEach((l, idx) => {
                     const bestStr = l.bestLap < Infinity ? l.bestLap.toFixed(3) + 's' : '--.---s';
-                    reportText += `- CH${i} ${l.name} [${l.club}]: ${l.laps} vueltas | Best: ${bestStr}\n`;
-                }
-                phoneHtml = `<div class="text-amber-400 font-bold">RESUMEN DE MANGA</div>` +
-                    Array.from({ length: appState.activeLanes }, (_, idx) => {
-                        const l = appState.lanes[idx + 1];
-                        return `<div class="bg-slate-900 p-2 rounded-lg flex justify-between items-center"><div><span>CH${l.id} <strong>${l.name}</strong></span></div><span class="text-emerald-400 font-bold">${l.laps}v (${l.bestLap < Infinity ? l.bestLap.toFixed(3) + 's' : '--'})</span></div>`;
-                    }).join('');
-            } else {
-                const laneId = parseInt(val, 10) || 1;
-                const l = appState.lanes[laneId];
-                const bestStr = l.bestLap < Infinity ? l.bestLap.toFixed(3) + 's' : '--.---s';
-                const opt = getDriverOptimalLap(l);
-                const optStr = opt < Infinity ? opt.toFixed(3) + 's' : '--.---s';
-                const meanStr = getDriverMeanLap(l) > 0 ? getDriverMeanLap(l).toFixed(3) + 's' : '--.---s';
-
-                reportText =
-`[SLOTING PLUS & SLOT SOFTWARE // ${clubTitle}]
-- PILOTO: ${l.name} (Carril ${laneId})
-- CLUB: ${l.club}
-- Vueltas: ${l.laps}
-- Mejor Vuelta: ${bestStr}
-- Vuelta Optima: ${optStr}
-- Ritmo Medio: ${meanStr}`;
-
-                phoneHtml = `
-                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
-                        <div class="text-[10px] text-slate-400">PILOTO / CARRIL ${laneId}</div>
-                        <div class="text-base font-black text-white">${l.name}</div>
-                        <div class="text-[10px] font-bold text-amber-400 mt-0.5">${l.club}</div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="bg-slate-900 p-2 rounded-xl border border-slate-800">
-                            <div class="text-[9px] text-slate-400">VUELTAS</div>
-                            <div class="text-lg font-black text-white">${l.laps}</div>
+                    allText += `P${idx + 1} · CH${l.id} ${l.name} [${l.club}]: ${l.laps} V. | Mejor: ${bestStr}\n`;
+                });
+                document.getElementById('mobileReportTextarea').value = allText;
+                document.getElementById('mobPreviewPosBadge').textContent = `${appState.activeLanes} COCHES EN PISTA`;
+                document.getElementById('mobilePhoneScreenContent').innerHTML = tac1.standings.map((l, idx) => `
+                    <div onclick="document.getElementById('mobileDriverSelect').value='${l.id}';updateMobilePitWallView();" class="bg-slate-900/95 p-2.5 rounded-xl border border-slate-800 hover:border-emerald-500/50 flex justify-between items-center cursor-pointer">
+                        <div>
+                            <span class="px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 font-black text-[10px] mr-1">P${idx + 1}</span>
+                            <strong class="text-white">CH${l.id} ${l.name}</strong>
+                            <div class="text-[9px] text-slate-400">${l.club}</div>
                         </div>
-                        <div class="bg-slate-900 p-2 rounded-xl border border-slate-800">
-                            <div class="text-[9px] text-slate-400">MEJOR VUELTA</div>
-                            <div class="text-lg font-black text-emerald-400">${bestStr}</div>
+                        <div class="text-right">
+                            <div class="text-emerald-400 font-black">${l.laps} Vueltas</div>
+                            <div class="text-[10px] text-slate-300">Best: ${l.bestLap < Infinity ? l.bestLap.toFixed(3) + 's' : '--.---s'}</div>
                         </div>
                     </div>
-                `;
+                `).join('');
+                renderRealScannableQrCode(allText.substring(0, 500));
+                return;
             }
 
-            document.getElementById('mobileReportTextarea').value = reportText;
-            document.getElementById('mobilePhoneScreenContent').innerHTML = phoneHtml;
-            renderDynamicQrSvg(reportText);
+            const laneId = parseInt(val, 10) || 1;
+            appState.pilotOverlayActiveLane = laneId;
+            const tac = getPilotTacticalContext(laneId);
+            const me = tac.me;
+            const ahead = tac.carAhead;
+            const behind = tac.carBehind;
+            const bestStr = me.bestLap < Infinity ? me.bestLap.toFixed(3) + 's' : '--.---s';
+            const lastStr = me.lastLap > 0 ? me.lastLap.toFixed(3) + 's' : '0.000s';
+            const optLap = getDriverOptimalLap(me);
+            const optStr = optLap < Infinity ? optLap.toFixed(3) + 's' : '--.---s';
+            const meanLap = getDriverMeanLap(me);
+            const meanStr = meanLap > 0 ? meanLap.toFixed(3) + 's' : '--.---s';
+
+            const { qrString, fullTextReport } = buildPilotLiveUrlOrPayload(laneId, qrMode);
+
+            document.getElementById('mobPreviewPosBadge').textContent = `POSICIÓN P${tac.pos} / ${tac.totalCars}`;
+            document.getElementById('mobileReportTextarea').value = fullTextReport;
+
+            const lapsChipsHtml = me.history.length > 0
+                ? me.history.slice().reverse().map((t, idx) => {
+                    const vNum = me.history.length - idx;
+                    const isBest = Math.abs(t - me.bestLap) < 0.0005;
+                    return `<span class="px-1.5 py-0.5 rounded border text-[9px] ${isBest ? 'bg-emerald-500/25 border-emerald-400 text-emerald-200 font-black' : 'bg-slate-950 border-slate-800 text-slate-300'}">V${vNum}: ${t.toFixed(3)}s</span>`;
+                }).join('')
+                : '<span class="text-[10px] text-slate-500 italic">Sin vueltas registradas aún...</span>';
+
+            document.getElementById('mobilePhoneScreenContent').innerHTML = `
+                <!-- RIVAL POR DELANTE -->
+                <div class="bg-slate-900/95 p-2.5 rounded-xl border-l-4 border-l-rose-500 border border-slate-800 flex justify-between items-center">
+                    <div>
+                        <div class="text-[9px] text-rose-400 font-black uppercase"><i class="fa-solid fa-angles-up mr-1"></i>DELANTE (A CAZAR)</div>
+                        <div class="text-xs font-black text-white">${ahead ? `P${tac.pos - 1} · CH${ahead.id} ${ahead.name}` : '¡VAS LÍDER EN P1!'}</div>
+                        <div class="text-[9px] text-slate-400">${ahead ? `Best: ${ahead.bestLap < Infinity ? ahead.bestLap.toFixed(3) + 's' : '--'} | Últ: ${ahead.lastLap > 0 ? ahead.lastLap.toFixed(3) + 's' : '--'}` : 'Pista libre delante'}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs font-black text-rose-400">${tac.gapToAhead}</div>
+                        <div class="text-[9px] text-amber-300 font-bold">${tac.paceVsAhead}</div>
+                    </div>
+                </div>
+
+                <!-- MI COCHE EN VIVO -->
+                <div class="bg-slate-900 p-2.5 rounded-xl border-2 border-sky-400/80 space-y-2 shadow-lg">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-1">
+                        <div>
+                            <span class="text-[10px] font-black text-sky-400">MI COCHE · CH${me.id}</span>
+                            <div class="text-sm font-black text-white">${me.name} <span class="text-[9px] text-amber-300">[${me.club}]</span></div>
+                        </div>
+                        <div class="text-right">
+                            <span class="px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-black text-xs">P${tac.pos}</span>
+                            <div class="text-[8px] text-purple-300 font-bold mt-0.5">Ópt: ${optStr}</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-1.5 text-center">
+                        <div class="bg-slate-950 p-1.5 rounded-lg border border-slate-800">
+                            <div class="text-[8px] text-slate-400">VUELTAS</div>
+                            <div class="text-base font-black text-white">${me.laps}</div>
+                        </div>
+                        <div class="bg-slate-950 p-1.5 rounded-lg border border-amber-500/40">
+                            <div class="text-[8px] text-amber-300">ÚLTIMA V.</div>
+                            <div class="text-sm font-black text-white">${lastStr}</div>
+                        </div>
+                        <div class="bg-slate-950 p-1.5 rounded-lg border border-emerald-500/40">
+                            <div class="text-[8px] text-emerald-300">MEJOR V.</div>
+                            <div class="text-sm font-black text-emerald-400">${bestStr}</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-1 text-center text-[9px]">
+                        <div class="bg-slate-950 py-1 rounded border border-slate-800">S1: <b class="text-white">${me.lastSectors[1] ? me.lastSectors[1].toFixed(3) + 's' : '--'}</b></div>
+                        <div class="bg-slate-950 py-1 rounded border border-slate-800">S2: <b class="text-white">${me.lastSectors[2] ? me.lastSectors[2].toFixed(3) + 's' : '--'}</b></div>
+                        <div class="bg-slate-950 py-1 rounded border border-slate-800">S3: <b class="text-white">${me.lastSectors[3] ? me.lastSectors[3].toFixed(3) + 's' : '--'}</b></div>
+                    </div>
+                </div>
+
+                <!-- RIVAL POR DETRÁS -->
+                <div class="bg-slate-900/95 p-2.5 rounded-xl border-l-4 border-l-emerald-500 border border-slate-800 flex justify-between items-center">
+                    <div>
+                        <div class="text-[9px] text-emerald-400 font-black uppercase"><i class="fa-solid fa-angles-down mr-1"></i>DETRÁS (PERSEGUIDOR)</div>
+                        <div class="text-xs font-black text-white">${behind ? `P${tac.pos + 1} · CH${behind.id} ${behind.name}` : 'SIN PERSEGUIDOR DETRÁS'}</div>
+                        <div class="text-[9px] text-slate-400">${behind ? `Best: ${behind.bestLap < Infinity ? behind.bestLap.toFixed(3) + 's' : '--'} | Últ: ${behind.lastLap > 0 ? behind.lastLap.toFixed(3) + 's' : '--'}` : 'Nadie por detrás'}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs font-black text-emerald-400">${tac.gapToBehind}</div>
+                        <div class="text-[9px] text-sky-300 font-bold">${tac.paceVsBehind}</div>
+                    </div>
+                </div>
+
+                <!-- VUELTAS GUARDADAS EN EL MÓVIL -->
+                <div class="bg-slate-900/90 p-2 rounded-xl border border-slate-800 space-y-1">
+                    <div class="flex justify-between items-center text-[9px]">
+                        <span class="text-sky-400 font-black">MIS VUELTAS (${me.history.length})</span>
+                        <span class="text-amber-300 font-bold">Media: ${meanStr}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1 max-h-20 overflow-y-auto">${lapsChipsHtml}</div>
+                </div>
+            `;
+
+            renderRealScannableQrCode(qrString);
         }
 
-        function renderDynamicQrSvg(payloadText) {
+        // Generador Oficial QR ISO/IEC 18004 escaneable con cualquier cámara de iPhone / Android
+        function renderRealScannableQrCode(qrPayload) {
             const box = document.getElementById('dynamicQrContainer');
             if (!box) return;
-            const size = 21;
-            let hash = 2166136261;
-            for (let i = 0; i < payloadText.length; i++) {
-                hash ^= payloadText.charCodeAt(i);
-                hash = Math.imul(hash, 16777619);
-            }
-            const isFinder = (r, c) => (r < 7 && c < 7) || (r < 7 && c >= size - 7) || (r >= size - 7 && c < 7);
-            let rects = '';
-            for (let r = 0; r < size; r++) {
-                for (let c = 0; c < size; c++) {
-                    let dark = false;
-                    if (isFinder(r, c)) {
-                        const lr = r >= size - 7 ? r - (size - 7) : r;
-                        const lc = c >= size - 7 ? c - (size - 7) : c;
-                        dark = (lr === 0 || lr === 6 || lc === 0 || lc === 6 || (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4));
-                    } else {
-                        const bit = ((hash >>> ((r * size + c) % 28)) ^ (r * 17 + c * 31 + payloadText.length)) & 1;
-                        dark = bit === 1;
-                    }
-                    if (dark) rects += `<rect x="${c}" y="${r}" width="1" height="1" fill="#04070f"/>`;
+            box.innerHTML = '';
+
+            try {
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(box, {
+                        text: qrPayload,
+                        width: 128,
+                        height: 128,
+                        colorDark: "#04070f",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                    return;
                 }
+            } catch (err) {
+                console.warn("Fallback QR renderer:", err);
             }
-            box.innerHTML = `<svg viewBox="0 0 ${size} ${size}" class="w-full h-full" shape-rendering="crispEdges">${rects}</svg>`;
+
+            // Respaldo de alta compatibilidad si no hubiera librería externa cargada
+            const img = document.createElement('img');
+            img.className = 'w-32 h-32 object-contain';
+            img.alt = 'Código QR Piloto';
+            img.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=4&data=${encodeURIComponent(qrPayload)}`;
+            box.appendChild(img);
+        }
+
+        function openPilotMobileLiveOverlayFromTab() {
+            const sel = document.getElementById('mobileDriverSelect');
+            const laneId = sel && sel.value !== 'ALL' ? (parseInt(sel.value, 10) || 1) : 1;
+            appState.pilotOverlayActiveLane = laneId;
+            const switcher = document.getElementById('pilotAppLaneSwitcher');
+            if (switcher) switcher.value = String(laneId);
+            document.getElementById('pilotMobileLiveAppOverlay').classList.remove('hidden');
+            renderPilotMobileLiveOverlay();
+        }
+
+        function closePilotMobileLiveOverlay() {
+            document.getElementById('pilotMobileLiveAppOverlay').classList.add('hidden');
+        }
+
+        function switchPilotLiveOverlayLane(newLaneId) {
+            appState.pilotOverlayActiveLane = parseInt(newLaneId, 10) || 1;
+            renderPilotMobileLiveOverlay();
+        }
+
+        function renderPilotMobileLiveOverlay() {
+            const overlay = document.getElementById('pilotMobileLiveAppOverlay');
+            if (!overlay || overlay.classList.contains('hidden')) return;
+
+            const laneId = appState.pilotOverlayActiveLane || 1;
+            const tac = getPilotTacticalContext(laneId);
+            const me = tac.me;
+            const ahead = tac.carAhead;
+            const behind = tac.carBehind;
+
+            const optLap = getDriverOptimalLap(me);
+            const meanLap = getDriverMeanLap(me);
+
+            document.getElementById('pilotAppLaneBadge').textContent = `CH${me.id}`;
+            document.getElementById('pilotAppDriverName').textContent = me.name;
+            document.getElementById('pilotAppClubName').textContent = me.club || 'CLUB OFICIAL';
+            document.getElementById('pilotAppPosition').textContent = `P${tac.pos}`;
+
+            // Delante
+            document.getElementById('pilotAppAheadName').textContent = ahead
+                ? `P${tac.pos - 1} · CH${ahead.id} ${ahead.name}`
+                : '¡ERES EL LÍDER DE LA CARRERA (P1)!';
+            document.getElementById('pilotAppAheadBest').textContent = ahead
+                ? `Mejor V.: ${ahead.bestLap < Infinity ? ahead.bestLap.toFixed(3) + 's' : '--.---s'} | Última: ${ahead.lastLap > 0 ? ahead.lastLap.toFixed(3) + 's' : '--.---s'}`
+                : 'Pista limpia por delante';
+            document.getElementById('pilotAppAheadGap').textContent = tac.gapToAhead;
+            document.getElementById('pilotAppAheadPaceDiff').textContent = tac.paceVsAhead;
+
+            // Mi Coche
+            document.getElementById('pilotAppOptimalTag').textContent = `V. Óptima: ${optLap < Infinity ? optLap.toFixed(3) + 's' : '--.---s'}`;
+            document.getElementById('pilotAppLaps').textContent = String(me.laps);
+            document.getElementById('pilotAppLastLap').textContent = me.lastLap > 0 ? `${me.lastLap.toFixed(3)}s` : '0.000s';
+            document.getElementById('pilotAppBestLap').textContent = me.bestLap < Infinity ? `${me.bestLap.toFixed(3)}s` : '--.---s';
+            document.getElementById('pilotAppS1').textContent = me.lastSectors[1] !== null ? `${me.lastSectors[1].toFixed(3)}s` : '--.---s';
+            document.getElementById('pilotAppS2').textContent = me.lastSectors[2] !== null ? `${me.lastSectors[2].toFixed(3)}s` : '--.---s';
+            document.getElementById('pilotAppS3').textContent = me.lastSectors[3] !== null ? `${me.lastSectors[3].toFixed(3)}s` : '--.---s';
+
+            // Detrás
+            document.getElementById('pilotAppBehindName').textContent = behind
+                ? `P${tac.pos + 1} · CH${behind.id} ${behind.name}`
+                : 'SIN PERSEGUIDOR DETRÁS';
+            document.getElementById('pilotAppBehindBest').textContent = behind
+                ? `Mejor V.: ${behind.bestLap < Infinity ? behind.bestLap.toFixed(3) + 's' : '--.---s'} | Última: ${behind.lastLap > 0 ? behind.lastLap.toFixed(3) + 's' : '--.---s'}`
+                : 'Cierra la clasificación';
+            document.getElementById('pilotAppBehindGap').textContent = tac.gapToBehind;
+            document.getElementById('pilotAppBehindPaceDiff').textContent = tac.paceVsBehind;
+
+            // Historial completo
+            document.getElementById('pilotAppMeanLap').textContent = `Media: ${meanLap > 0 ? meanLap.toFixed(3) + 's' : '--.---s'}`;
+            const histBox = document.getElementById('pilotAppLapHistoryBox');
+            if (me.history.length === 0) {
+                histBox.innerHTML = `<div class="text-slate-500 italic py-3 text-center">Esperando paso por meta...</div>`;
+            } else {
+                histBox.innerHTML = me.history.slice().reverse().map((t, idx) => {
+                    const lapNum = me.history.length - idx;
+                    const isBest = Math.abs(t - me.bestLap) < 0.0005;
+                    const speedKmh = ((appState.trackLengthMeters / t) * 3.6 * appState.scaleFactor).toFixed(1);
+                    return `
+                        <div class="flex justify-between items-center px-2.5 py-1.5 rounded-lg border ${isBest ? 'bg-emerald-950/60 border-emerald-400 text-emerald-200 font-black' : 'bg-slate-950 border-slate-800 text-slate-200'}">
+                            <span>VUELTA #${lapNum} ${isBest ? '★ RÉCORD PERSONAL' : ''}</span>
+                            <span>${t.toFixed(3)}s <small class="text-sky-400 ml-1">(${speedKmh} km/h)</small></span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Descarga el "Pasaporte de Telemetría" autocontenido para que el piloto se lo lleve a casa en su móvil
+        function downloadPilotTakeHomePass() {
+            const sel = document.getElementById('mobileDriverSelect');
+            const laneId = (sel && sel.value !== 'ALL') ? (parseInt(sel.value, 10) || appState.pilotOverlayActiveLane || 1) : (appState.pilotOverlayActiveLane || 1);
+            const tac = getPilotTacticalContext(laneId);
+            const me = tac.me;
+            const ahead = tac.carAhead;
+            const behind = tac.carBehind;
+            const optLap = getDriverOptimalLap(me);
+            const meanLap = getDriverMeanLap(me);
+            const topSpeed = me.bestLap < Infinity ? ((appState.trackLengthMeters / me.bestLap) * 3.6 * appState.scaleFactor).toFixed(1) : '0.0';
+
+            const lapsRowsHtml = me.history.map((t, idx) => {
+                const isBest = Math.abs(t - me.bestLap) < 0.0005;
+                const sp = ((appState.trackLengthMeters / t) * 3.6 * appState.scaleFactor).toFixed(1);
+                return `<tr style="border-bottom:1px solid #1e293b;${isBest ? 'background:rgba(16,185,129,0.2);font-weight:bold;color:#6ee7b7;' : ''}">
+                    <td style="padding:8px;">Vuelta #${idx + 1} ${isBest ? '🏆 BEST' : ''}</td>
+                    <td style="padding:8px;">${t.toFixed(3)}s</td>
+                    <td style="padding:8px;">${sp} km/h</td>
+                </tr>`;
+            }).join('');
+
+            const standRowsHtml = tac.standings.map((st, i) => `
+                <tr style="border-bottom:1px solid #1e293b;${st.id === me.id ? 'background:rgba(56,189,248,0.2);font-weight:bold;color:#38bdf8;' : ''}">
+                    <td style="padding:6px;">P${i + 1}</td>
+                    <td style="padding:6px;">CH${st.id} ${st.name}</td>
+                    <td style="padding:6px;">${st.laps} V.</td>
+                    <td style="padding:6px;">${st.bestLap < Infinity ? st.bestLap.toFixed(3) + 's' : '--'}</td>
+                </tr>
+            `).join('');
+
+            const passHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>PASAPORTE TELEMETRÍA - ${me.name}</title>
+<style>body{background:#04070f;color:#f8fafc;font-family:monospace;padding:16px;margin:0;} .card{background:#0b1120;border:1px solid #1e293b;border-radius:16px;padding:14px;margin-bottom:12px;} .badge{background:#10b981;color:#04070f;padding:3px 8px;border-radius:6px;font-weight:900;}</style></head>
+<body>
+<div class="card" style="border:2px solid #10b981;">
+  <div style="font-size:11px;color:#38bdf8;font-weight:bold;">SLOTING PLUS & SLOT SW // PASAPORTE OFICIAL PARA CASA</div>
+  <h1 style="margin:6px 0;font-size:22px;">${me.name} (Carril ${me.id}) <span class="badge">P${tac.pos}</span></h1>
+  <div style="color:#fbbf24;font-size:12px;">Club: ${me.club} · ${appState.appTitle} · ${new Date().toLocaleString()}</div>
+</div>
+<div class="card" style="border-left:4px solid #f43f5e;">
+  <div style="color:#fb7185;font-weight:bold;font-size:11px;">🔼 COCHE POR DELANTE</div>
+  <div style="font-size:15px;font-weight:bold;margin-top:4px;">${ahead ? `P${tac.pos - 1} · ${ahead.name} (${tac.gapToAhead})` : '¡TERMINASTE EN P1 (GANADOR / LÍDER)!'}</div>
+</div>
+<div class="card" style="border:2px solid #38bdf8;">
+  <div style="color:#38bdf8;font-weight:bold;font-size:11px;">🚗 RESUMEN DE MI COCHE</div>
+  <p><b>Total Vueltas:</b> ${me.laps} | <b>Mejor Vuelta:</b> ${me.bestLap < Infinity ? me.bestLap.toFixed(3) + 's' : '--'} | <b>Vuelta Óptima:</b> ${optLap < Infinity ? optLap.toFixed(3) + 's' : '--'}</p>
+  <p><b>Ritmo Medio:</b> ${meanLap > 0 ? meanLap.toFixed(3) + 's' : '--'} | <b>Vel. Punta Escala:</b> ${topSpeed} km/h</p>
+  <p><b>Mejores Sectores:</b> S1: ${me.bestSectors[1] < Infinity ? me.bestSectors[1].toFixed(3) + 's' : '--'} | S2: ${me.bestSectors[2] < Infinity ? me.bestSectors[2].toFixed(3) + 's' : '--'} | S3: ${me.bestSectors[3] < Infinity ? me.bestSectors[3].toFixed(3) + 's' : '--'}</p>
+</div>
+<div class="card" style="border-left:4px solid #10b981;">
+  <div style="color:#34d399;font-weight:bold;font-size:11px;">🔽 COCHE POR DETRÁS</div>
+  <div style="font-size:15px;font-weight:bold;margin-top:4px;">${behind ? `P${tac.pos + 1} · ${behind.name} (${tac.gapToBehind})` : 'SIN RIVAL DETRÁS'}</div>
+</div>
+<div class="card">
+  <h3 style="margin-top:0;color:#fbbf24;">📋 CLASIFICACIÓN DE LA MANGA</h3>
+  <table style="width:100%;border-collapse:collapse;font-size:12px;text-align:left;">
+    <thead><tr style="border-bottom:2px solid #334155;color:#94a3b8;"><th style="padding:6px;">POS</th><th style="padding:6px;">PILOTO</th><th style="padding:6px;">VUELTAS</th><th style="padding:6px;">MEJOR V.</th></tr></thead>
+    <tbody>${standRowsHtml}</tbody>
+  </table>
+</div>
+<div class="card">
+  <h3 style="margin-top:0;color:#38bdf8;">⏱️ TODAS MIS VUELTAS (${me.history.length})</h3>
+  <table style="width:100%;border-collapse:collapse;font-size:12px;text-align:left;">
+    <thead><tr style="border-bottom:2px solid #334155;color:#94a3b8;"><th style="padding:8px;">VUELTA</th><th style="padding:8px;">TIEMPO</th><th style="padding:8px;">VEL. ESCALA</th></tr></thead>
+    <tbody>${lapsRowsHtml}</tbody>
+  </table>
+</div>
+</body></html>`;
+
+            const blob = new Blob([passHtml], { type: 'text/html;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `PASAPORTE_TELEMETRIA_${me.name}_CH${me.id}.html`;
+            a.click();
+            speakSpotter(`Pasaporte de telemetría de ${me.name} guardado para llevar a casa.`, true);
+        }
+
+        function checkUrlForPilotMobileModeOnBoot() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const pilotLane = params.get('pilot_live');
+                const snapB64 = params.get('snap');
+                if (snapB64) {
+                    const decoded = JSON.parse(decodeURIComponent(escape(atob(snapB64))));
+                    const lId = decoded.l || 1;
+                    if (appState.lanes[lId]) {
+                        appState.lanes[lId].name = decoded.n || appState.lanes[lId].name;
+                        appState.lanes[lId].club = decoded.c || appState.lanes[lId].club;
+                        appState.lanes[lId].laps = decoded.v || 0;
+                        appState.lanes[lId].lastLap = decoded.ll || 0;
+                        appState.lanes[lId].bestLap = decoded.bl > 0 ? decoded.bl : Infinity;
+                        appState.lanes[lId].history = Array.isArray(decoded.h) ? decoded.h : [];
+                    }
+                }
+                if (pilotLane) {
+                    appState.pilotOverlayActiveLane = parseInt(pilotLane, 10) || 1;
+                    document.getElementById('pilotMobileLiveAppOverlay').classList.remove('hidden');
+                    renderPilotMobileLiveOverlay();
+                }
+            } catch (e) {}
         }
 
         function shareViaWhatsApp() {
@@ -3969,7 +4641,7 @@
             safeCopyText(textarea.value);
             const btn = document.getElementById('btnCopyMobile');
             btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
-            setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar Informe'; }, 1800);
+            setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar'; }, 1800);
         }
 
         function refuelCar(laneId) {
@@ -4206,6 +4878,7 @@
             rebuildChartDatasets();
             updateSingleDriverAnalytics();
             updateMobilePitWallView();
+            renderPilotMobileLiveOverlay();
             document.getElementById('liveLogBody').innerHTML = '<tr><td colspan="4" class="py-6 text-center text-slate-500 font-mono">Sesión reiniciada. Listo para salida F1...</td></tr>';
         }
 
@@ -4294,6 +4967,7 @@
             setSystemTopology(appState.activeLanes || 2, appState.numSectors || 3);
             setRaceFormat('TIME');
             renderMasterClock();
+            checkUrlForPilotMobileModeOnBoot();
             animateRadarGPS();
         };
     </script>
