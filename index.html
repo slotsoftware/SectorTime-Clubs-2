@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#04070f">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>KRONOS SLOT PRO OS v8.1 // QR Instantáneo + Telemetría en Vivo en Simulación</title>
+    <title>KRONOS SLOT PRO OS v8.2 // Voz en Móvil + Sincronización Real Stop/Play</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Librería Oficial QR ISO/IEC 18004 para escaneo real con cámara de iPhone y Android -->
@@ -171,7 +171,7 @@
          OVERLAY DE TELEMETRÍA EN VIVO PARA EL MÓVIL DEL PILOTO (EXCLUSIVO DE SU CARRIL)
          ======================================================================================== -->
     <div id="pilotMobileLiveAppOverlay" class="hidden fixed inset-0 z-[90] bg-[#04070f] flex flex-col justify-between p-3 overflow-y-auto font-mono">
-        <div class="max-w-md w-full mx-auto space-y-3 pb-6">
+        <div class="max-w-md w-full mx-auto space-y-2.5 pb-6">
             <!-- Cabecera del Móvil del Piloto -->
             <div class="glass-panel rounded-2xl p-3 border-2 border-emerald-500/60 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
@@ -180,27 +180,38 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                            <span class="text-[10px] font-black text-emerald-400 uppercase" id="pilotAppSyncStatus">ENLAZADO EN VIVO · TIEMPO REAL</span>
+                            <span id="pilotAppLiveDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                            <span class="text-[10px] font-black text-emerald-400 uppercase" id="pilotAppSyncStatus">ENLAZADO A PISTA · ESPERANDO SALIDA</span>
                         </div>
                         <h1 class="text-base font-black text-white uppercase leading-tight" id="pilotAppDriverName">PILOTO</h1>
                         <div class="text-[10px] text-amber-400 font-bold" id="pilotAppClubName">CLUB</div>
                     </div>
                 </div>
                 <div class="text-right">
-                    <div class="text-[9px] text-slate-400">MI POSICIÓN</div>
-                    <div class="text-2xl font-black text-amber-300" id="pilotAppPosition">P1</div>
+                    <div class="text-[9px] text-slate-400" id="pilotAppClockMini">05:00.0</div>
+                    <div class="text-2xl font-black text-amber-300 leading-none mt-0.5" id="pilotAppPosition">P1</div>
                 </div>
             </div>
 
-            <!-- Barra de Privacidad Exclusiva del Piloto + Guardar en Casa -->
-            <div class="flex items-center justify-between gap-2 bg-slate-950 px-3 py-2 rounded-xl border border-emerald-500/40 text-xs">
-                <div class="flex items-center gap-1.5">
-                    <i class="fa-solid fa-lock text-emerald-400 text-[10px]"></i>
-                    <span class="text-[10px] text-slate-300 font-bold uppercase" id="pilotAppExclusiveLockLabel"> CANAL PRIVADO: SOLO MIS DATOS</span>
+            <!-- Banner de Estado de Pista en Tiempo Real + Botón de Voz del Ingeniero en el Móvil -->
+            <div class="grid grid-cols-12 gap-2 items-center">
+                <div id="pilotAppRaceStatusBanner" class="col-span-7 px-3 py-2 rounded-xl border border-slate-700 bg-slate-900 text-[10px] font-black text-slate-300 uppercase flex items-center gap-1.5 truncate">
+                    <i class="fa-solid fa-flag"></i>
+                    <span id="pilotAppRaceStatusText">PISTA EN STANDBY (PARADA)</span>
                 </div>
-                <button onclick="downloadPilotTakeHomePass()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] rounded-lg shadow cursor-pointer">
-                    <i class="fa-solid fa-download mr-1"></i>Llevar a Casa
+                <button id="btnPilotMobileVoice" onclick="togglePilotMobileAudio()" class="col-span-5 py-2 px-2.5 rounded-xl font-black text-[10px] uppercase bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-lg border border-amber-200 cursor-pointer flex items-center justify-center gap-1 animate-pulse">
+                    <i class="fa-solid fa-volume-high"></i> <span id="pilotMobileVoiceLabel">ACTIVAR VOZ</span>
+                </button>
+            </div>
+
+            <!-- Barra de Privacidad Exclusiva del Piloto + Guardar en Casa -->
+            <div class="flex items-center justify-between gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-emerald-500/40 text-xs">
+                <div class="flex items-center gap-1.5 truncate">
+                    <i class="fa-solid fa-headset text-sky-400 text-[10px]"></i>
+                    <span class="text-[10px] text-sky-300 font-bold truncate" id="pilotAppLastRadioMsg">Toca "ACTIVAR VOZ" para oír tus tiempos en el móvil</span>
+                </div>
+                <button onclick="downloadPilotTakeHomePass()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] rounded-lg shadow cursor-pointer shrink-0">
+                    <i class="fa-solid fa-download mr-1"></i>Casa
                 </button>
             </div>
 
@@ -1529,11 +1540,66 @@
             lastStandingsCallTime: 0,
             liveSyncRoomId: safeGetStorage('kronos_room_id_v81') || ('KRN' + Math.floor(1000 + Math.random() * 9000)),
             pilotOverlayActiveLane: 1,
-            isExternalPilotMobileClient: false
+            isExternalPilotMobileClient: false,
+            pilotMobileVoiceUnlocked: false,
+            lastSpokenMobileLap: -1,
+            lastSpokenMobileS1: null,
+            lastSpokenMobileS2: null,
+            lastSpokenMobileStatus: 'STANDBY'
         };
         safeSetStorage('kronos_room_id_v81', appState.liveSyncRoomId);
 
         const LOCAL_DB_STORAGE_KEY = 'kronos_local_club_database_v68';
+
+        // ============================================================================
+        // INGENIERO DE VOZ EXCLUSIVO PARA EL MÓVIL DEL PILOTO (DESBLOQUEO IOS/ANDROID)
+        // ============================================================================
+        function speakOnPilotMobile(text, priority = false) {
+            const radioEl = document.getElementById('pilotAppLastRadioMsg');
+            if (radioEl) radioEl.textContent = `🎙️ ${text}`;
+
+            if (!appState.pilotMobileVoiceUnlocked || !('speechSynthesis' in window)) return;
+            try {
+                if (priority) window.speechSynthesis.cancel();
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.lang = 'es-ES';
+                const esVoices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('es'));
+                if (esVoices.length > 0) utter.voice = esVoices[0];
+                utter.pitch = 1.02;
+                utter.rate = 1.22;
+                window.speechSynthesis.speak(utter);
+            } catch (e) {}
+        }
+
+        function togglePilotMobileAudio() {
+            try {
+                getAudioContext();
+                playTone(987.77, 120, 'sine', 0.2);
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.getVoices();
+                }
+            } catch (e) {}
+
+            appState.pilotMobileVoiceUnlocked = !appState.pilotMobileVoiceUnlocked;
+            const btn = document.getElementById('btnPilotMobileVoice');
+            const lbl = document.getElementById('pilotMobileVoiceLabel');
+
+            if (appState.pilotMobileVoiceUnlocked) {
+                if (btn) {
+                    btn.className = 'col-span-5 py-2 px-2.5 rounded-xl font-black text-[10px] uppercase bg-emerald-500 text-slate-950 shadow-lg border border-emerald-200 cursor-pointer flex items-center justify-center gap-1';
+                }
+                if (lbl) lbl.textContent = 'VOZ MÓVIL ON';
+                const laneId = appState.pilotOverlayActiveLane || 1;
+                const me = appState.lanes[laneId];
+                speakOnPilotMobile(`Radio conectada para ${me ? me.name : 'piloto'}, carril ${laneId}. Te cantaré tus vueltas y rivales en directo.`, true);
+            } else {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                if (btn) {
+                    btn.className = 'col-span-5 py-2 px-2.5 rounded-xl font-black text-[10px] uppercase bg-slate-800 text-slate-300 border border-slate-700 cursor-pointer flex items-center justify-center gap-1';
+                }
+                if (lbl) lbl.textContent = 'VOZ MÓVIL OFF';
+            }
+        }
 
         // ============================================================================
         // PUENTE DE TELEMETRÍA EN TIEMPO REAL (BROADCAST LOCAL + CLOUD MQTT WSS)
@@ -1573,7 +1639,7 @@
                     clientId: 'kronos_' + Math.random().toString(16).substring(2, 10),
                     clean: true,
                     connectTimeout: 4000,
-                    reconnectPeriod: 4000
+                    reconnectPeriod: 2500
                 });
 
                 const topic = `kronos_slot_pro_live/${appState.liveSyncRoomId}`;
@@ -1585,9 +1651,12 @@
                     }
                     const mobStatus = document.getElementById('pilotAppSyncStatus');
                     if (mobStatus) {
-                        mobStatus.textContent = `TELEMETRÍA EN VIVO CONECTADA (${appState.liveSyncRoomId})`;
+                        mobStatus.textContent = `CONECTADO EN VIVO (${appState.liveSyncRoomId})`;
                     }
                     mqttLiveClient.subscribe(topic);
+                    if (!appState.isExternalPilotMobileClient) {
+                        broadcastLiveTelemetryState();
+                    }
                 });
 
                 mqttLiveClient.on('message', (t, message) => {
@@ -1599,6 +1668,13 @@
                     }
                 });
             } catch (e) {}
+
+            // Latido periódico desde el servidor del club para que el móvil siempre sepa si está PARADO, EN PAUSA o EN CARRERA
+            if (!appState.isExternalPilotMobileClient) {
+                setInterval(() => {
+                    broadcastLiveTelemetryState();
+                }, 650);
+            }
         }
 
         function broadcastLiveTelemetryState() {
@@ -1644,6 +1720,9 @@
                 ns: appState.numSectors,
                 rf: appState.raceFormat,
                 rs: appState.raceStatus,
+                rem: appState.remainingSeconds,
+                tl: appState.targetLaps,
+                sim: Boolean(appState.autoDemoTimer),
                 lanes: lanesArr,
                 ts: Date.now()
             };
@@ -1654,10 +1733,16 @@
             // Evitar sobreescribir el propio servidor emisor
             if (!appState.isExternalPilotMobileClient && pkt.senderId && pkt.senderId === securityState.deviceHwid) return;
 
+            const prevStatus = appState.raceStatus;
             appState.lastRemotePacketTimestamp = Date.now();
             appState.appTitle = pkt.t || appState.appTitle;
             appState.activeLanes = pkt.al || appState.activeLanes;
             appState.numSectors = pkt.ns || appState.numSectors;
+            appState.raceFormat = pkt.rf || appState.raceFormat;
+            appState.raceStatus = pkt.rs || 'STANDBY';
+            if (typeof pkt.rem === 'number') appState.remainingSeconds = pkt.rem;
+            if (typeof pkt.tl === 'number') appState.targetLaps = pkt.tl;
+
             pkt.lanes.forEach(item => {
                 const target = appState.lanes[item.id];
                 if (target) {
@@ -1676,7 +1761,91 @@
                     target.history = Array.isArray(item.h) ? item.h : [];
                 }
             });
+
+            // Si estamos en el móvil del piloto, narrar por voz los cambios de estado y las vueltas de su propio coche
+            const overlay = document.getElementById('pilotMobileLiveAppOverlay');
+            const isMobileOverlayOpen = overlay && !overlay.classList.contains('hidden');
+            if (isMobileOverlayOpen) {
+                handlePilotMobileLiveVoiceAnnouncements(prevStatus, pkt);
+            }
+
             renderPilotMobileLiveOverlay();
+        }
+
+        function handlePilotMobileLiveVoiceAnnouncements(prevStatus, pkt) {
+            const laneId = appState.pilotOverlayActiveLane || 1;
+            const tac = getPilotTacticalContext(laneId);
+            const me = tac.me;
+            if (!me) return;
+
+            // 1. Detectar cambios de estado de carrera (Salida, Pausa, Parada, Final)
+            if (appState.raceStatus !== appState.lastSpokenMobileStatus) {
+                appState.lastSpokenMobileStatus = appState.raceStatus;
+                if (appState.raceStatus === 'COUNTDOWN') {
+                    playTone(440, 120, 'square', 0.18);
+                    speakOnPilotMobile("Atención en parrilla. Semáforo de salida en marcha.", true);
+                } else if (appState.raceStatus === 'RACING') {
+                    playTone(1046.5, 250, 'triangle', 0.22);
+                    speakOnPilotMobile("¡Bandera verde! Carrera en marcha.", true);
+                } else if (appState.raceStatus === 'TRACK_CALL') {
+                    playTone(310, 350, 'sawtooth', 0.25);
+                    speakOnPilotMobile("¡Atención! Track Call. Carrera pausada en pista.", true);
+                } else if (appState.raceStatus === 'FINISHED') {
+                    playTone(1567.98, 400, 'triangle', 0.25);
+                    speakOnPilotMobile(`¡Bandera a cuadros! Final de carrera. Terminaste en posición P${tac.pos} con ${me.laps} vueltas.`, true);
+                } else if (appState.raceStatus === 'STANDBY' && prevStatus === 'RACING') {
+                    speakOnPilotMobile("Sesión detenida o reiniciada en control de carrera.", true);
+                }
+            }
+
+            // Si se reiniciaron las vueltas a 0
+            if (me.laps === 0) {
+                appState.lastSpokenMobileLap = 0;
+                appState.lastSpokenMobileS1 = null;
+                appState.lastSpokenMobileS2 = null;
+                return;
+            }
+
+            // 2. Cantar nueva vuelta completada del piloto + referencia delante/detrás
+            if (me.laps > appState.lastSpokenMobileLap && me.lastLap > 0) {
+                appState.lastSpokenMobileLap = me.laps;
+                const isBest = Math.abs(me.lastLap - me.bestLap) < 0.0005;
+                playTone(isBest ? 1174.66 : 784.0, 120, 'sine', 0.16);
+
+                const secInt = Math.floor(me.lastLap);
+                const dec = Math.round((me.lastLap - secInt) * 100);
+                let msg = isBest
+                    ? `¡Mejor vuelta personal! ${secInt} con ${dec}. `
+                    : `Vuelta ${me.laps}: ${secInt} con ${dec}. `;
+
+                if (tac.pos === 1) {
+                    if (tac.carBehind) {
+                        msg += `Lideras P1, ventaja de ${tac.gapToBehind.replace('+', '')} sobre ${tac.carBehind.name}.`;
+                    } else {
+                        msg += `Lideras la carrera en primera posición.`;
+                    }
+                } else if (tac.carAhead) {
+                    msg += `Vas P${tac.pos}, tienes a ${tac.carAhead.name} delante a ${tac.gapToAhead.replace('-', '')}.`;
+                }
+                speakOnPilotMobile(msg, false);
+                return;
+            }
+
+            // 3. Cantar sectores intermedios S1 / S2 si cambian
+            if (appState.numSectors >= 2 && me.lastSectors[1] !== null && me.lastSectors[1] !== appState.lastSpokenMobileS1) {
+                appState.lastSpokenMobileS1 = me.lastSectors[1];
+                playTone(587.33, 55, 'sine', 0.1);
+                if (me.bestSectors[1] < Infinity && Math.abs(me.lastSectors[1] - me.bestSectors[1]) < 0.0005) {
+                    speakOnPilotMobile(`Récord en sector 1: ${me.lastSectors[1].toFixed(2)} segundos.`, false);
+                }
+            }
+            if (appState.numSectors === 3 && me.lastSectors[2] !== null && me.lastSectors[2] !== appState.lastSpokenMobileS2) {
+                appState.lastSpokenMobileS2 = me.lastSectors[2];
+                playTone(659.25, 55, 'sine', 0.1);
+                if (me.bestSectors[2] < Infinity && Math.abs(me.lastSectors[2] - me.bestSectors[2]) < 0.0005) {
+                    speakOnPilotMobile(`Récord en sector 2: ${me.lastSectors[2].toFixed(2)} segundos.`, false);
+                }
+            }
         }
 
         // ============================================================================
@@ -2960,6 +3129,7 @@
                     if (appState.autoDemoTimer) toggleAutoDemo();
                     playTone(1567.98, 550, 'triangle', 0.28);
                     updateRaceBadge(`<i class="fa-solid fa-flag-checkered mr-1"></i>VICTORIA: ${lane.name}`, 'bg-purple-500/20 text-purple-300 border-purple-500/40');
+                    broadcastLiveTelemetryState();
                     announceFullStandingsWithHumor(true);
                     finishAndOpenOfficialReport(true);
                     return;
@@ -3079,7 +3249,13 @@
             if (appState.autoDemoTimer) {
                 clearInterval(appState.autoDemoTimer);
                 appState.autoDemoTimer = null;
+                if (appState.raceStatus === 'RACING') {
+                    appState.raceStatus = 'TRACK_CALL';
+                    updateRaceBadge('<i class="fa-solid fa-pause mr-1"></i>SIMULACIÓN PAUSADA', 'bg-amber-500/20 text-amber-300 border-amber-500/40');
+                }
                 updateSimulationButtonsVisual(false);
+                broadcastLiveTelemetryState();
+                renderPilotMobileLiveOverlay();
                 speakSpotter("Simulación de carrera detenida.", true);
             } else {
                 appState.voiceEnabled = true;
@@ -3093,7 +3269,7 @@
                 clearF1Lights();
                 for (let i = 1; i <= 5; i++) document.getElementById(`f1L${i}`).classList.add('green-on');
 
-                if (appState.raceStatus === 'STANDBY' || appState.raceStatus === 'FINISHED') {
+                if (appState.raceStatus === 'STANDBY' || appState.raceStatus === 'FINISHED' || appState.raceStatus === 'TRACK_CALL') {
                     appState.raceStatus = 'RACING';
                     const now = performance.now();
                     for (let i = 1; i <= 10; i++) {
@@ -3105,6 +3281,8 @@
                 }
 
                 updateSimulationButtonsVisual(true);
+                broadcastLiveTelemetryState();
+                renderPilotMobileLiveOverlay();
                 speakSpotter(`¡Arranca la simulación en ${appState.activeLanes} carriles! Te narramos las vueltas y mi compañera analiza los sectores.`, true);
                 setTimeout(() => {
                     if (appState.autoDemoTimer) {
@@ -3811,6 +3989,8 @@
 
             appState.raceStatus = 'COUNTDOWN';
             updateRaceBadge('SECUENCIA F1', 'bg-red-500/20 text-red-300 border-red-500/40');
+            broadcastLiveTelemetryState();
+            renderPilotMobileLiveOverlay();
             speakSpotter(`Atención. Secuencia de salida iniciada.`, true);
 
             for (let i = 1; i <= 5; i++) {
@@ -3833,6 +4013,8 @@
                     appState.lanes[i].lastLapPassTime = now;
                 }
                 updateRaceBadge('<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>EN CARRERA', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
+                broadcastLiveTelemetryState();
+                renderPilotMobileLiveOverlay();
                 speakSpotter("¡Verde, verde, verde!", true);
                 startMasterClock();
             }, randomDelay);
@@ -3848,6 +4030,8 @@
                 for (let i = 1; i <= 5; i++) document.getElementById(`f1L${i}`).classList.add('amber-on');
                 playTone(310, 450, 'sawtooth', 0.25);
                 updateRaceBadge('<i class="fa-solid fa-triangle-exclamation mr-1"></i>TRACK CALL (PAUSA)', 'bg-amber-500/20 text-amber-300 border-amber-500/40');
+                broadcastLiveTelemetryState();
+                renderPilotMobileLiveOverlay();
                 speakSpotter("Track Call. Carrera pausada.", true);
             } else if (appState.raceStatus === 'TRACK_CALL') {
                 topBar.classList.remove('track-call-active');
@@ -3858,6 +4042,8 @@
                 const now = performance.now();
                 for (let i = 1; i <= 10; i++) appState.lanes[i].lastSectorPassTime = now;
                 updateRaceBadge('<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>EN CARRERA', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
+                broadcastLiveTelemetryState();
+                renderPilotMobileLiveOverlay();
                 speakSpotter("Pista libre. Reanudamos carrera.", true);
             }
         }
@@ -3880,6 +4066,8 @@
                     clearInterval(appState.clockInterval);
                     if (appState.autoDemoTimer) toggleAutoDemo();
                     updateRaceBadge('<i class="fa-solid fa-flag-checkered mr-1"></i>FINAL DE MANGA', 'bg-purple-500/20 text-purple-300 border-purple-500/40');
+                    broadcastLiveTelemetryState();
+                    renderPilotMobileLiveOverlay();
                     announceFullStandingsWithHumor(true);
                     finishAndOpenOfficialReport(true);
                 }
@@ -4506,8 +4694,45 @@ ${allLapsText}`;
             document.getElementById('pilotAppDriverName').textContent = me.name;
             document.getElementById('pilotAppClubName').textContent = me.club || 'CLUB OFICIAL';
             document.getElementById('pilotAppPosition').textContent = `P${tac.pos}`;
-            const lockLbl = document.getElementById('pilotAppExclusiveLockLabel');
-            if (lockLbl) lockLbl.textContent = `TELEMETRÍA EXCLUSIVA CARRIL ${me.id} (${me.name})`;
+
+            // Actualizar mini reloj y estado de pista en vivo (STANDBY, RACING, TRACK_CALL, FINISHED)
+            const clockMini = document.getElementById('pilotAppClockMini');
+            if (clockMini) {
+                if (appState.raceFormat === 'LAPS') {
+                    clockMini.textContent = `META: ${me.laps}/${appState.targetLaps} V.`;
+                } else {
+                    const mins = Math.floor(appState.remainingSeconds / 60);
+                    const secs = (appState.remainingSeconds % 60).toFixed(1);
+                    clockMini.textContent = `RELOJ ${String(mins).padStart(2, '0')}:${secs.padStart(4, '0')}`;
+                }
+            }
+
+            const statusBanner = document.getElementById('pilotAppRaceStatusBanner');
+            const statusText = document.getElementById('pilotAppRaceStatusText');
+            const liveDot = document.getElementById('pilotAppLiveDot');
+            if (statusBanner && statusText) {
+                if (appState.raceStatus === 'RACING') {
+                    statusBanner.className = 'col-span-7 px-3 py-2 rounded-xl border border-emerald-400 bg-emerald-950/70 text-[10px] font-black text-emerald-300 uppercase flex items-center gap-1.5 truncate';
+                    statusText.textContent = '🟢 EN CARRERA (DATOS EN VIVO)';
+                    if (liveDot) liveDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
+                } else if (appState.raceStatus === 'TRACK_CALL') {
+                    statusBanner.className = 'col-span-7 px-3 py-2 rounded-xl border-2 border-amber-400 bg-amber-950/90 text-[10px] font-black text-amber-300 uppercase flex items-center gap-1.5 truncate animate-pulse';
+                    statusText.textContent = '⏸️ PAUSA / TRACK CALL EN PISTA';
+                    if (liveDot) liveDot.className = 'w-2 h-2 rounded-full bg-amber-400';
+                } else if (appState.raceStatus === 'COUNTDOWN') {
+                    statusBanner.className = 'col-span-7 px-3 py-2 rounded-xl border border-rose-400 bg-rose-950/80 text-[10px] font-black text-rose-300 uppercase flex items-center gap-1.5 truncate animate-pulse';
+                    statusText.textContent = '🔴 SEMÁFORO DE SALIDA...';
+                    if (liveDot) liveDot.className = 'w-2 h-2 rounded-full bg-rose-500 animate-ping';
+                } else if (appState.raceStatus === 'FINISHED') {
+                    statusBanner.className = 'col-span-7 px-3 py-2 rounded-xl border border-purple-400 bg-purple-950/80 text-[10px] font-black text-purple-200 uppercase flex items-center gap-1.5 truncate';
+                    statusText.textContent = '🏁 CARRERA FINALIZADA';
+                    if (liveDot) liveDot.className = 'w-2 h-2 rounded-full bg-purple-400';
+                } else {
+                    statusBanner.className = 'col-span-7 px-3 py-2 rounded-xl border border-slate-700 bg-slate-900 text-[10px] font-black text-slate-300 uppercase flex items-center gap-1.5 truncate';
+                    statusText.textContent = '⏹️ PISTA PARADA (STANDBY)';
+                    if (liveDot) liveDot.className = 'w-2 h-2 rounded-full bg-slate-400';
+                }
+            }
 
             // Delante
             document.getElementById('pilotAppAheadName').textContent = ahead
@@ -4644,17 +4869,25 @@ ${allLapsText}`;
                     const bottomGrid = document.getElementById('pilotAppBottomButtons');
                     if (bottomGrid) bottomGrid.className = 'grid grid-cols-1 gap-2 pt-1';
 
+                    // Cargar estado inicial si está en el mismo navegador
+                    const snap = safeGetStorage('kronos_live_mobile_snapshot');
+                    if (snap) {
+                        try { applyIncomingLiveTelemetryPacket(JSON.parse(snap)); } catch (e) {}
+                    }
+
+                    // Desbloquear automáticamente la síntesis de voz en el primer toque del piloto en su móvil
+                    const unlockFirstTouch = () => {
+                        if (!appState.pilotMobileVoiceUnlocked) {
+                            togglePilotMobileAudio();
+                        }
+                        document.removeEventListener('touchstart', unlockFirstTouch);
+                        document.removeEventListener('click', unlockFirstTouch);
+                    };
+                    document.addEventListener('touchstart', unlockFirstTouch, { once: true });
+                    document.addEventListener('click', unlockFirstTouch, { once: true });
+
                     document.getElementById('pilotMobileLiveAppOverlay').classList.remove('hidden');
                     renderPilotMobileLiveOverlay();
-
-                    // Respaldo automático para demostraciones: si el móvil no recibe paquetes en 2.5s, simula telemetría en vivo
-                    setInterval(() => {
-                        const elapsedSinceRemote = Date.now() - (appState.lastRemotePacketTimestamp || 0);
-                        if (elapsedSinceRemote > 2500) {
-                            const rndLane = 1 + Math.floor(Math.random() * appState.activeLanes);
-                            triggerNextCheckpoint(rndLane);
-                        }
-                    }, 1100);
                 }
             } catch (e) {}
         }
@@ -4905,6 +5138,7 @@ ${allLapsText}`;
             renderConsistencyCards();
             rebuildChartDatasets();
             updateSingleDriverAnalytics();
+            broadcastLiveTelemetryState();
             updateMobilePitWallView();
             renderPilotMobileLiveOverlay();
             document.getElementById('liveLogBody').innerHTML = '<tr><td colspan="4" class="py-6 text-center text-slate-500 font-mono">Sesión reiniciada. Listo para salida F1...</td></tr>';
