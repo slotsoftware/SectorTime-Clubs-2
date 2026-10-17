@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="KRONOS PRO">
-    <title>KRONOS SLOT PRO OS v7.6 // USB Sniffer + Test de Datos en Vivo</title>
+    <title>KRONOS SLOT PRO OS v7.8 // Simulador 1-10 Carriles + 2 Comentaristas + Test USB</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -537,19 +537,23 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-1.5 bg-slate-950/95 px-2.5 py-1.5 rounded-xl border border-slate-800">
+                <div class="flex items-center gap-1 bg-slate-950/95 px-2 py-1 rounded-xl border border-slate-800 overflow-x-auto">
                     <span class="text-[9px] font-mono font-bold text-sky-400 uppercase">PISTA:</span>
-                    <button onclick="setSystemTopology(1, null)" id="btnLane-1" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">1</button>
-                    <button onclick="setSystemTopology(2, null)" id="btnLane-2" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-sky-600 text-white cursor-pointer">2</button>
-                    <button onclick="setSystemTopology(4, null)" id="btnLane-4" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">4</button>
-                    <button onclick="setSystemTopology(6, null)" id="btnLane-6" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">6</button>
-                    <button onclick="setSystemTopology(8, null)" id="btnLane-8" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">8</button>
-                    <button onclick="setSystemTopology(10, null)" id="btnLane-10" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">10</button>
+                    <button onclick="setSystemTopology(1, null)" id="btnLane-1" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">1</button>
+                    <button onclick="setSystemTopology(2, null)" id="btnLane-2" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-sky-600 text-white cursor-pointer">2</button>
+                    <button onclick="setSystemTopology(3, null)" id="btnLane-3" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">3</button>
+                    <button onclick="setSystemTopology(4, null)" id="btnLane-4" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">4</button>
+                    <button onclick="setSystemTopology(5, null)" id="btnLane-5" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">5</button>
+                    <button onclick="setSystemTopology(6, null)" id="btnLane-6" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">6</button>
+                    <button onclick="setSystemTopology(7, null)" id="btnLane-7" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">7</button>
+                    <button onclick="setSystemTopology(8, null)" id="btnLane-8" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">8</button>
+                    <button onclick="setSystemTopology(9, null)" id="btnLane-9" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">9</button>
+                    <button onclick="setSystemTopology(10, null)" id="btnLane-10" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">10</button>
                     <span class="text-slate-700">|</span>
                     <span class="text-[9px] font-mono font-bold text-emerald-400 uppercase">SEC:</span>
-                    <button onclick="setSystemTopology(null, 1)" id="btnSec-1" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">1</button>
-                    <button onclick="setSystemTopology(null, 2)" id="btnSec-2" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">2</button>
-                    <button onclick="setSystemTopology(null, 3)" id="btnSec-3" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-emerald-600 text-white cursor-pointer">3</button>
+                    <button onclick="setSystemTopology(null, 1)" id="btnSec-1" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">1</button>
+                    <button onclick="setSystemTopology(null, 2)" id="btnSec-2" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">2</button>
+                    <button onclick="setSystemTopology(null, 3)" id="btnSec-3" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-emerald-600 text-white cursor-pointer">3</button>
                 </div>
             </div>
 
@@ -591,10 +595,11 @@
         </div>
 
         <div class="col-span-3 flex flex-col gap-1.5">
-            <div class="grid grid-cols-3 gap-1.5">
-                <button onclick="startF1Sequence()" class="py-2 px-2 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-mono font-black text-xs rounded-xl shadow-lg border border-emerald-300/50 cursor-pointer"><i class="fa-solid fa-traffic-light"></i> SALIDA</button>
-                <button onclick="toggleTrackCall()" class="py-2 px-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-mono font-black text-xs rounded-xl shadow-lg border border-amber-200 cursor-pointer"><i class="fa-solid fa-triangle-exclamation"></i> PAUSA</button>
-                <button onclick="connectArduinoUSB()" id="btnTestUsbTop" class="py-2 px-2 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-mono font-black text-xs rounded-xl shadow-lg border border-sky-300 cursor-pointer animate-pulse"><i class="fa-solid fa-microscope"></i> TEST USB</button>
+            <div class="grid grid-cols-4 gap-1">
+                <button onclick="startF1Sequence()" class="py-2 px-1.5 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-emerald-300/50 cursor-pointer"><i class="fa-solid fa-traffic-light"></i> SALIDA</button>
+                <button onclick="toggleAutoDemo()" id="btnSimRaceTop" class="py-2 px-1.5 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-pink-300/60 cursor-pointer" title="Simulación de Carrera (1 a 10 carriles) con los 2 Comentaristas"><i class="fa-solid fa-robot"></i> SIM 2 VOCES</button>
+                <button onclick="toggleTrackCall()" class="py-2 px-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-mono font-black text-[10px] rounded-xl shadow-lg border border-amber-200 cursor-pointer"><i class="fa-solid fa-triangle-exclamation"></i> PAUSA</button>
+                <button onclick="connectArduinoUSB()" id="btnTestUsbTop" class="py-2 px-1.5 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-sky-300 cursor-pointer"><i class="fa-solid fa-microscope"></i> USB</button>
             </div>
             <div class="grid grid-cols-6 gap-1">
                 <button onclick="finishAndOpenOfficialReport()" class="py-1.5 bg-emerald-500/25 text-emerald-300 font-mono font-black text-[10px] rounded-lg border border-emerald-400/40 cursor-pointer"><i class="fa-solid fa-flag-checkered"></i> ACTA</button>
@@ -618,7 +623,26 @@
             <button onclick="switchTab('security')" id="tabBtn-security" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-amber-300 hover:text-white border border-amber-500/30 transition cursor-pointer shrink-0">7. INSTALAR</button>
         </div>
         <div class="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1 rounded-xl border border-slate-700/80 overflow-x-auto max-w-full">
-            <span class="text-[9px] font-mono font-bold text-amber-400 uppercase shrink-0"><i class="fa-solid fa-bolt mr-1"></i>PULSAR CARRIL:</span>
+            <div class="flex items-center gap-1 bg-pink-950/60 border border-pink-500/50 rounded-lg px-2 py-0.5 shrink-0">
+                <i class="fa-solid fa-headset text-pink-400 text-[10px]"></i>
+                <select id="simLanesQuickSelect" onchange="setSystemTopology(parseInt(this.value, 10), null)" class="bg-transparent text-pink-200 font-mono font-black text-[10px] focus:outline-none cursor-pointer" title="Elige de 1 a 10 carriles para simular">
+                    <option value="1" class="bg-slate-950">1 Carril</option>
+                    <option value="2" class="bg-slate-950" selected>2 Carriles</option>
+                    <option value="3" class="bg-slate-950">3 Carriles</option>
+                    <option value="4" class="bg-slate-950">4 Carriles</option>
+                    <option value="5" class="bg-slate-950">5 Carriles</option>
+                    <option value="6" class="bg-slate-950">6 Carriles</option>
+                    <option value="7" class="bg-slate-950">7 Carriles</option>
+                    <option value="8" class="bg-slate-950">8 Carriles</option>
+                    <option value="9" class="bg-slate-950">9 Carriles</option>
+                    <option value="10" class="bg-slate-950">10 Carriles</option>
+                </select>
+                <button onclick="toggleAutoDemo()" id="btnSimNav" class="px-2 py-0.5 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-mono font-black text-[9px] rounded shadow cursor-pointer uppercase">
+                    <i class="fa-solid fa-play mr-1"></i>Simular Carrera (2 Comentaristas)
+                </button>
+            </div>
+            <span class="text-slate-700">|</span>
+            <span class="text-[9px] font-mono font-bold text-amber-400 uppercase shrink-0"><i class="fa-solid fa-bolt mr-1"></i>MANUAL:</span>
             <div id="quickSimButtons" class="flex items-center gap-1"></div>
         </div>
     </nav>
@@ -950,9 +974,13 @@
                     <select id="cfgLanesSelect" onchange="setSystemTopology(parseInt(this.value), null)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold">
                         <option value="1">1 Carril (Rally / Entreno Solitario)</option>
                         <option value="2" selected>2 Carriles (Casa / Test Bench)</option>
+                        <option value="3">3 Carriles (Raid / Especial)</option>
                         <option value="4">4 Carriles (Club Compacto)</option>
+                        <option value="5">5 Carriles (Club Medio)</option>
                         <option value="6">6 Carriles (Competición Club)</option>
+                        <option value="7">7 Carriles (Pista Especial 7CH)</option>
                         <option value="8">8 Carriles (Campeonato Nacional)</option>
+                        <option value="9">9 Carriles (Gran Pista 9CH)</option>
                         <option value="10">10 Carriles (Máxima Capacidad)</option>
                     </select>
                 </div>
@@ -1954,21 +1982,24 @@
             if (newLanes !== null) appState.activeLanes = newLanes;
             if (newSectors !== null) appState.numSectors = newSectors;
 
-            [1, 2, 4, 6, 8, 10].forEach(n => {
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].forEach(n => {
                 const btn = document.getElementById(`btnLane-${n}`);
                 if (btn) {
                     btn.className = (n === appState.activeLanes)
-                        ? 'px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-sky-600 text-white cursor-pointer shadow'
-                        : 'px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer';
+                        ? 'px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-sky-600 text-white cursor-pointer shadow'
+                        : 'px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer';
                 }
             });
+
+            const simSel = document.getElementById('simLanesQuickSelect');
+            if (simSel) simSel.value = String(appState.activeLanes);
 
             [1, 2, 3].forEach(s => {
                 const btn = document.getElementById(`btnSec-${s}`);
                 if (btn) {
                     btn.className = (s === appState.numSectors)
-                        ? 'px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-emerald-600 text-white cursor-pointer shadow'
-                        : 'px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer';
+                        ? 'px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-emerald-600 text-white cursor-pointer shadow'
+                        : 'px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer';
                 }
             });
 
@@ -2036,11 +2067,13 @@
                 container.className = 'col-span-9 grid grid-cols-1 grid-rows-1 gap-3 h-full min-h-0';
             } else if (n === 2) {
                 container.className = 'col-span-9 grid grid-cols-2 grid-rows-1 gap-3 h-full min-h-0';
+            } else if (n === 3) {
+                container.className = 'col-span-9 grid grid-cols-3 grid-rows-1 gap-2.5 h-full min-h-0';
             } else if (n === 4) {
                 container.className = 'col-span-9 grid grid-cols-2 grid-rows-2 gap-2.5 h-full min-h-0';
-            } else if (n === 6) {
+            } else if (n === 5 || n === 6) {
                 container.className = 'col-span-9 grid grid-cols-3 grid-rows-2 gap-2 h-full min-h-0';
-            } else if (n === 8) {
+            } else if (n === 7 || n === 8) {
                 container.className = 'col-span-9 grid grid-cols-4 grid-rows-2 gap-2 h-full min-h-0';
             } else {
                 container.className = 'col-span-9 grid grid-cols-5 grid-rows-2 gap-1.5 h-full min-h-0';
@@ -2050,8 +2083,8 @@
             for (let i = 1; i <= n; i++) {
                 const lane = appState.lanes[i];
                 const pal = LANE_PALETTE[i];
-                const isUltraCompact = n >= 8;
-                const isMedium = n === 4 || n === 6;
+                const isUltraCompact = n >= 7;
+                const isMedium = n >= 3 && n <= 6;
 
                 const meanLap = getDriverMeanLap(lane);
                 const optLap = getDriverOptimalLap(lane);
@@ -2621,12 +2654,45 @@
             speakSpotter(speech, true);
         }
 
+        function updateSimulationButtonsVisual(isRunning) {
+            const btnTop = document.getElementById('btnSimRaceTop');
+            const btnNav = document.getElementById('btnSimNav');
+            if (btnTop) {
+                btnTop.innerHTML = isRunning
+                    ? '<i class="fa-solid fa-stop"></i> PARAR SIM'
+                    : '<i class="fa-solid fa-robot"></i> SIM 2 VOCES';
+                btnTop.className = isRunning
+                    ? 'py-2 px-1.5 bg-gradient-to-r from-red-600 to-rose-600 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-red-300 cursor-pointer animate-pulse'
+                    : 'py-2 px-1.5 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-pink-300/60 cursor-pointer';
+            }
+            if (btnNav) {
+                btnNav.innerHTML = isRunning
+                    ? '<i class="fa-solid fa-stop mr-1"></i>Detener Simulación'
+                    : '<i class="fa-solid fa-play mr-1"></i>Simular Carrera (2 Comentaristas)';
+                btnNav.className = isRunning
+                    ? 'px-2 py-0.5 bg-red-600 hover:bg-red-500 text-white font-mono font-black text-[9px] rounded shadow cursor-pointer uppercase animate-pulse'
+                    : 'px-2 py-0.5 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-mono font-black text-[9px] rounded shadow cursor-pointer uppercase';
+            }
+        }
+
         function toggleAutoDemo() {
             if (appState.autoDemoTimer) {
                 clearInterval(appState.autoDemoTimer);
                 appState.autoDemoTimer = null;
-                speakSpotter("Simulación automática detenida.", true);
+                updateSimulationButtonsVisual(false);
+                speakSpotter("Simulación de carrera detenida.", true);
             } else {
+                appState.voiceEnabled = true;
+                appState.sectorAnalystEnabled = true;
+                const btnAnalyst = document.getElementById('btnAnalystToggle');
+                if (btnAnalyst) {
+                    btnAnalyst.textContent = 'ON';
+                    btnAnalyst.className = 'text-[9px] text-pink-200 bg-pink-600/40 px-1.5 py-0.2 rounded border border-pink-400/50 font-black cursor-pointer shrink-0 ml-1';
+                }
+
+                clearF1Lights();
+                for (let i = 1; i <= 5; i++) document.getElementById(`f1L${i}`).classList.add('green-on');
+
                 if (appState.raceStatus === 'STANDBY' || appState.raceStatus === 'FINISHED') {
                     appState.raceStatus = 'RACING';
                     const now = performance.now();
@@ -2634,15 +2700,29 @@
                         appState.lanes[i].lastSectorPassTime = now;
                         appState.lanes[i].lastLapPassTime = now;
                     }
-                    updateRaceBadge('<i class="fa-solid fa-circle text-emerald-400 mr-1"></i>AUTO-SIM EN CURSO', 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
+                    updateRaceBadge(`<i class="fa-solid fa-headset text-pink-400 mr-1"></i>SIM ${appState.activeLanes}CH + 2 COMENTARISTAS`, 'bg-pink-500/20 text-pink-300 border-pink-500/40');
                     startMasterClock();
                 }
+
+                updateSimulationButtonsVisual(true);
+                speakSpotter(`¡Arranca la simulación en ${appState.activeLanes} carriles! Te narramos las vueltas y mi compañera analiza los sectores.`, true);
+                setTimeout(() => {
+                    if (appState.autoDemoTimer) {
+                        speakSectorAnalyst(`¡Gracias! Tengo el radar de sectores activado para los ${appState.activeLanes} pilotos en pista.`, false);
+                    }
+                }, 3400);
+
+                let simTickCount = 0;
                 appState.autoDemoTimer = setInterval(() => {
                     if (appState.raceStatus !== 'RACING') return;
+                    simTickCount++;
                     const randomLane = 1 + Math.floor(Math.random() * appState.activeLanes);
                     triggerNextCheckpoint(randomLane);
-                }, 650);
-                speakSpotter("Simulador automático activado.", true);
+
+                    if (simTickCount % 14 === 0 && !window.speechSynthesis.speaking) {
+                        announceLiveSectorGapsAnalysis();
+                    }
+                }, 900);
             }
         }
 
@@ -2900,11 +2980,11 @@
                     // Estándar CDC ACM (Arduino UNO R3 original ATmega16U2)
                     const lineCoding = new Uint8Array(7);
                     new DataView(lineCoding.buffer).setUint32(0, baudRate, true);
-                    lineCoding[4] = 0; // 1 bit de parada
-                    lineCoding[5] = 0; // Sin paridad
-                    lineCoding[6] = 8; // 8 bits de datos
+                    lineCoding[4] = 0;
+                    lineCoding[5] = 0;
+                    lineCoding[6] = 8;
                     await device.controlTransferOut({ requestType: 'class', recipient: 'interface', request: 0x20, value: 0, index: 0 }, lineCoding);
-                    await device.controlTransferOut({ requestType: 'class', recipient: 'interface', request: 0x22, value: 0x0003, index: 0 }); // DTR + RTS ON
+                    await device.controlTransferOut({ requestType: 'class', recipient: 'interface', request: 0x22, value: 0x0003, index: 0 });
                     logSerialConsole(`CDC-ACM configurado a ${baudRate} baudios (DTR+RTS activos).`);
                 }
             } catch (e) {
@@ -2953,7 +3033,7 @@
                 const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
-                a.download = 'KRONOS_SLOT_PRO_v7_6_TEST_USB.html';
+                a.download = 'KRONOS_SLOT_PRO_v7_8_SIM_2_COMENTARISTAS.html';
                 a.click();
             } catch (e) {}
         }
@@ -4086,6 +4166,11 @@
 
         function resetRaceSession() {
             clearInterval(appState.clockInterval);
+            if (appState.autoDemoTimer) {
+                clearInterval(appState.autoDemoTimer);
+                appState.autoDemoTimer = null;
+                updateSimulationButtonsVisual(false);
+            }
             appState.raceStatus = 'STANDBY';
             appState.remainingSeconds = appState.heatTotalSeconds;
             appState.elapsedSeconds = 0;
@@ -4111,6 +4196,7 @@
                 l.lastSectors = { 1: null, 2: null, 3: null };
                 l.bestSectors = { 1: Infinity, 2: Infinity, 3: Infinity };
                 l.sectorColors = { 1: '', 2: '', 3: '' };
+                l.sectorDeltas = { 1: null, 2: null, 3: null };
             }
 
             renderLanesGrid();
