@@ -163,177 +163,8 @@
             transform: scale(1.04);
         }
 
-        /* ==========================================================================
-           ESTILOS DE LA INTRO CINEMATOGRÁFICA: SLOTING PLUS & SLOT SOFTWARE (3D REAL)
-           ========================================================================== */
-        @keyframes gridPerspectiveMove {
-            0% { background-position: 0 0, 0 0; }
-            100% { background-position: 0 60px, 60px 0; }
-        }
-        .cyber-racing-grid {
-            background-color: #02040a;
-            background-image: 
-                linear-gradient(rgba(14, 165, 233, 0.16) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(245, 158, 11, 0.12) 1px, transparent 1px);
-            background-size: 42px 42px;
-            animation: gridPerspectiveMove 2.2s linear infinite;
-            perspective: 1100px;
-        }
-
-        @keyframes speedStreakAnim {
-            0% { transform: translateX(-120%) skewX(-28deg); opacity: 0; }
-            35% { opacity: 1; }
-            100% { transform: translateX(240%) skewX(-28deg); opacity: 0; }
-        }
-        .speed-streak-gold {
-            background: linear-gradient(90deg, transparent, #f59e0b, #fef08a, #ffffff, transparent);
-            animation: speedStreakAnim 2.0s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-        .speed-streak-cyan {
-            background: linear-gradient(90deg, transparent, #0284c7, #38bdf8, #ffffff, transparent);
-            animation: speedStreakAnim 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite 0.7s;
-        }
-
-        /* Animación 3D Letra por Letra: OLA DE POTENCIA + EXTRUSIÓN METÁLICA + NEÓN */
-        @keyframes letter3DWaveGold {
-            0%, 100% {
-                transform: translateY(0px) scale(1) rotateX(0deg) skewX(-6deg);
-                color: #fef08a;
-                text-shadow:
-                    0 1px 0 #f59e0b,
-                    0 2px 0 #d97706,
-                    0 3px 0 #b45309,
-                    0 4px 0 #78350f,
-                    0 6px 14px rgba(0, 0, 0, 0.95),
-                    0 0 18px rgba(245, 158, 11, 0.55);
-            }
-            22% {
-                transform: translateY(-16px) scale(1.22) rotateX(18deg) skewX(-10deg);
-                color: #ffffff;
-                text-shadow:
-                    0 1px 0 #fef08a,
-                    0 2px 0 #facc15,
-                    0 4px 0 #eab308,
-                    0 6px 0 #ca8a04,
-                    0 12px 24px rgba(245, 158, 11, 0.95),
-                    0 0 38px #f59e0b,
-                    0 0 65px #fef08a;
-            }
-            45% {
-                transform: translateY(2px) scale(0.98) rotateX(-6deg) skewX(-6deg);
-                color: #fde047;
-            }
-        }
-
-        @keyframes letter3DWaveCyan {
-            0%, 100% {
-                transform: translateY(0px) scale(1) rotateY(0deg) skewX(-6deg);
-                color: #bae6fd;
-                text-shadow:
-                    0 1px 0 #38bdf8,
-                    0 2px 0 #0284c7,
-                    0 3px 0 #0369a1,
-                    0 4px 0 #0c4a6e,
-                    0 6px 14px rgba(0, 0, 0, 0.95),
-                    0 0 18px rgba(56, 189, 248, 0.55);
-            }
-            25% {
-                transform: translateY(-14px) scale(1.20) rotateY(-18deg) skewX(-10deg);
-                color: #ffffff;
-                text-shadow:
-                    0 1px 0 #e0f2fe,
-                    0 2px 0 #7dd3fc,
-                    0 4px 0 #38bdf8,
-                    0 6px 0 #0284c7,
-                    0 12px 24px rgba(56, 189, 248, 0.95),
-                    0 0 38px #38bdf8,
-                    0 0 65px #e0f2fe;
-            }
-            50% {
-                transform: translateY(2px) scale(0.98) rotateY(5deg) skewX(-6deg);
-                color: #7dd3fc;
-            }
-        }
-
-        @keyframes charEntranceImpact {
-            0% {
-                opacity: 0;
-                transform: translateY(-90px) scale(2.6) rotateX(65deg) skewX(-20deg);
-                filter: blur(10px);
-            }
-            70% {
-                opacity: 1;
-                transform: translateY(8px) scale(0.92) rotateX(-10deg) skewX(-6deg);
-                filter: blur(0px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1) rotateX(0deg) skewX(-6deg);
-                filter: blur(0px);
-            }
-        }
-
-        .char-3d-gold {
-            display: inline-block;
-            font-weight: 900;
-            will-change: transform, text-shadow, color;
-            animation:
-                charEntranceImpact 0.65s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i) * 0.055s) both,
-                letter3DWaveGold 2.4s ease-in-out calc(0.7s + var(--i) * 0.09s) infinite;
-        }
-
-        .char-3d-cyan {
-            display: inline-block;
-            font-weight: 900;
-            will-change: transform, text-shadow, color;
-            animation:
-                charEntranceImpact 0.65s cubic-bezier(0.22, 1, 0.36, 1) calc(0.45s + var(--i) * 0.05s) both,
-                letter3DWaveCyan 2.4s ease-in-out calc(1.15s + var(--i) * 0.09s) infinite;
-        }
-
-        /* Barrido de Rayo Láser sobre las Letras */
-        @keyframes laserSweepBar {
-            0% { left: -25%; opacity: 0; }
-            20% { opacity: 1; }
-            80% { opacity: 1; }
-            100% { left: 115%; opacity: 0; }
-        }
-        .laser-scanner-beam {
-            position: absolute;
-            top: -10%;
-            bottom: -10%;
-            width: 90px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), rgba(254, 240, 138, 0.65), rgba(56, 189, 248, 0.65), transparent);
-            transform: skewX(-25deg);
-            pointer-events: none;
-            filter: blur(3px);
-            animation: laserSweepBar 2.8s ease-in-out infinite;
-        }
-
-        /* Emblema "&" con giro de reactor */
-        @keyframes reactorPulseSpin {
-            0%, 100% { transform: scale(1) rotate(-4deg); box-shadow: 0 0 22px rgba(245, 158, 11, 0.7), 0 0 40px rgba(56, 189, 248, 0.4); }
-            50% { transform: scale(1.18) rotate(4deg); box-shadow: 0 0 38px rgba(56, 189, 248, 0.95), 0 0 65px rgba(245, 158, 11, 0.7); }
-        }
-        .amp-reactor-badge {
-            animation: reactorPulseSpin 1.8s ease-in-out infinite;
-        }
-
-        @keyframes rotatePhoneDemo {
-            0%, 15% { transform: rotate(0deg) scale(1); border-color: #f59e0b; }
-            45%, 80% { transform: rotate(-90deg) scale(1.08); border-color: #10b981; box-shadow: 0 0 25px rgba(16, 185, 129, 0.6); }
-            100% { transform: rotate(0deg) scale(1); border-color: #f59e0b; }
-        }
-        .phone-rotate-icon {
-            animation: rotatePhoneDemo 3.2s ease-in-out infinite;
-        }
-
-        @keyframes introExitZoom {
-            0% { opacity: 1; transform: scale(1); filter: blur(0px); }
-            100% { opacity: 0; transform: scale(1.18); filter: blur(12px); pointer-events: none; }
-        }
-        .intro-closing {
-            animation: introExitZoom 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        #portraitWarningOverlay {
+            display: none !important;
         }
 
         ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -343,142 +174,6 @@
 </head>
 
 <body class="h-screen w-screen overflow-hidden flex flex-col justify-between p-2 md:px-3.5 md:py-2 bg-[#04070f]">
-
-    <!-- ========================================================================================
-         PANTALLA DE PRESENTACIÓN ESPECTACULAR + AVISO DE GIRO HORIZONTAL (INTRO SPLASH)
-         ======================================================================================== -->
-    <div id="spectacularIntroSplash" class="fixed inset-0 z-[120] cyber-racing-grid flex flex-col items-center justify-between p-4 md:p-7 overflow-hidden select-none">
-        
-        <!-- Efectos de iluminación radial y estelas láser de velocidad -->
-        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(14,165,233,0.16)_0%,rgba(4,7,15,0.94)_72%)]"></div>
-        <div class="pointer-events-none absolute top-1/4 left-0 w-96 h-1 speed-streak-gold"></div>
-        <div class="pointer-events-none absolute bottom-1/3 left-0 w-[28rem] h-1 speed-streak-cyan"></div>
-
-        <!-- Cabecera Superior de Telemetría del Splash -->
-        <div class="relative z-10 w-full max-w-5xl flex items-center justify-between border-b border-slate-800/90 pb-2.5 text-[10px] font-mono">
-            <div class="flex items-center gap-2 text-amber-400 font-bold">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
-                <span>KRONOS SLOT PRO OS v8.4 // MOTOR DE TELEMETRÍA OFICIAL</span>
-            </div>
-            <div class="hidden sm:flex items-center gap-3 text-slate-400">
-                <span><i class="fa-solid fa-satellite-dish text-sky-400 mr-1"></i>1-10 CARRILES</span>
-                <span>&bull;</span>
-                <span><i class="fa-solid fa-qrcode text-emerald-400 mr-1"></i>QR MÓVIL EN VIVO</span>
-                <span>&bull;</span>
-                <span><i class="fa-brands fa-usb text-purple-400 mr-1"></i>USB / ToF LASER</span>
-            </div>
-        </div>
-
-        <!-- Bloque Central Espectacular: SLOTING PLUS & SLOT SOFTWARE -->
-        <div class="relative z-10 flex flex-col items-center text-center max-w-5xl mx-auto my-auto space-y-3.5 px-2">
-            
-            <!-- Escudo / Emblema luminoso con Pórtico F1 + Botón Reproducir Impacto 3D -->
-            <div class="flex flex-wrap items-center justify-center gap-3 bg-slate-950/90 px-4 py-1.5 rounded-2xl border-2 border-amber-500/60 shadow-[0_0_40px_rgba(245,158,11,0.35)]">
-                <div class="flex items-center gap-1.5">
-                    <span class="w-3.5 h-3.5 rounded-full bg-red-500 shadow-[0_0_12px_#ef4444] animate-ping"></span>
-                    <span class="w-3.5 h-3.5 rounded-full bg-amber-400 shadow-[0_0_12px_#f59e0b] animate-pulse"></span>
-                    <span class="w-3.5 h-3.5 rounded-full bg-emerald-400 shadow-[0_0_12px_#10b981] animate-bounce"></span>
-                </div>
-                <span class="text-[10px] md:text-xs font-mono font-black tracking-[0.22em] text-amber-200 uppercase">
-                    OFFICIAL MOTORSPORT TELEMETRY SYSTEM
-                </span>
-                <button onclick="replaySpectacular3DTitleAnimation()" class="px-2.5 py-0.5 rounded-lg bg-slate-800 hover:bg-sky-600 text-sky-300 hover:text-white text-[9px] font-mono font-black border border-sky-400/50 cursor-pointer transition">
-                    <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>REPETIR EFECTO 3D
-                </button>
-            </div>
-
-            <!-- ESCENARIO DE LETRAS 3D ANIMADAS LETRA POR LETRA -->
-            <div id="animated3DBrandStage" class="relative py-3 px-4 md:px-10 rounded-3xl bg-slate-950/75 border border-slate-700/80 shadow-[0_0_70px_rgba(14,165,233,0.28)] overflow-hidden">
-                <!-- Rayo escáner láser que cruza por encima de las letras -->
-                <div class="laser-scanner-beam"></div>
-
-                <!-- LÍNEA 1: SLOTING PLUS (11 LETRAS ORO CROMADO 3D EN OLA) -->
-                <div id="lineSlotingPlus3D" class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-wider uppercase leading-none select-none flex flex-wrap items-center justify-center gap-x-0.5 sm:gap-x-1 py-1">
-                    <span class="char-3d-gold" style="--i:0">S</span>
-                    <span class="char-3d-gold" style="--i:1">L</span>
-                    <span class="char-3d-gold" style="--i:2">O</span>
-                    <span class="char-3d-gold" style="--i:3">T</span>
-                    <span class="char-3d-gold" style="--i:4">I</span>
-                    <span class="char-3d-gold" style="--i:5">N</span>
-                    <span class="char-3d-gold" style="--i:6">G</span>
-                    <span class="w-3 sm:w-6 inline-block"></span>
-                    <span class="char-3d-gold" style="--i:7">P</span>
-                    <span class="char-3d-gold" style="--i:8">L</span>
-                    <span class="char-3d-gold" style="--i:9">U</span>
-                    <span class="char-3d-gold" style="--i:10">S</span>
-                </div>
-
-                <!-- NÚCLEO CENTRAL "&" CON REACTOR LUMINOSO Y ESTELAS -->
-                <div class="flex items-center justify-center gap-4 my-2">
-                    <div class="h-[3px] w-16 sm:w-36 bg-gradient-to-r from-transparent via-amber-400 to-sky-400 rounded-full"></div>
-                    <div class="amp-reactor-badge px-4 py-1 rounded-2xl bg-gradient-to-br from-amber-400 via-sky-500 to-indigo-700 border-2 border-white text-sm sm:text-lg font-mono font-black text-slate-950">
-                        &amp;
-                    </div>
-                    <div class="h-[3px] w-16 sm:w-36 bg-gradient-to-l from-transparent via-sky-400 to-amber-400 rounded-full"></div>
-                </div>
-
-                <!-- LÍNEA 2: SLOT SOFTWARE (12 LETRAS CIAN TITANIO 3D EN OLA) -->
-                <div id="lineSlotSoftware3D" class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-widest uppercase leading-none select-none flex flex-wrap items-center justify-center gap-x-0.5 sm:gap-x-1 py-1">
-                    <span class="char-3d-cyan" style="--i:0">S</span>
-                    <span class="char-3d-cyan" style="--i:1">L</span>
-                    <span class="char-3d-cyan" style="--i:2">O</span>
-                    <span class="char-3d-cyan" style="--i:3">T</span>
-                    <span class="w-3 sm:w-6 inline-block"></span>
-                    <span class="char-3d-cyan" style="--i:4">S</span>
-                    <span class="char-3d-cyan" style="--i:5">O</span>
-                    <span class="char-3d-cyan" style="--i:6">F</span>
-                    <span class="char-3d-cyan" style="--i:7">T</span>
-                    <span class="char-3d-cyan" style="--i:8">W</span>
-                    <span class="char-3d-cyan" style="--i:9">A</span>
-                    <span class="char-3d-cyan" style="--i:10">R</span>
-                    <span class="char-3d-cyan" style="--i:11">E</span>
-                </div>
-            </div>
-
-            <!-- Tarjeta Interactiva de Giro Horizontal (Landscape Prompt) -->
-            <div id="introOrientationBox" class="glass-panel rounded-2xl p-3.5 md:p-4 border-2 border-amber-500/60 max-w-xl w-full flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[0_0_35px_rgba(14,165,233,0.2)]">
-                <div class="flex items-center gap-3.5 text-left">
-                    <!-- Icono de Dispositivo Girando 90 Grados -->
-                    <div class="w-14 h-14 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center shrink-0">
-                        <div class="w-6 h-10 rounded-md border-2 border-amber-400 bg-slate-900 flex flex-col items-center justify-between p-1 phone-rotate-icon">
-                            <span class="w-2 h-0.5 bg-slate-400 rounded-full"></span>
-                            <i class="fa-solid fa-flag-checkered text-[8px] text-sky-400"></i>
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                        </div>
-                    </div>
-                    <div>
-                        <div id="introOrientationBadge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-mono font-black uppercase">
-                            <i class="fa-solid fa-rotate"></i> RECOMENDADO: GIRAR EN HORIZONTAL
-                        </div>
-                        <h3 id="introOrientationTitle" class="text-xs sm:text-sm font-black text-white uppercase mt-1">
-                            Coloca tu pantalla en formato Horizontal (Panorámico)
-                        </h3>
-                        <p id="introOrientationSub" class="text-[11px] font-mono text-slate-300 leading-snug mt-0.5">
-                            Para visualizar los 10 carriles, el semáforo F1 y la telemetría completa con máxima precisión.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Barra de Carga de Sistemas + Botón de Entrada con Sonido -->
-            <div class="w-full max-w-md space-y-2.5 pt-1">
-                <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-700 p-0.5">
-                    <div id="introProgressBar" class="h-full bg-gradient-to-r from-amber-500 via-sky-400 to-emerald-400 rounded-full transition-all duration-300" style="width: 100%"></div>
-                </div>
-                <button onclick="enterKronosApplication()" class="w-full py-3.5 px-6 bg-gradient-to-r from-amber-500 via-amber-400 to-sky-500 hover:from-amber-400 hover:to-sky-400 text-slate-950 font-mono font-black text-xs sm:text-sm rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.5)] border-2 border-white/80 cursor-pointer uppercase tracking-wider flex items-center justify-center gap-2 transition transform hover:scale-[1.02] active:scale-95">
-                    <i class="fa-solid fa-power-off text-base"></i>
-                    <span>INICIAR SISTEMA KRONOS SLOT PRO</span>
-                    <i class="fa-solid fa-angles-right text-base"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Pie de firma oficial -->
-        <div class="relative z-10 w-full max-w-5xl flex flex-wrap items-center justify-between gap-2 border-t border-slate-800/90 pt-2 text-[10px] font-mono text-slate-400">
-            <span>ENGINEERING BY <strong class="text-amber-400">SLOTING PLUS</strong> &amp; <strong class="text-sky-400">SLOT SOFTWARE</strong></span>
-            <span id="introLiveOrientationState" class="text-emerald-400 font-bold"><i class="fa-solid fa-display mr-1"></i>SISTEMA PREPARADO</span>
-        </div>
-    </div>
 
     <!-- ========================================================================================
          OVERLAY DE TELEMETRÍA EN VIVO PARA EL MÓVIL DEL PILOTO (EXCLUSIVO DE SU CARRIL)
@@ -947,16 +642,6 @@
                     <i class="fa-solid fa-key mr-1.5"></i>Activar Licencia Permanente en este Equipo
                 </button>
             </div>
-                    <div id=" LicenseErrorMsg" class="hidden text-[11px] text-red-400 font-bold text-center">
-                    <i class="fa-solid fa-circle-xmark mr-1"></i>Código inválido para este equipo. Cada licencia funciona únicamente en el dispositivo registrado.
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2 pt-1">
-                <button onclick="verifyAndActivateDevice()" class="col-span-2 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-mono font-black text-xs rounded-xl shadow-lg cursor-pointer uppercase">
-                    <i class="fa-solid fa-key mr-1.5"></i>Activar Licencia Permanente en este Equipo
-                </button>
-            </div>
 
             <div id="masterDevShortcutRow" class="text-[10px] font-mono text-slate-500 border-t border-slate-800/80 pt-2 flex justify-between items-center">
                 <span>PROTECCIÓN HWID + DONGLE USB</span>
@@ -965,6 +650,16 @@
                 </button>
             </div>
         </div>
+    </div>
+
+    <div id="portraitWarningOverlay" onclick="this.style.display='none'" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex-col items-center justify-center p-6 text-center cursor-pointer">
+        <div class="w-16 h-16 rounded-2xl bg-sky-500/20 border border-sky-400 flex items-center justify-center text-3xl text-sky-400 mb-4">
+            <i class="fa-solid fa-rotate"></i>
+        </div>
+        <h2 class="text-xl font-black text-white uppercase tracking-tight">Diseño Panorámico Horizontal</h2>
+        <p class="text-xs font-mono text-slate-300 max-w-xs mt-2">
+            Pulsa en cualquier parte para entrar directamente a KRONOS SLOT PRO.
+        </p>
     </div>
 
     <!-- -->
@@ -1079,13 +774,12 @@
                 <button onclick="toggleAutoDemo()" id="btnSimRaceTop" class="py-2 px-1.5 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-pink-300/60 cursor-pointer flex items-center justify-center gap-1" title="Simulación en vivo con 2 comentaristas"><i class="fa-solid fa-robot"></i> SIMULAR</button>
                 <button onclick="resetRaceSession()" class="py-2 px-1.5 bg-slate-800 hover:bg-red-900/70 text-slate-200 hover:text-white font-mono font-black text-[10px] rounded-xl border border-slate-700 cursor-pointer flex items-center justify-center gap-1"><i class="fa-solid fa-rotate-right"></i> RESET</button>
             </div>
-            <!-- Herramientas de Comentaristas, Acta, Intro y Pantalla -->
-            <div class="grid grid-cols-6 gap-1">
+            <!-- Herramientas de Comentaristas, Acta, USB y Pantalla -->
+            <div class="grid grid-cols-5 gap-1">
                 <button onclick="finishAndOpenOfficialReport()" class="py-1.5 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-300 font-mono font-black text-[9px] rounded-lg border border-emerald-400/40 cursor-pointer" title="Abrir Acta Oficial de Resultados"><i class="fa-solid fa-flag-checkered mr-0.5"></i> ACTA</button>
                 <button onclick="announceFullStandingsWithHumor()" class="py-1.5 bg-amber-500/20 hover:bg-amber-500/35 text-amber-300 font-mono font-bold text-[9px] rounded-lg border border-amber-400/40 cursor-pointer" title="Narrador 1: Cantar Podio"><i class="fa-solid fa-microphone-lines mr-0.5"></i> PODIO</button>
                 <button onclick="announceLiveSectorGapsAnalysis()" class="py-1.5 bg-pink-500/20 hover:bg-pink-500/35 text-pink-300 font-mono font-black text-[9px] rounded-lg border border-pink-400/50 cursor-pointer" title="Comentarista 2: Cantar Sectores"><i class="fa-solid fa-headset mr-0.5"></i> SECT</button>
                 <button onclick="toggleVoiceSpotter()" id="btnVoice" class="py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 font-mono font-bold text-[9px] rounded-lg border border-indigo-400/40 cursor-pointer" title="Activar/Silenciar Voces"><span id="voiceIcon"><i class="fa-solid fa-volume-high"></i> VOZ</span></button>
-                <button onclick="reopenSpectacularIntroSplash()" class="py-1.5 bg-amber-500/20 hover:bg-amber-500/40 text-amber-200 font-mono font-black text-[9px] rounded-lg border border-amber-400/50 cursor-pointer" title="Ver Intro Animada Sloting Plus"><i class="fa-solid fa-film"></i> INTRO</button>
                 <button onclick="toggleFullScreenMode()" id="btnFullscreen" class="py-1.5 bg-sky-500/20 hover:bg-sky-500/35 text-sky-300 font-mono font-black text-[9px] rounded-lg border border-sky-400/50 cursor-pointer" title="Pantalla Completa"><i class="fa-solid fa-expand"></i> FULL</button>
             </div>
         </div>
@@ -5244,102 +4938,11 @@ ${allLapsText}`;
                     document.addEventListener('touchstart', unlockFirstTouch, { once: true });
                     document.addEventListener('click', unlockFirstTouch, { once: true });
 
-                    // Si viene desde un QR de piloto en vivo, ocultar la intro del club para mostrar directo sus tiempos
-                    const splash = document.getElementById('spectacularIntroSplash');
-                    if (splash) splash.classList.add('hidden');
-
                     document.getElementById('pilotMobileLiveAppOverlay').classList.remove('hidden');
                     renderPilotMobileLiveOverlay();
                 }
             } catch (e) {}
         }
-
-        // ============================================================================
-        // CONTROLADOR DE LA PANTALLA DE PRESENTACIÓN Y GIRO HORIZONTAL
-        // ============================================================================
-        function updateIntroOrientationStatus() {
-            const isLandscape = window.innerWidth >= window.innerHeight;
-            const badge = document.getElementById('introOrientationBadge');
-            const title = document.getElementById('introOrientationTitle');
-            const sub = document.getElementById('introOrientationSub');
-            const box = document.getElementById('introOrientationBox');
-            const stateLbl = document.getElementById('introLiveOrientationState');
-
-            if (!badge || !title || !box) return;
-
-            if (isLandscape) {
-                box.className = 'glass-panel rounded-2xl p-3.5 md:p-4 border-2 border-emerald-500/70 max-w-xl w-full flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[0_0_35px_rgba(16,185,129,0.25)]';
-                badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[9px] font-mono font-black uppercase';
-                badge.innerHTML = '<i class="fa-solid fa-circle-check"></i> PANTALLA EN HORIZONTAL DETECTADA OK';
-                title.textContent = '¡Orientación Panorámica Lista para Competir!';
-                sub.textContent = 'Pulsa el botón inferior para desplegar el panel de control de SLOTING PLUS & SLOT SOFTWARE.';
-                if (stateLbl) stateLbl.innerHTML = '<i class="fa-solid fa-check-double mr-1"></i>MODO HORIZONTAL ACTIVO';
-            } else {
-                box.className = 'glass-panel rounded-2xl p-3.5 md:p-4 border-2 border-amber-500/80 max-w-xl w-full flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[0_0_35px_rgba(245,158,11,0.3)]';
-                badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-amber-500/25 text-amber-300 border border-amber-400 text-[9px] font-mono font-black uppercase animate-pulse';
-                badge.innerHTML = '<i class="fa-solid fa-rotate"></i> ATENCIÓN: GIRA TU PANTALLA EN HORIZONTAL';
-                title.textContent = 'Gira tu Móvil o Tablet en Horizontal (90º)';
-                sub.textContent = 'El sistema está diseñado en formato panorámico de Dirección de Carrera.';
-                if (stateLbl) stateLbl.innerHTML = '<i class="fa-solid fa-mobile-screen mr-1 text-amber-400"></i>ESPERANDO GIRO HORIZONTAL...';
-            }
-        }
-
-        function playSpectacularIntroChord() {
-            try {
-                const notes = [523.25, 659.25, 783.99, 1046.50];
-                notes.forEach((freq, idx) => {
-                    setTimeout(() => playTone(freq, 180 + idx * 60, 'triangle', 0.18), idx * 90);
-                });
-            } catch (e) {}
-        }
-
-        function replaySpectacular3DTitleAnimation() {
-            playSpectacularIntroChord();
-            const stage = document.getElementById('animated3DBrandStage');
-            if (!stage) return;
-            const chars = stage.querySelectorAll('.char-3d-gold, .char-3d-cyan');
-            chars.forEach(ch => {
-                ch.style.animation = 'none';
-                void ch.offsetWidth; // Forzar reflow del navegador para reiniciar la animación 3D
-                ch.style.animation = '';
-            });
-        }
-
-        function reopenSpectacularIntroSplash() {
-            const splash = document.getElementById('spectacularIntroSplash');
-            if (!splash) return;
-            splash.classList.remove('hidden', 'intro-closing');
-            updateIntroOrientationStatus();
-            replaySpectacular3DTitleAnimation();
-        }
-
-        async function enterKronosApplication() {
-            playSpectacularIntroChord();
-
-            // Intentar activar pantalla completa y bloqueo horizontal en tablets/móviles compatibles
-            try {
-                const docEl = document.documentElement;
-                if (!document.fullscreenElement && docEl.requestFullscreen && window.innerWidth < 1024) {
-                    await docEl.requestFullscreen().catch(() => {});
-                }
-                if (screen.orientation && screen.orientation.lock) {
-                    await screen.orientation.lock('landscape').catch(() => {});
-                }
-            } catch (e) {}
-
-            speakSpotter("Bienvenido a Sloting Plus and Slot Software. Sistema Kronos listo en pista.", true);
-
-            const splash = document.getElementById('spectacularIntroSplash');
-            if (splash) {
-                splash.classList.add('intro-closing');
-                setTimeout(() => {
-                    splash.classList.add('hidden');
-                }, 650);
-            }
-        }
-
-        window.addEventListener('resize', updateIntroOrientationStatus);
-        window.addEventListener('orientationchange', updateIntroOrientationStatus);
 
         function shareViaWhatsApp() {
             const text = document.getElementById('mobileReportTextarea').value;
@@ -5697,7 +5300,6 @@ ${allLapsText}`;
             setSystemTopology(appState.activeLanes || 2, appState.numSectors || 3);
             setRaceFormat('TIME');
             renderMasterClock();
-            updateIntroOrientationStatus();
             checkUrlForPilotMobileModeOnBoot();
             initCloudMqttTelemetryBridge();
             animateRadarGPS();
