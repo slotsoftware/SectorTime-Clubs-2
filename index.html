@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#04070f">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>KRONOS SLOT PRO OS v8.2 // Voz en Móvil + Sincronización Real Stop/Play</title>
+    <title>KRONOS SLOT PRO OS v8.3 // Interfaz Organizada + Voz en Móvil + QR en Vivo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Librería Oficial QR ISO/IEC 18004 para escaneo real con cámara de iPhone y Android -->
@@ -37,10 +37,18 @@
             font-variant-numeric: tabular-nums;
         }
 
+        /* */
         .glass-panel {
-            background: linear-gradient(145deg, rgba(15, 23, 42, 0.94) 0%, rgba(8, 12, 21, 0.98) 100%);
-            border: 1px solid rgba(51, 65, 85, 0.65);
-            box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.7);
+            background: linear-gradient(145deg, rgba(13, 20, 36, 0.96) 0%, rgba(7, 11, 20, 0.99) 100%);
+            border: 1px solid rgba(51, 65, 85, 0.6);
+            box-shadow: 0 10px 28px -8px rgba(0, 0, 0, 0.75);
+        }
+
+        .nav-pill-active {
+            background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%) !important;
+            color: #ffffff !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
         }
 
         /* Colores Oficiales FIA F1 / MotoGP Timing */
@@ -307,50 +315,53 @@
         </div>
     </div>
 
+    <!-- -->
     <!-- ========================================================================================
-         BARRA DIRECTA DE TEST DE DATOS ARDUINO EN VIVO (SIEMPRE VISIBLE ARRIBA)
+         CAJÓN TÉCNICO PLEGABLE DE TEST ARDUINO (OCULTO POR DEFECTO PARA MAYOR ORDEN VISUAL)
          ======================================================================================== -->
-    <div id="liveHardwareTestStrip" class="bg-slate-950 border-2 border-sky-500/80 rounded-2xl px-3 py-1.5 mb-1.5 flex flex-wrap items-center justify-between gap-2 shrink-0 shadow-[0_0_25px_rgba(56,189,248,0.2)] font-mono text-xs">
-        <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 bg-sky-500 text-slate-950 font-black text-[10px] rounded uppercase animate-pulse">
-                <i class="fa-solid fa-microscope mr-1"></i>TEST DATOS ARDUINO
+    <div id="liveHardwareTestStrip" class="hidden bg-slate-950/95 border border-sky-500/60 rounded-xl px-3 py-1.5 mb-1.5 flex flex-wrap items-center justify-between gap-2 shrink-0 shadow-lg font-mono text-xs">
+        <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2 py-0.5 bg-sky-500 text-slate-950 font-black text-[10px] rounded uppercase">
+                <i class="fa-solid fa-microchip mr-1"></i>BARRA USB ARDUINO
             </span>
-            <select id="stripBaudSelect" onchange="changeSerialBaudRate(this.value)" class="bg-slate-900 text-amber-300 font-black text-[11px] px-2 py-1 rounded-lg border border-amber-500/50 cursor-pointer">
-                <option value="115200" selected>115200 Baudios</option>
-                <option value="9600">9600 Baudios</option>
-                <option value="57600">57600 Baudios</option>
+            <select id="stripBaudSelect" onchange="changeSerialBaudRate(this.value)" class="bg-slate-900 text-amber-300 font-bold text-[10px] px-2 py-1 rounded-lg border border-amber-500/40 cursor-pointer">
+                <option value="115200" selected>115200 Baud</option>
+                <option value="9600">9600 Baud</option>
+                <option value="57600">57600 Baud</option>
             </select>
-            <button onclick="connectViaAndroidWebUSB()" class="px-2.5 py-1 bg-sky-600 hover:bg-sky-500 text-white font-black text-[10px] rounded-lg shadow cursor-pointer">
-                <i class="fa-brands fa-usb mr-1"></i>1. Conectar USB
+            <button onclick="connectViaAndroidWebUSB()" class="px-2.5 py-1 bg-sky-600 hover:bg-sky-500 text-white font-black text-[10px] rounded-lg cursor-pointer">
+                <i class="fa-brands fa-usb mr-1"></i>WebUSB
             </button>
-            <button onclick="connectViaDesktopWebSerial()" class="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white font-black text-[10px] rounded-lg shadow cursor-pointer">
-                <i class="fa-solid fa-plug mr-1"></i>2. WebSerial PC/Mac
+            <button onclick="connectViaDesktopWebSerial()" class="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white font-black text-[10px] rounded-lg cursor-pointer">
+                <i class="fa-solid fa-plug mr-1"></i>WebSerial
             </button>
-            <button onclick="runFullSimulatedHardwareTest()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] rounded-lg shadow cursor-pointer">
-                <i class="fa-solid fa-vial mr-1"></i>3. Test Simulado S1-S2-M
+            <button onclick="runFullSimulatedHardwareTest()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] rounded-lg cursor-pointer">
+                <i class="fa-solid fa-vial mr-1"></i>Simular S1-S2-M
             </button>
-            <button onclick="openStandaloneUnlockedWindow()" class="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-[10px] rounded-lg shadow cursor-pointer" title="Abre fuera del visor para que Chrome desbloquee el puerto USB">
-                <i class="fa-solid fa-up-right-from-square mr-1"></i>4. Abrir Libre (Desbloquear USB)
+            <button onclick="openStandaloneUnlockedWindow()" class="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-[10px] rounded-lg cursor-pointer">
+                <i class="fa-solid fa-up-right-from-square mr-1"></i>Desbloquear USB
             </button>
-            <button onclick="connectArduinoUSB()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold text-[10px] rounded-lg border border-slate-600 cursor-pointer">
-                Monitor Completo
+            <button onclick="connectArduinoUSB()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold text-[10px] rounded-lg border border-slate-700 cursor-pointer">
+                Laboratorio Completo
             </button>
         </div>
 
-        <!-- Testigos en vivo en la barra principal -->
         <div class="flex items-center gap-1.5">
-            <span id="stripLamp-S1" onclick="parseUniversalSerialLine('S1,L1,1240,0')" class="sensor-test-lamp px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-black text-slate-300 cursor-pointer" title="Haz clic para probar S1">
-                D2/S1: <b id="stripVal-S1">OFF</b>
+            <span id="stripLamp-S1" onclick="parseUniversalSerialLine('S1,L1,1240,0')" class="sensor-test-lamp px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-black text-slate-300 cursor-pointer">
+                S1: <b id="stripVal-S1">OFF</b>
             </span>
-            <span id="stripLamp-S2" onclick="parseUniversalSerialLine('S2,L1,1310,0')" class="sensor-test-lamp px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-black text-slate-300 cursor-pointer" title="Haz clic para probar S2">
-                D3/S2: <b id="stripVal-S2">OFF</b>
+            <span id="stripLamp-S2" onclick="parseUniversalSerialLine('S2,L1,1310,0')" class="sensor-test-lamp px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-black text-slate-300 cursor-pointer">
+                S2: <b id="stripVal-S2">OFF</b>
             </span>
-            <span id="stripLamp-META" onclick="parseUniversalSerialLine('M,L1,1190,0')" class="sensor-test-lamp px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-black text-slate-300 cursor-pointer" title="Haz clic para probar META">
-                D4/META: <b id="stripVal-META">OFF</b>
+            <span id="stripLamp-META" onclick="parseUniversalSerialLine('M,L1,1190,0')" class="sensor-test-lamp px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-black text-slate-300 cursor-pointer">
+                META: <b id="stripVal-META">OFF</b>
             </span>
-            <div class="bg-black px-2.5 py-0.5 rounded-lg border border-emerald-500/50 text-[10px] text-emerald-300 font-bold max-w-[260px] truncate" id="stripLastRawData">
-                RX: Esperando datos del cable USB...
+            <div class="bg-black px-2.5 py-0.5 rounded-lg border border-emerald-500/40 text-[10px] text-emerald-300 font-bold max-w-[210px] truncate" id="stripLastRawData">
+                RX: En espera...
             </div>
+            <button onclick="toggleHardwareTestStrip()" class="px-2 py-0.5 bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white rounded text-[10px] cursor-pointer" title="Ocultar barra técnica">
+                <i class="fa-solid fa-chevron-up"></i>
+            </button>
         </div>
     </div>
 
@@ -651,135 +662,168 @@
         </p>
     </div>
 
-    <header id="topRaceBar" class="glass-panel rounded-2xl px-3.5 py-2 mb-2 grid grid-cols-12 items-center gap-3 shrink-0">
+    <!-- -->
+    <!-- ========================================================================================
+         CABECERA PRINCIPAL DE DIRECCIÓN DE CARRERA (ORGANIZADA EN 3 BLOQUES LIMPIOS)
+         ======================================================================================== -->
+    <header id="topRaceBar" class="glass-panel rounded-2xl px-3.5 py-2 mb-1.5 grid grid-cols-12 items-center gap-3 shrink-0">
         
+        <!-- BLOQUE 1 (IZQUIERDA): MARCA + TÍTULO + CONFIGURACIÓN RÁPIDA DE FORMATO Y PISTA -->
         <div class="col-span-5 flex flex-col gap-1.5">
-            <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2 bg-slate-950/95 px-2.5 py-1 rounded-xl border border-sky-500/30 shadow shrink-0">
+            <!-- Fila Superior: Logo + Nombre del Evento + Estado Actual -->
+            <div class="flex items-center justify-between gap-2 bg-slate-950/90 px-3 py-1.5 rounded-xl border border-slate-800/90">
+                <div class="flex items-center gap-2.5 min-w-0">
                     <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 via-sky-600 to-indigo-700 flex flex-col items-center justify-center shadow border border-amber-300/50 shrink-0">
                         <span class="text-[7px] font-black tracking-tighter leading-none text-white" id="brandShortLogo">SLOTING</span>
                         <span class="text-[7px] font-mono font-extrabold text-amber-300 leading-none mt-0.5">+ PLUS</span>
                     </div>
-                    <div class="leading-tight">
-                        <div class="text-[10px] font-black tracking-wider text-amber-400 uppercase flex items-center gap-1">
-                            <span>SLOTING PLUS</span><span class="text-slate-500">&amp;</span><span class="text-sky-400">SLOT SW</span>
+                    <div class="min-w-0">
+                        <div class="text-[9px] font-black tracking-wider text-amber-400 uppercase flex items-center gap-1.5">
+                            <span>SLOTING PLUS &amp; SLOT SW</span>
+                            <span class="text-slate-600">&bull;</span>
+                            <span class="text-sky-400 font-mono" id="headerConfigSummary">2 CH &middot; 3 SEC</span>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <h1 id="appMainTitle" onclick="promptCustomTitle()" class="text-[10px] font-bold tracking-tight text-white uppercase cursor-pointer hover:text-sky-300 transition flex items-center gap-1">
-                                <span>GRAN PREMIO OFICIAL // KRONOS PRO</span><i class="fa-solid fa-pen text-[9px] text-slate-400"></i>
-                            </h1>
-                            <span id="raceStateBadge" class="px-1.5 py-0.5 text-[9px] font-mono font-black uppercase rounded bg-slate-800 text-slate-300 border border-slate-700">STANDBY</span>
-                        </div>
+                        <h1 id="appMainTitle" onclick="promptCustomTitle()" class="text-xs font-black tracking-tight text-white uppercase cursor-pointer hover:text-sky-300 transition flex items-center gap-1.5 truncate" title="Haz clic para cambiar el nombre del campeonato">
+                            <span class="truncate">GRAN PREMIO OFICIAL // KRONOS PRO</span>
+                            <i class="fa-solid fa-pen text-[9px] text-slate-400 shrink-0"></i>
+                        </h1>
                     </div>
                 </div>
-
-                <div class="flex items-center gap-1 bg-slate-950/95 px-2 py-1 rounded-xl border border-slate-800 overflow-x-auto">
-                    <span class="text-[9px] font-mono font-bold text-sky-400 uppercase">PISTA:</span>
-                    <button onclick="setSystemTopology(1, null)" id="btnLane-1" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">1</button>
-                    <button onclick="setSystemTopology(2, null)" id="btnLane-2" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-sky-600 text-white cursor-pointer">2</button>
-                    <button onclick="setSystemTopology(3, null)" id="btnLane-3" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">3</button>
-                    <button onclick="setSystemTopology(4, null)" id="btnLane-4" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">4</button>
-                    <button onclick="setSystemTopology(5, null)" id="btnLane-5" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">5</button>
-                    <button onclick="setSystemTopology(6, null)" id="btnLane-6" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">6</button>
-                    <button onclick="setSystemTopology(7, null)" id="btnLane-7" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">7</button>
-                    <button onclick="setSystemTopology(8, null)" id="btnLane-8" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">8</button>
-                    <button onclick="setSystemTopology(9, null)" id="btnLane-9" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">9</button>
-                    <button onclick="setSystemTopology(10, null)" id="btnLane-10" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">10</button>
-                    <span class="text-slate-700">|</span>
-                    <span class="text-[9px] font-mono font-bold text-emerald-400 uppercase">SEC:</span>
-                    <button onclick="setSystemTopology(null, 1)" id="btnSec-1" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">1</button>
-                    <button onclick="setSystemTopology(null, 2)" id="btnSec-2" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">2</button>
-                    <button onclick="setSystemTopology(null, 3)" id="btnSec-3" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-emerald-600 text-white cursor-pointer">3</button>
-                </div>
+                <span id="raceStateBadge" class="px-2 py-0.5 text-[9px] font-mono font-black uppercase rounded-lg bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+                    STANDBY
+                </span>
             </div>
 
-            <div class="flex items-center justify-between gap-2 bg-slate-950/95 px-2.5 py-1 rounded-xl border border-slate-800">
-                <div class="flex items-center gap-1">
-                    <button onclick="setRaceFormat('TIME')" id="btnMode-TIME" class="px-2.5 py-0.5 text-[10px] font-mono font-black rounded bg-amber-500 text-slate-950 cursor-pointer"><i class="fa-solid fa-stopwatch mr-1"></i>TIEMPO</button>
-                    <button onclick="setRaceFormat('LAPS')" id="btnMode-LAPS" class="px-2.5 py-0.5 text-[10px] font-mono font-black rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer"><i class="fa-solid fa-flag-checkered mr-1"></i>VUELTAS</button>
-                    <button onclick="setRaceFormat('QUALY')" id="btnMode-QUALY" class="px-2.5 py-0.5 text-[10px] font-mono font-black rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer"><i class="fa-solid fa-bolt mr-1 text-purple-400"></i>POLE</button>
+            <!-- Fila Inferior: Selectores Limpios (Modo + Tiempo/Meta + Carriles + Sectores) -->
+            <div class="flex items-center justify-between gap-1.5 bg-slate-950/90 px-2.5 py-1 rounded-xl border border-slate-800/90 font-mono text-[10px]">
+                <!-- Selector Modo de Carrera -->
+                <div class="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800">
+                    <button onclick="setRaceFormat('TIME')" id="btnMode-TIME" class="px-2 py-0.5 text-[9px] font-black rounded bg-amber-500 text-slate-950 cursor-pointer"><i class="fa-solid fa-stopwatch mr-1"></i>TIEMPO</button>
+                    <button onclick="setRaceFormat('LAPS')" id="btnMode-LAPS" class="px-2 py-0.5 text-[9px] font-black rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer"><i class="fa-solid fa-flag-checkered mr-1"></i>VUELTAS</button>
+                    <button onclick="setRaceFormat('QUALY')" id="btnMode-QUALY" class="px-2 py-0.5 text-[9px] font-black rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer"><i class="fa-solid fa-bolt mr-1 text-purple-400"></i>POLE</button>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <div id="quickTimeSelectorBox" class="flex items-center gap-1">
-                        <span class="text-[9px] font-mono text-amber-400 font-bold">MANGA:</span>
-                        <select id="headerTimePreset" onchange="applyQuickTimeMinutes(this.value)" class="bg-slate-900 border border-amber-500/40 rounded px-1.5 py-0.5 text-[10px] font-mono font-bold text-amber-300 focus:outline-none cursor-pointer">
-                            <option value="1">1 min</option><option value="3">3 min</option><option value="5" selected>5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="20">20 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min (1h)</option>
+                <!-- Ajustes Rápidos de Manga / Meta -->
+                <div class="flex items-center gap-1.5">
+                    <div id="quickTimeSelectorBox" class="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800">
+                        <i class="fa-regular fa-clock text-amber-400 text-[9px]"></i>
+                        <select id="headerTimePreset" onchange="applyQuickTimeMinutes(this.value)" class="bg-transparent text-[10px] font-bold text-amber-300 focus:outline-none cursor-pointer">
+                            <option value="1" class="bg-slate-950">1 min</option>
+                            <option value="3" class="bg-slate-950">3 min</option>
+                            <option value="5" selected class="bg-slate-950">5 min</option>
+                            <option value="10" class="bg-slate-950">10 min</option>
+                            <option value="15" class="bg-slate-950">15 min</option>
+                            <option value="20" class="bg-slate-950">20 min</option>
+                            <option value="30" class="bg-slate-950">30 min</option>
+                            <option value="60" class="bg-slate-950">60 min</option>
                         </select>
                     </div>
-                    <div id="quickLapsSelectorBox" class="flex items-center gap-1">
-                        <span class="text-[9px] font-mono text-emerald-400 font-bold">META:</span>
-                        <input id="headerTargetLapsInput" type="number" min="1" max="9999" value="25" onchange="applyQuickTargetLaps(this.value)" class="w-14 bg-slate-900 border border-emerald-500/40 rounded px-1.5 py-0.5 text-[10px] font-mono font-bold text-emerald-300 text-center focus:outline-none"/>
-                        <span class="text-[9px] font-mono text-slate-400">V.</span>
+                    <div id="quickLapsSelectorBox" class="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800">
+                        <span class="text-[9px] text-emerald-400 font-bold">META:</span>
+                        <input id="headerTargetLapsInput" type="number" min="1" max="9999" value="25" onchange="applyQuickTargetLaps(this.value)" class="w-10 bg-transparent text-[10px] font-bold text-emerald-300 text-center focus:outline-none"/>
+                        <span class="text-[9px] text-slate-400">V</span>
                     </div>
-                    <span class="hidden xl:inline text-[9px] font-mono text-sky-400 font-bold" id="headerConfigSummary">2 CH &middot; 3 SEC</span>
+                </div>
+
+                <!-- Topología Compacta: Carriles y Sectores -->
+                <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-sky-500/30">
+                        <span class="text-[9px] font-bold text-sky-400">PISTA:</span>
+                        <select id="headerLanesQuickSelect" onchange="setSystemTopology(parseInt(this.value, 10), null)" class="bg-transparent text-white font-black text-[10px] focus:outline-none cursor-pointer">
+                            <option value="1" class="bg-slate-950">1 Carril</option>
+                            <option value="2" selected class="bg-slate-950">2 Carriles</option>
+                            <option value="3" class="bg-slate-950">3 Carriles</option>
+                            <option value="4" class="bg-slate-950">4 Carriles</option>
+                            <option value="5" class="bg-slate-950">5 Carriles</option>
+                            <option value="6" class="bg-slate-950">6 Carriles</option>
+                            <option value="7" class="bg-slate-950">7 Carriles</option>
+                            <option value="8" class="bg-slate-950">8 Carriles</option>
+                            <option value="9" class="bg-slate-950">9 Carriles</option>
+                            <option value="10" class="bg-slate-950">10 Carriles</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-0.5 bg-slate-900 p-0.5 rounded-lg border border-emerald-500/30" title="Número de Sectores en Pista">
+                        <button onclick="setSystemTopology(null, 1)" id="btnSec-1" class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">1S</button>
+                        <button onclick="setSystemTopology(null, 2)" id="btnSec-2" class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">2S</button>
+                        <button onclick="setSystemTopology(null, 3)" id="btnSec-3" class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-emerald-600 text-white cursor-pointer">3S</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-span-4 flex items-center justify-center gap-4 bg-gradient-to-b from-slate-900 via-slate-950 to-black px-4 py-2 rounded-2xl border-2 border-slate-700/90 shadow-2xl">
+        <!-- BLOQUE 2 (CENTRO): SEMÁFORO FIA START GANTRY + CRONÓMETRO MAESTRO -->
+        <div class="col-span-4 flex items-center justify-center gap-4 bg-gradient-to-b from-slate-900 via-slate-950 to-black px-4 py-2.5 rounded-2xl border-2 border-slate-700/90 shadow-2xl">
             <div class="flex flex-col items-center">
                 <span class="text-[8px] font-mono uppercase tracking-widest text-slate-400 font-bold mb-1">FIA START GANTRY</span>
-                <div class="flex items-center gap-2.5 bg-black/80 px-3 py-1.5 rounded-xl border border-slate-800" id="f1Gantry">
+                <div class="flex items-center gap-2 bg-black/90 px-3 py-1.5 rounded-xl border border-slate-800" id="f1Gantry">
                     <div class="f1-light" id="f1L1"></div><div class="f1-light" id="f1L2"></div><div class="f1-light" id="f1L3"></div><div class="f1-light" id="f1L4"></div><div class="f1-light" id="f1L5"></div>
                 </div>
             </div>
-            <div class="border-l-2 border-slate-800 pl-4 text-right">
+            <div class="border-l-2 border-slate-800 pl-4 text-right min-w-[115px]">
                 <div id="masterClockLabel" class="text-[9px] font-mono uppercase tracking-widest text-amber-400 font-black">CRONO MANGA</div>
-                <div id="masterClock" class="text-2xl xl:text-3xl font-mono-num font-black text-white tracking-tight leading-none mt-0.5 drop-shadow-[0_0_10px_rgba(255,255,255,0.25)]">05:00.0</div>
+                <div id="masterClock" class="text-2xl xl:text-3xl font-mono-num font-black text-white tracking-tight leading-none mt-1 drop-shadow-[0_0_10px_rgba(255,255,255,0.25)]">05:00.0</div>
             </div>
         </div>
 
+        <!-- BLOQUE 3 (DERECHA): BOTONERA DE DIRECCIÓN DE CARRERA Y ACCIONES RÁPIDAS -->
         <div class="col-span-3 flex flex-col gap-1.5">
-            <div class="grid grid-cols-4 gap-1">
-                <button onclick="startF1Sequence()" class="py-2 px-1.5 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-emerald-300/50 cursor-pointer"><i class="fa-solid fa-traffic-light"></i> SALIDA</button>
-                <button onclick="toggleAutoDemo()" id="btnSimRaceTop" class="py-2 px-1.5 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-pink-300/60 cursor-pointer" title="Simulación de Carrera (1 a 10 carriles) con los 2 Comentaristas"><i class="fa-solid fa-robot"></i> SIM 2 VOCES</button>
-                <button onclick="toggleTrackCall()" class="py-2 px-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-mono font-black text-[10px] rounded-xl shadow-lg border border-amber-200 cursor-pointer"><i class="fa-solid fa-triangle-exclamation"></i> PAUSA</button>
-                <button onclick="connectArduinoUSB()" id="btnTestUsbTop" class="py-2 px-1.5 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-sky-300 cursor-pointer"><i class="fa-solid fa-microscope"></i> USB</button>
+            <!-- Controles Primarios de Pista -->
+            <div class="grid grid-cols-4 gap-1.5">
+                <button onclick="startF1Sequence()" class="py-2 px-1.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-emerald-300/50 cursor-pointer flex items-center justify-center gap-1"><i class="fa-solid fa-traffic-light"></i> SALIDA</button>
+                <button onclick="toggleTrackCall()" class="py-2 px-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-mono font-black text-[10px] rounded-xl shadow-lg border border-amber-200 cursor-pointer flex items-center justify-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> PAUSA</button>
+                <button onclick="toggleAutoDemo()" id="btnSimRaceTop" class="py-2 px-1.5 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-pink-300/60 cursor-pointer flex items-center justify-center gap-1" title="Simulación en vivo con 2 comentaristas"><i class="fa-solid fa-robot"></i> SIMULAR</button>
+                <button onclick="resetRaceSession()" class="py-2 px-1.5 bg-slate-800 hover:bg-red-900/70 text-slate-200 hover:text-white font-mono font-black text-[10px] rounded-xl border border-slate-700 cursor-pointer flex items-center justify-center gap-1"><i class="fa-solid fa-rotate-right"></i> RESET</button>
             </div>
-            <div class="grid grid-cols-6 gap-1">
-                <button onclick="finishAndOpenOfficialReport()" class="py-1.5 bg-emerald-500/25 text-emerald-300 font-mono font-black text-[10px] rounded-lg border border-emerald-400/40 cursor-pointer"><i class="fa-solid fa-flag-checkered"></i> ACTA</button>
-                <button onclick="announceFullStandingsWithHumor()" class="py-1.5 bg-amber-500/25 text-amber-300 font-mono font-bold text-[10px] rounded-lg border border-amber-400/40 cursor-pointer" title="Narrador Principal: Clasificación y Podio"><i class="fa-solid fa-microphone-lines"></i> PODIO</button>
-                <button onclick="announceLiveSectorGapsAnalysis()" class="py-1.5 bg-pink-500/25 hover:bg-pink-500/40 text-pink-300 font-mono font-black text-[10px] rounded-lg border border-pink-400/50 cursor-pointer" title="2ª Comentarista: Análisis de Sectores y Décimas"><i class="fa-solid fa-headset"></i> SECTORES</button>
-                <button onclick="toggleVoiceSpotter()" id="btnVoice" class="py-1.5 bg-indigo-600/30 text-indigo-200 font-mono font-bold text-[10px] rounded-lg border border-indigo-400/40 cursor-pointer"><span id="voiceIcon"><i class="fa-solid fa-volume-high"></i></span></button>
-                <button onclick="resetRaceSession()" class="py-1.5 bg-slate-800 text-slate-200 font-mono font-bold text-[10px] rounded-lg border border-slate-700 cursor-pointer"><i class="fa-solid fa-rotate-right"></i> RESET</button>
-                <button onclick="toggleFullScreenMode()" id="btnFullscreen" class="py-1.5 bg-sky-500/25 text-sky-300 font-mono font-black text-[10px] rounded-lg border border-sky-400/50 cursor-pointer"><i class="fa-solid fa-expand"></i> FULL</button>
+            <!-- Herramientas de Comentaristas, Acta, USB y Pantalla -->
+            <div class="grid grid-cols-5 gap-1">
+                <button onclick="finishAndOpenOfficialReport()" class="py-1.5 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-300 font-mono font-black text-[9px] rounded-lg border border-emerald-400/40 cursor-pointer" title="Abrir Acta Oficial de Resultados"><i class="fa-solid fa-flag-checkered mr-0.5"></i> ACTA</button>
+                <button onclick="announceFullStandingsWithHumor()" class="py-1.5 bg-amber-500/20 hover:bg-amber-500/35 text-amber-300 font-mono font-bold text-[9px] rounded-lg border border-amber-400/40 cursor-pointer" title="Narrador 1: Cantar Podio"><i class="fa-solid fa-microphone-lines mr-0.5"></i> PODIO</button>
+                <button onclick="announceLiveSectorGapsAnalysis()" class="py-1.5 bg-pink-500/20 hover:bg-pink-500/35 text-pink-300 font-mono font-black text-[9px] rounded-lg border border-pink-400/50 cursor-pointer" title="Comentarista 2: Cantar Sectores"><i class="fa-solid fa-headset mr-0.5"></i> SECT</button>
+                <button onclick="toggleVoiceSpotter()" id="btnVoice" class="py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 font-mono font-bold text-[9px] rounded-lg border border-indigo-400/40 cursor-pointer" title="Activar/Silenciar Voces"><span id="voiceIcon"><i class="fa-solid fa-volume-high"></i> VOZ</span></button>
+                <button onclick="toggleFullScreenMode()" id="btnFullscreen" class="py-1.5 bg-sky-500/20 hover:bg-sky-500/35 text-sky-300 font-mono font-black text-[9px] rounded-lg border border-sky-400/50 cursor-pointer" title="Pantalla Completa"><i class="fa-solid fa-expand"></i> FULL</button>
             </div>
         </div>
     </header>
 
-    <nav class="flex items-center justify-between gap-2 mb-2 shrink-0 bg-slate-950/90 p-1.5 rounded-2xl border border-slate-800/90">
+    <!-- -->
+    <!-- ========================================================================================
+         MENÚ DE NAVEGACIÓN PRINCIPAL Y PULSADORES RÁPIDOS DE TEST
+         ======================================================================================== -->
+    <nav class="flex items-center justify-between gap-2 mb-2 shrink-0 bg-slate-950/95 px-2.5 py-1.5 rounded-2xl border border-slate-800/90 shadow-md">
+        <!-- Pestañas numeradas y claras -->
         <div class="flex items-center gap-1.5 overflow-x-auto">
-            <button onclick="switchTab('live')" id="tabBtn-live" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-black bg-sky-600 text-white shadow-lg shadow-sky-600/30 border border-sky-400 transition cursor-pointer shrink-0">1. CARRERA</button>
-            <button onclick="switchTab('sectors')" id="tabBtn-sectors" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">2. SECTORES</button>
-            <button onclick="switchTab('analytics')" id="tabBtn-analytics" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">3. TELEMETRÍA</button>
-            <button onclick="switchTab('rotation')" id="tabBtn-rotation" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">4. BD CLUB</button>
-            <button onclick="switchTab('mobile')" id="tabBtn-mobile" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-emerald-300 hover:text-white border border-emerald-500/30 transition cursor-pointer shrink-0">5. MÓVIL QR EN VIVO</button>
-            <button onclick="switchTab('config')" id="tabBtn-config" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0">6. REGLAMENTO &amp; TEST USB</button>
-            <button onclick="switchTab('security')" id="tabBtn-security" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-amber-300 hover:text-white border border-amber-500/30 transition cursor-pointer shrink-0">7. INSTALAR</button>
+            <button onclick="switchTab('live')" id="tabBtn-live" class="nav-pill-active px-3 py-1.5 rounded-xl text-[11px] font-mono font-black border transition cursor-pointer shrink-0 flex items-center gap-1.5">
+                <i class="fa-solid fa-flag-checkered"></i> 1. CARRERA EN VIVO
+            </button>
+            <button onclick="switchTab('sectors')" id="tabBtn-sectors" class="px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0 flex items-center gap-1.5">
+                <i class="fa-solid fa-stopwatch-20 text-purple-400"></i> 2. SECTORES F1
+            </button>
+            <button onclick="switchTab('analytics')" id="tabBtn-analytics" class="px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0 flex items-center gap-1.5">
+                <i class="fa-solid fa-chart-line text-sky-400"></i> 3. TELEMETRÍA
+            </button>
+            <button onclick="switchTab('rotation')" id="tabBtn-rotation" class="px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0 flex items-center gap-1.5">
+                <i class="fa-solid fa-trophy text-amber-400"></i> 4. BD CLUB &amp; ACTAS
+            </button>
+            <button onclick="switchTab('mobile')" id="tabBtn-mobile" class="px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 text-emerald-300 hover:text-white border border-emerald-500/30 transition cursor-pointer shrink-0 flex items-center gap-1.5">
+                <i class="fa-solid fa-qrcode text-emerald-400"></i> 5. MÓVIL QR EN VIVO
+            </button>
+            <button onclick="switchTab('config')" id="tabBtn-config" class="px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0 flex items-center gap-1.5">
+                <i class="fa-solid fa-sliders text-sky-300"></i> 6. AJUSTES &amp; USB
+            </button>
+            <button onclick="switchTab('security')" id="tabBtn-security" class="px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 text-amber-300 hover:text-white border border-amber-500/30 transition cursor-pointer shrink-0 flex items-center gap-1.5">
+                <i class="fa-solid fa-shield-halved text-amber-400"></i> 7. LICENCIAS
+            </button>
         </div>
-        <div class="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1 rounded-xl border border-slate-700/80 overflow-x-auto max-w-full">
-            <div class="flex items-center gap-1 bg-pink-950/60 border border-pink-500/50 rounded-lg px-2 py-0.5 shrink-0">
-                <i class="fa-solid fa-headset text-pink-400 text-[10px]"></i>
-                <select id="simLanesQuickSelect" onchange="setSystemTopology(parseInt(this.value, 10), null)" class="bg-transparent text-pink-200 font-mono font-black text-[10px] focus:outline-none cursor-pointer" title="Elige de 1 a 10 carriles para simular">
-                    <option value="1" class="bg-slate-950">1 Carril</option>
-                    <option value="2" class="bg-slate-950" selected>2 Carriles</option>
-                    <option value="3" class="bg-slate-950">3 Carriles</option>
-                    <option value="4" class="bg-slate-950">4 Carriles</option>
-                    <option value="5" class="bg-slate-950">5 Carriles</option>
-                    <option value="6" class="bg-slate-950">6 Carriles</option>
-                    <option value="7" class="bg-slate-950">7 Carriles</option>
-                    <option value="8" class="bg-slate-950">8 Carriles</option>
-                    <option value="9" class="bg-slate-950">9 Carriles</option>
-                    <option value="10" class="bg-slate-950">10 Carriles</option>
-                </select>
-                <button onclick="toggleAutoDemo()" id="btnSimNav" class="px-2 py-0.5 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-mono font-black text-[9px] rounded shadow cursor-pointer uppercase">
-                    <i class="fa-solid fa-play mr-1"></i>Simular Carrera (2 Comentaristas)
-                </button>
+
+        <!-- Controles Rápidos Derecha: Paso Manual por Carril + Cajón USB -->
+        <div class="flex items-center gap-2 shrink-0">
+            <div class="hidden lg:flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-xl border border-slate-800">
+                <span class="text-[9px] font-mono font-bold text-slate-400 uppercase mr-1" title="Simular paso manual por sensor"><i class="fa-solid fa-hand-pointer text-amber-400 mr-1"></i>PASO MANUAL:</span>
+                <div id="quickSimButtons" class="flex items-center gap-1"></div>
             </div>
-            <span class="text-slate-700">|</span>
-            <span class="text-[9px] font-mono font-bold text-amber-400 uppercase shrink-0"><i class="fa-solid fa-bolt mr-1"></i>MANUAL:</span>
-            <div id="quickSimButtons" class="flex items-center gap-1"></div>
+            <button onclick="toggleHardwareTestStrip()" id="btnToggleUsbStrip" class="px-2.5 py-1.5 rounded-xl text-[10px] font-mono font-black bg-slate-900 hover:bg-slate-800 text-sky-300 border border-sky-500/40 cursor-pointer flex items-center gap-1.5" title="Mostrar/Ocultar barra superior de diagnóstico USB">
+                <i class="fa-brands fa-usb"></i> <span class="hidden xl:inline">BARRA USB</span>
+            </button>
         </div>
     </nav>
 
@@ -2549,13 +2593,15 @@
 
             const simSel = document.getElementById('simLanesQuickSelect');
             if (simSel) simSel.value = String(appState.activeLanes);
+            const hdrLaneSel = document.getElementById('headerLanesQuickSelect');
+            if (hdrLaneSel) hdrLaneSel.value = String(appState.activeLanes);
 
             [1, 2, 3].forEach(s => {
                 const btn = document.getElementById(`btnSec-${s}`);
                 if (btn) {
                     btn.className = (s === appState.numSectors)
-                        ? 'px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-emerald-600 text-white cursor-pointer shadow'
-                        : 'px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer';
+                        ? 'px-1.5 py-0.5 text-[9px] font-bold rounded bg-emerald-600 text-white cursor-pointer shadow'
+                        : 'px-1.5 py-0.5 text-[9px] font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer';
                 }
             });
 
@@ -3501,6 +3547,12 @@
         let activeSerialPort = null;
         let activeUsbEndpointOut = null;
         let usbReadLoopActive = false;
+
+        function toggleHardwareTestStrip() {
+            const strip = document.getElementById('liveHardwareTestStrip');
+            if (!strip) return;
+            strip.classList.toggle('hidden');
+        }
 
         function connectArduinoUSB() {
             document.getElementById('usbAndroidHelperModal').classList.remove('hidden');
@@ -4936,14 +4988,33 @@ ${allLapsText}`;
         }
 
         function switchTab(tabId) {
+            const tabMeta = {
+                live:      { icon: 'fa-flag-checkered text-white', label: '1. CARRERA EN VIVO', extra: 'text-slate-300 border-slate-800' },
+                sectors:   { icon: 'fa-stopwatch-20 text-purple-400', label: '2. SECTORES F1', extra: 'text-slate-300 border-slate-800' },
+                analytics: { icon: 'fa-chart-line text-sky-400', label: '3. TELEMETRÍA', extra: 'text-slate-300 border-slate-800' },
+                rotation:  { icon: 'fa-trophy text-amber-400', label: '4. BD CLUB & ACTAS', extra: 'text-slate-300 border-slate-800' },
+                mobile:    { icon: 'fa-qrcode text-emerald-400', label: '5. MÓVIL QR EN VIVO', extra: 'text-emerald-300 border-emerald-500/30' },
+                config:    { icon: 'fa-sliders text-sky-300', label: '6. AJUSTES & USB', extra: 'text-slate-300 border-slate-800' },
+                security:  { icon: 'fa-shield-halved text-amber-400', label: '7. LICENCIAS', extra: 'text-amber-300 border-amber-500/30' }
+            };
+
             ['live', 'sectors', 'analytics', 'rotation', 'mobile', 'config', 'security'].forEach(id => {
                 const viewEl = document.getElementById(`view-${id}`);
                 const btnEl = document.getElementById(`tabBtn-${id}`);
                 if (viewEl) viewEl.classList.add('hidden');
-                if (btnEl) btnEl.className = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0';
+                if (btnEl && tabMeta[id]) {
+                    btnEl.className = `px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 hover:text-white border transition cursor-pointer shrink-0 flex items-center gap-1.5 ${tabMeta[id].extra}`;
+                }
             });
-            document.getElementById(`view-${tabId}`).classList.remove('hidden');
-            document.getElementById(`tabBtn-${tabId}`).className = 'px-3.5 py-1.5 rounded-xl text-xs font-mono font-black bg-sky-600 text-white shadow-lg shadow-sky-600/30 border border-sky-400 transition cursor-pointer shrink-0';
+
+            const activeView = document.getElementById(`view-${tabId}`);
+            if (activeView) activeView.classList.remove('hidden');
+
+            const activeBtn = document.getElementById(`tabBtn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = 'nav-pill-active px-3 py-1.5 rounded-xl text-[11px] font-mono font-black border transition cursor-pointer shrink-0 flex items-center gap-1.5';
+            }
+
             if (tabId === 'sectors') renderSectorAnalysisTable();
             if (tabId === 'rotation') renderArchivedRacesList();
             if (tabId === 'analytics') {
