@@ -163,8 +163,28 @@
             transform: scale(1.04);
         }
 
+        /* */
         #portraitWarningOverlay {
+            display: flex;
+            opacity: 1;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), filter 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #portraitWarningOverlay.fade-out-intro {
+            opacity: 0 !important;
+            filter: blur(18px);
+            pointer-events: none !important;
+        }
+        body.pilot-mobile-mode-active #portraitWarningOverlay {
             display: none !important;
+        }
+
+        @keyframes rotateTabletAnim {
+            0%, 15% { transform: rotate(0deg); }
+            50%, 85% { transform: rotate(-90deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .animate-rotate-tablet {
+            animation: rotateTabletAnim 2.8s ease-in-out infinite;
         }
 
         ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -652,14 +672,70 @@
         </div>
     </div>
 
-    <div id="portraitWarningOverlay" onclick="this.style.display='none'" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex-col items-center justify-center p-6 text-center cursor-pointer">
-        <div class="w-16 h-16 rounded-2xl bg-sky-500/20 border border-sky-400 flex items-center justify-center text-3xl text-sky-400 mb-4">
-            <i class="fa-solid fa-rotate"></i>
+    <!-- ========================================================================================
+         PANTALLA PREVIA OBLIGATORIA DE GIRO HORIZONTAL + VÍDEO CENTRAL fusion.mp4
+         ======================================================================================== -->
+    <div id="portraitWarningOverlay" class="fixed inset-0 z-[100] bg-[#04070f] flex flex-col items-center justify-between p-6 text-center select-none overflow-hidden">
+        
+        <!-- Cabecera Superior Corporativa (Visible en vertical) -->
+        <div id="introHeaderBar" class="relative z-20 flex items-center gap-2.5 bg-slate-900/90 px-4 py-2 rounded-2xl border border-slate-700/80 shadow-lg mt-2 transition-opacity duration-500">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 via-sky-600 to-indigo-700 flex flex-col items-center justify-center border border-amber-300/60">
+                <span class="text-[6px] font-black leading-none text-white">SLOTING</span>
+                <span class="text-[6px] font-mono font-extrabold text-amber-300 leading-none">+ PLUS</span>
+            </div>
+            <span class="text-xs font-mono font-black tracking-wider text-amber-400 uppercase">
+                KRONOS SLOT PRO OS v8.3
+            </span>
         </div>
-        <h2 class="text-xl font-black text-white uppercase tracking-tight">Diseño Panorámico Horizontal</h2>
-        <p class="text-xs font-mono text-slate-300 max-w-xs mt-2">
-            Pulsa en cualquier parte para entrar directamente a KRONOS SLOT PRO.
-        </p>
+
+        <!-- Contenedor Central con el Vídeo del Servidor fusion.mp4 (Pasa a Fullscreen al girar) -->
+        <div id="introCenterWrapper" class="my-auto w-full max-w-md flex flex-col items-center space-y-5 transition-all duration-700">
+            <div id="introVideoCard" class="relative w-full aspect-video rounded-3xl overflow-hidden border-2 border-sky-500/70 shadow-[0_0_50px_rgba(56,189,248,0.3)] bg-black flex items-center justify-center transition-all duration-700">
+                <video id="fusionIntroVideo"
+                       src="fusion.mp4"
+                       autoplay
+                       loop
+                       muted
+                       playsinline
+                       preload="auto"
+                       class="w-full h-full object-cover">
+                    Tu navegador no soporta vídeo HTML5.
+                </video>
+                <div class="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-slate-950/80 backdrop-blur-md border border-sky-400/40 text-[10px] font-mono font-black text-sky-300 uppercase flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    FUSION TELEMETRY ENGINE
+                </div>
+                <!-- Indicador de cuenta atrás de 12 segundos en pantalla completa -->
+                <div id="introLandscapeHud" class="hidden absolute bottom-5 right-5 px-4 py-2 rounded-xl bg-slate-950/85 backdrop-blur-md border border-amber-400/60 text-xs font-mono font-black text-amber-300 uppercase items-center gap-2 shadow-2xl">
+                    <i class="fa-solid fa-circle-notch animate-spin text-sky-400"></i>
+                    <span id="introCountdownText">INICIANDO KRONOS EN 12s...</span>
+                </div>
+            </div>
+
+            <!-- Icono Animado + Aviso Obligatorio de Girar en Horizontal (Se oculta al girar) -->
+            <div id="introPortraitPromptCard" class="glass-panel rounded-3xl p-5 border-2 border-amber-500/60 shadow-[0_0_35px_rgba(245,158,11,0.2)] w-full space-y-3 transition-opacity duration-500">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-2xl text-amber-300 shadow-lg">
+                    <i class="fa-solid fa-tablet-screen-button animate-rotate-tablet"></i>
+                </div>
+                <div class="space-y-1">
+                    <span class="px-2.5 py-0.5 bg-rose-500/20 text-rose-300 text-[10px] font-mono font-black uppercase rounded-full border border-rose-500/40">
+                        ORIENTACIÓN HORIZONTAL OBLIGATORIA
+                    </span>
+                    <h2 class="text-lg font-black text-white uppercase tracking-tight pt-1">
+                        Gira la Tablet en Horizontal
+                    </h2>
+                    <p class="text-xs font-mono text-slate-300 leading-relaxed">
+                        Para visualizar el panel de dirección de carrera, el semáforo FIA y todos los carriles en tiempo real, <strong>coloca tu dispositivo en posición apaisada (horizontal)</strong>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie de Estado de Detección Automática -->
+        <div id="introFooterBar" class="relative z-20 text-[10px] font-mono text-sky-400 flex items-center gap-2 bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 mb-2 transition-opacity duration-500">
+            <i class="fa-solid fa-arrows-rotate animate-spin"></i>
+            <span>Esperando giro horizontal del dispositivo para expandir vídeo a pantalla completa...</span>
+        </div>
     </div>
 
     <!-- -->
@@ -4914,6 +4990,7 @@ ${allLapsText}`;
                     appState.pilotOverlayActiveLane = lockedLane;
                     appState.isExternalPilotMobileClient = true;
                     appState.voiceEnabled = false;
+                    document.body.classList.add('pilot-mobile-mode-active');
 
                     // Ocultar botón de volver a pantalla del club para que el piloto solo vea su propio coche
                     const btnBack = document.getElementById('btnBackToClubScreen');
@@ -5290,6 +5367,140 @@ ${allLapsText}`;
             }
         });
 
+        const introVideoState = {
+            landscapeCompleted: false,
+            landscapeTimerRunning: false,
+            fadeTimeoutId: null,
+            hideTimeoutId: null,
+            countdownIntervalId: null,
+            secondsLeft: 12
+        };
+
+        function clearIntroLandscapeTimers() {
+            if (introVideoState.fadeTimeoutId) {
+                clearTimeout(introVideoState.fadeTimeoutId);
+                introVideoState.fadeTimeoutId = null;
+            }
+            if (introVideoState.hideTimeoutId) {
+                clearTimeout(introVideoState.hideTimeoutId);
+                introVideoState.hideTimeoutId = null;
+            }
+            if (introVideoState.countdownIntervalId) {
+                clearInterval(introVideoState.countdownIntervalId);
+                introVideoState.countdownIntervalId = null;
+            }
+            introVideoState.landscapeTimerRunning = false;
+        }
+
+        function setIntroVideoLayoutMode(mode) {
+            const overlay = document.getElementById('portraitWarningOverlay');
+            const headerBar = document.getElementById('introHeaderBar');
+            const centerWrap = document.getElementById('introCenterWrapper');
+            const videoCard = document.getElementById('introVideoCard');
+            const promptCard = document.getElementById('introPortraitPromptCard');
+            const footerBar = document.getElementById('introFooterBar');
+            const landscapeHud = document.getElementById('introLandscapeHud');
+
+            if (!overlay || !centerWrap || !videoCard) return;
+
+            if (mode === 'PORTRAIT') {
+                overlay.classList.remove('fade-out-intro', 'p-0');
+                overlay.classList.add('p-6');
+                if (headerBar) headerBar.classList.remove('hidden');
+                if (promptCard) promptCard.classList.remove('hidden');
+                if (footerBar) footerBar.classList.remove('hidden');
+                if (landscapeHud) {
+                    landscapeHud.classList.add('hidden');
+                    landscapeHud.classList.remove('flex');
+                }
+                centerWrap.className = 'my-auto w-full max-w-md flex flex-col items-center space-y-5 transition-all duration-700';
+                videoCard.className = 'relative w-full aspect-video rounded-3xl overflow-hidden border-2 border-sky-500/70 shadow-[0_0_50px_rgba(56,189,248,0.3)] bg-black flex items-center justify-center transition-all duration-700';
+            } else if (mode === 'LANDSCAPE_FULLSCREEN') {
+                overlay.classList.remove('p-6');
+                overlay.classList.add('p-0');
+                if (headerBar) headerBar.classList.add('hidden');
+                if (promptCard) promptCard.classList.add('hidden');
+                if (footerBar) footerBar.classList.add('hidden');
+                if (landscapeHud) {
+                    landscapeHud.classList.remove('hidden');
+                    landscapeHud.classList.add('flex');
+                }
+                centerWrap.className = 'w-screen h-screen max-w-none m-0 flex items-center justify-center transition-all duration-700';
+                videoCard.className = 'relative w-screen h-screen rounded-none overflow-hidden border-0 bg-black flex items-center justify-center transition-all duration-700';
+            }
+        }
+
+        function enforceLandscapeOrientationOverlay() {
+            const overlay = document.getElementById('portraitWarningOverlay');
+            const video = document.getElementById('fusionIntroVideo');
+            const countdownText = document.getElementById('introCountdownText');
+            if (!overlay) return;
+
+            if (appState.isExternalPilotMobileClient) {
+                clearIntroLandscapeTimers();
+                overlay.style.setProperty('display', 'none', 'important');
+                return;
+            }
+
+            const isPortrait = window.innerHeight > window.innerWidth;
+
+            if (isPortrait) {
+                // Si el usuario vuelve a poner la tablet en vertical, cancelar cuenta atrás y mostrar aviso con vídeo en el centro
+                clearIntroLandscapeTimers();
+                overlay.style.setProperty('display', 'flex', 'important');
+                setIntroVideoLayoutMode('PORTRAIT');
+                if (video && video.paused) {
+                    video.muted = true;
+                    video.play().catch(() => {});
+                }
+            } else {
+                // Está en HORIZONTAL
+                if (introVideoState.landscapeCompleted) {
+                    overlay.style.setProperty('display', 'none', 'important');
+                    return;
+                }
+
+                // Expandir el mismo vídeo a pantalla completa sin cortar su reproducción y contar 12 segundos
+                overlay.style.setProperty('display', 'flex', 'important');
+                setIntroVideoLayoutMode('LANDSCAPE_FULLSCREEN');
+
+                if (video && video.paused) {
+                    video.muted = true;
+                    video.play().catch(() => {});
+                }
+
+                if (!introVideoState.landscapeTimerRunning) {
+                    introVideoState.landscapeTimerRunning = true;
+                    introVideoState.secondsLeft = 12;
+                    if (countdownText) {
+                        countdownText.textContent = `ENTRANDO EN ${introVideoState.secondsLeft}s...`;
+                    }
+
+                    introVideoState.countdownIntervalId = setInterval(() => {
+                        introVideoState.secondsLeft = Math.max(0, introVideoState.secondsLeft - 1);
+                        if (countdownText) {
+                            countdownText.textContent = introVideoState.secondsLeft > 0
+                                ? `ENTRANDO EN ${introVideoState.secondsLeft}s...`
+                                : `DIFUMINANDO...`;
+                        }
+                    }, 1000);
+
+                    // A los 12 segundos exactos en pantalla completa, aplicar el difuminado suave (blur + fade-out)
+                    introVideoState.fadeTimeoutId = setTimeout(() => {
+                        overlay.classList.add('fade-out-intro');
+                        introVideoState.hideTimeoutId = setTimeout(() => {
+                            introVideoState.landscapeCompleted = true;
+                            clearIntroLandscapeTimers();
+                            overlay.style.setProperty('display', 'none', 'important');
+                        }, 1500);
+                    }, 12000);
+                }
+            }
+        }
+
+        window.addEventListener('resize', enforceLandscapeOrientationOverlay);
+        window.addEventListener('orientationchange', enforceLandscapeOrientationOverlay);
+
         window.onload = function () {
             initAllLanesData();
             loadLocalDatabase();
@@ -5301,6 +5512,7 @@ ${allLapsText}`;
             setRaceFormat('TIME');
             renderMasterClock();
             checkUrlForPilotMobileModeOnBoot();
+            enforceLandscapeOrientationOverlay();
             initCloudMqttTelemetryBridge();
             animateRadarGPS();
         };
