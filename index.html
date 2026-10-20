@@ -673,232 +673,256 @@
     </div>
 
     <!-- ========================================================================================
-         PANTALLA PREVIA OBLIGATORIA DE GIRO HORIZONTAL + VÍDEO CENTRAL fusion.mp4
+         PANTALLA PREVIA CON VÍDEO fusion.mp4 A PANTALLA COMPLETA (100% FULLSCREEN SIEMPRE)
          ======================================================================================== -->
-    <div id="portraitWarningOverlay" class="fixed inset-0 z-[100] bg-[#04070f] flex flex-col items-center justify-between p-6 text-center select-none overflow-hidden">
+    <div id="portraitWarningOverlay" class="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-between p-0 text-center select-none overflow-hidden">
         
-        <!-- Cabecera Superior Corporativa (Visible en vertical) -->
-        <div id="introHeaderBar" class="relative z-20 flex items-center gap-2.5 bg-slate-900/90 px-4 py-2 rounded-2xl border border-slate-700/80 shadow-lg mt-2 transition-opacity duration-500">
-            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 via-sky-600 to-indigo-700 flex flex-col items-center justify-center border border-amber-300/60">
-                <span class="text-[6px] font-black leading-none text-white">SLOTING</span>
-                <span class="text-[6px] font-mono font-extrabold text-amber-300 leading-none">+ PLUS</span>
+        <!-- Vídeo fusion.mp4 ocupando SIEMPRE el 100% de la pantalla de fondo -->
+        <video id="fusionIntroVideo"
+               src="fusion.mp4"
+               autoplay
+               loop
+               muted
+               playsinline
+               preload="auto"
+               class="absolute inset-0 w-screen h-screen object-cover z-0">
+            Tu navegador no soporta vídeo HTML5.
+        </video>
+
+        <!-- Velo oscuro suave para que los textos se lean con total claridad -->
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-950/25 to-slate-950/85 z-10 pointer-events-none"></div>
+
+        <!-- Cabecera Superior Clara -->
+        <div id="introHeaderBar" class="relative z-20 flex items-center gap-3 bg-slate-950/90 px-5 py-2.5 rounded-2xl border-2 border-amber-400/60 shadow-2xl mt-4">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-sky-600 to-indigo-700 flex flex-col items-center justify-center border border-amber-300">
+                <span class="text-[7px] font-black leading-none text-white">SLOTING</span>
+                <span class="text-[7px] font-mono font-extrabold text-amber-300 leading-none">+ PLUS</span>
             </div>
-            <span class="text-xs font-mono font-black tracking-wider text-amber-400 uppercase">
-                KRONOS SLOT PRO OS v8.3
+            <span class="text-sm md:text-base font-mono font-black tracking-wider text-amber-300 uppercase">
+                SISTEMA DE CRONOMETRAJE KRONOS PRO
             </span>
         </div>
 
-        <!-- Contenedor Central con el Vídeo del Servidor fusion.mp4 (Pasa a Fullscreen al girar) -->
-        <div id="introCenterWrapper" class="my-auto w-full max-w-md flex flex-col items-center space-y-5 transition-all duration-700">
-            <div id="introVideoCard" class="relative w-full aspect-video rounded-3xl overflow-hidden border-2 border-sky-500/70 shadow-[0_0_50px_rgba(56,189,248,0.3)] bg-black flex items-center justify-center transition-all duration-700">
-                <video id="fusionIntroVideo"
-                       src="fusion.mp4"
-                       autoplay
-                       loop
-                       muted
-                       playsinline
-                       preload="auto"
-                       class="w-full h-full object-cover">
-                    Tu navegador no soporta vídeo HTML5.
-                </video>
-                <div class="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-slate-950/80 backdrop-blur-md border border-sky-400/40 text-[10px] font-mono font-black text-sky-300 uppercase flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                    FUSION TELEMETRY ENGINE
-                </div>
-                <!-- Indicador de cuenta atrás de 12 segundos en pantalla completa -->
-                <div id="introLandscapeHud" class="hidden absolute bottom-5 right-5 px-4 py-2 rounded-xl bg-slate-950/85 backdrop-blur-md border border-amber-400/60 text-xs font-mono font-black text-amber-300 uppercase items-center gap-2 shadow-2xl">
-                    <i class="fa-solid fa-circle-notch animate-spin text-sky-400"></i>
-                    <span id="introCountdownText">INICIANDO KRONOS EN 12s...</span>
-                </div>
-            </div>
-
-            <!-- Icono Animado + Aviso Obligatorio de Girar en Horizontal (Se oculta al girar) -->
-            <div id="introPortraitPromptCard" class="glass-panel rounded-3xl p-5 border-2 border-amber-500/60 shadow-[0_0_35px_rgba(245,158,11,0.2)] w-full space-y-3 transition-opacity duration-500">
-                <div class="w-14 h-14 mx-auto rounded-2xl bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-2xl text-amber-300 shadow-lg">
+        <!-- Contenedor Central: Aviso grande si está en vertical, o botón directo si está en horizontal -->
+        <div id="introCenterWrapper" class="relative z-20 my-auto w-full max-w-lg px-4 flex flex-col items-center space-y-5">
+            
+            <!-- Aviso claro cuando la Tablet/Móvil está en VERTICAL -->
+            <div id="introPortraitPromptCard" class="glass-panel rounded-3xl p-6 border-2 border-amber-400 shadow-[0_0_50px_rgba(0,0,0,0.9)] w-full space-y-4">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-amber-500/25 border-2 border-amber-400 flex items-center justify-center text-3xl text-amber-300 shadow-lg">
                     <i class="fa-solid fa-tablet-screen-button animate-rotate-tablet"></i>
                 </div>
-                <div class="space-y-1">
-                    <span class="px-2.5 py-0.5 bg-rose-500/20 text-rose-300 text-[10px] font-mono font-black uppercase rounded-full border border-rose-500/40">
-                        ORIENTACIÓN HORIZONTAL OBLIGATORIA
+                <div class="space-y-2">
+                    <span class="px-3 py-1 bg-rose-600 text-white text-xs font-mono font-black uppercase rounded-full shadow">
+                        PASO 1: COLOCA LA PANTALLA TUMBADA
                     </span>
-                    <h2 class="text-lg font-black text-white uppercase tracking-tight pt-1">
+                    <h2 class="text-xl md:text-2xl font-black text-white uppercase tracking-tight pt-1">
                         Gira la Tablet en Horizontal
                     </h2>
-                    <p class="text-xs font-mono text-slate-300 leading-relaxed">
-                        Para visualizar el panel de dirección de carrera, el semáforo FIA y todos los carriles en tiempo real, <strong>coloca tu dispositivo en posición apaisada (horizontal)</strong>.
+                    <p class="text-sm text-slate-200 leading-relaxed font-medium">
+                        Para ver los números grandes y todos los botones cómodamente, <strong>pon la tablet o el móvil en horizontal (apaisado)</strong>.
                     </p>
                 </div>
+                <button onclick="skipIntroNow()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-2xl border-2 border-emerald-300 shadow-lg cursor-pointer uppercase">
+                    <i class="fa-solid fa-circle-play mr-1.5"></i> Entrar Ahora al Programa
+                </button>
             </div>
         </div>
 
-        <!-- Pie de Estado de Detección Automática -->
-        <div id="introFooterBar" class="relative z-20 text-[10px] font-mono text-sky-400 flex items-center gap-2 bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 mb-2 transition-opacity duration-500">
-            <i class="fa-solid fa-arrows-rotate animate-spin"></i>
-            <span>Esperando giro horizontal del dispositivo para expandir vídeo a pantalla completa...</span>
+        <!-- Barra Inferior en Horizontal con Cuenta Atrás y Botón Grande para Entrar sin esperar -->
+        <div id="introLandscapeHud" class="hidden relative z-20 mb-6 px-6 py-3.5 rounded-2xl bg-slate-950/90 backdrop-blur-md border-2 border-amber-400 shadow-2xl items-center gap-4">
+            <div class="flex items-center gap-2.5 text-sm md:text-base font-mono font-black text-amber-300 uppercase">
+                <i class="fa-solid fa-circle-notch animate-spin text-sky-400 text-lg"></i>
+                <span id="introCountdownText">ABRIENDO PISTA EN 12 SEGUNDOS...</span>
+            </div>
+            <button onclick="skipIntroNow()" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm md:text-base rounded-xl border-2 border-white shadow-lg cursor-pointer uppercase flex items-center gap-2">
+                <i class="fa-solid fa-forward-step"></i> ENTRAR YA
+            </button>
+        </div>
+
+        <!-- Pie informativo en vertical -->
+        <div id="introFooterBar" class="relative z-20 text-xs font-mono text-sky-300 flex items-center gap-2 bg-slate-950/90 px-4 py-2 rounded-xl border border-slate-700 mb-4">
+            <i class="fa-solid fa-video text-amber-400"></i>
+            <span>Vídeo de presentación a pantalla completa activo</span>
         </div>
     </div>
 
-    <!-- -->
     <!-- ========================================================================================
-         CABECERA PRINCIPAL DE DIRECCIÓN DE CARRERA (ORGANIZADA EN 3 BLOQUES LIMPIOS)
+         CABECERA PRINCIPAL CLARA Y FÁCIL DE USAR (DISEÑADA CON LETRA GRANDE Y BOTONES INTUITIVOS)
          ======================================================================================== -->
-    <header id="topRaceBar" class="glass-panel rounded-2xl px-3.5 py-2 mb-1.5 grid grid-cols-12 items-center gap-3 shrink-0">
+    <header id="topRaceBar" class="glass-panel rounded-2xl px-3.5 py-2.5 mb-2 grid grid-cols-12 items-center gap-3 shrink-0">
         
-        <!-- BLOQUE 1 (IZQUIERDA): MARCA + TÍTULO + CONFIGURACIÓN RÁPIDA DE FORMATO Y PISTA -->
-        <div class="col-span-5 flex flex-col gap-1.5">
-            <!-- Fila Superior: Logo + Nombre del Evento + Estado Actual -->
-            <div class="flex items-center justify-between gap-2 bg-slate-950/90 px-3 py-1.5 rounded-xl border border-slate-800/90">
+        <!-- BLOQUE 1 (IZQUIERDA): TÍTULO DEL CLUB Y CONFIGURACIÓN PASO A PASO -->
+        <div class="col-span-5 flex flex-col gap-2">
+            <!-- Fila 1: Nombre del Club y Estado de la Pista -->
+            <div class="flex items-center justify-between gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-700">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 via-sky-600 to-indigo-700 flex flex-col items-center justify-center shadow border border-amber-300/50 shrink-0">
-                        <span class="text-[7px] font-black tracking-tighter leading-none text-white" id="brandShortLogo">SLOTING</span>
-                        <span class="text-[7px] font-mono font-extrabold text-amber-300 leading-none mt-0.5">+ PLUS</span>
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-sky-600 to-indigo-700 flex flex-col items-center justify-center shadow border border-amber-300 shrink-0">
+                        <span class="text-[8px] font-black leading-none text-white" id="brandShortLogo">SLOTING</span>
+                        <span class="text-[8px] font-mono font-extrabold text-amber-300 leading-none mt-0.5">+ PLUS</span>
                     </div>
                     <div class="min-w-0">
-                        <div class="text-[9px] font-black tracking-wider text-amber-400 uppercase flex items-center gap-1.5">
-                            <span>SLOTING PLUS &amp; SLOT SW</span>
-                            <span class="text-slate-600">&bull;</span>
-                            <span class="text-sky-400 font-mono" id="headerConfigSummary">2 CH &middot; 3 SEC</span>
+                        <div class="text-[10px] font-black text-amber-400 uppercase flex items-center gap-1.5">
+                            <span>NOMBRE DEL EVENTO</span>
+                            <span class="text-slate-500">&bull;</span>
+                            <span class="text-sky-300 font-mono" id="headerConfigSummary">2 CARRILES</span>
                         </div>
-                        <h1 id="appMainTitle" onclick="promptCustomTitle()" class="text-xs font-black tracking-tight text-white uppercase cursor-pointer hover:text-sky-300 transition flex items-center gap-1.5 truncate" title="Haz clic para cambiar el nombre del campeonato">
+                        <h1 id="appMainTitle" onclick="promptCustomTitle()" class="text-sm font-black text-white uppercase cursor-pointer hover:text-amber-300 transition flex items-center gap-2 truncate" title="Pulsa aquí para cambiar el nombre del club o carrera">
                             <span class="truncate">GRAN PREMIO OFICIAL // KRONOS PRO</span>
-                            <i class="fa-solid fa-pen text-[9px] text-slate-400 shrink-0"></i>
+                            <span class="px-1.5 py-0.5 bg-slate-800 text-sky-300 text-[9px] rounded border border-slate-600 shrink-0"><i class="fa-solid fa-pen mr-1"></i>Cambiar</span>
                         </h1>
                     </div>
                 </div>
-                <span id="raceStateBadge" class="px-2 py-0.5 text-[9px] font-mono font-black uppercase rounded-lg bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
-                    STANDBY
+                <span id="raceStateBadge" class="px-2.5 py-1 text-[10px] font-mono font-black uppercase rounded-lg bg-slate-800 text-slate-200 border border-slate-600 shrink-0">
+                    PISTA LISTA
                 </span>
             </div>
 
-            <!-- Fila Inferior: Selectores Limpios (Modo + Tiempo/Meta + Carriles + Sectores) -->
-            <div class="flex items-center justify-between gap-1.5 bg-slate-950/90 px-2.5 py-1 rounded-xl border border-slate-800/90 font-mono text-[10px]">
-                <!-- Selector Modo de Carrera -->
-                <div class="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800">
-                    <button onclick="setRaceFormat('TIME')" id="btnMode-TIME" class="px-2 py-0.5 text-[9px] font-black rounded bg-amber-500 text-slate-950 cursor-pointer"><i class="fa-solid fa-stopwatch mr-1"></i>TIEMPO</button>
-                    <button onclick="setRaceFormat('LAPS')" id="btnMode-LAPS" class="px-2 py-0.5 text-[9px] font-black rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer"><i class="fa-solid fa-flag-checkered mr-1"></i>VUELTAS</button>
-                    <button onclick="setRaceFormat('QUALY')" id="btnMode-QUALY" class="px-2 py-0.5 text-[9px] font-black rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer"><i class="fa-solid fa-bolt mr-1 text-purple-400"></i>POLE</button>
-                </div>
-
-                <!-- Ajustes Rápidos de Manga / Meta -->
-                <div class="flex items-center gap-1.5">
-                    <div id="quickTimeSelectorBox" class="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800">
-                        <i class="fa-regular fa-clock text-amber-400 text-[9px]"></i>
-                        <select id="headerTimePreset" onchange="applyQuickTimeMinutes(this.value)" class="bg-transparent text-[10px] font-bold text-amber-300 focus:outline-none cursor-pointer">
-                            <option value="1" class="bg-slate-950">1 min</option>
-                            <option value="3" class="bg-slate-950">3 min</option>
-                            <option value="5" selected class="bg-slate-950">5 min</option>
-                            <option value="10" class="bg-slate-950">10 min</option>
-                            <option value="15" class="bg-slate-950">15 min</option>
-                            <option value="20" class="bg-slate-950">20 min</option>
-                            <option value="30" class="bg-slate-950">30 min</option>
-                            <option value="60" class="bg-slate-950">60 min</option>
-                        </select>
-                    </div>
-                    <div id="quickLapsSelectorBox" class="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800">
-                        <span class="text-[9px] text-emerald-400 font-bold">META:</span>
-                        <input id="headerTargetLapsInput" type="number" min="1" max="9999" value="25" onchange="applyQuickTargetLaps(this.value)" class="w-10 bg-transparent text-[10px] font-bold text-emerald-300 text-center focus:outline-none"/>
-                        <span class="text-[9px] text-slate-400">V</span>
+            <!-- Fila 2: Opciones Rápidas con Etiquetas en Español Claro -->
+            <div class="grid grid-cols-3 gap-1.5 bg-slate-950 p-1.5 rounded-xl border border-slate-700 font-mono text-xs">
+                <!-- 1. Tipo de Carrera -->
+                <div class="bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-700 flex flex-col justify-center">
+                    <span class="text-[9px] font-black text-slate-400 uppercase">1. TIPO DE CARRERA:</span>
+                    <div class="flex items-center gap-1 mt-0.5">
+                        <button onclick="setRaceFormat('TIME')" id="btnMode-TIME" class="flex-1 py-1 text-[10px] font-black rounded bg-amber-500 text-slate-950 cursor-pointer">TIEMPO</button>
+                        <button onclick="setRaceFormat('LAPS')" id="btnMode-LAPS" class="flex-1 py-1 text-[10px] font-black rounded bg-slate-800 text-slate-300 hover:text-white cursor-pointer">VUELTAS</button>
+                        <button onclick="setRaceFormat('QUALY')" id="btnMode-QUALY" class="flex-1 py-1 text-[10px] font-black rounded bg-slate-800 text-slate-300 hover:text-white cursor-pointer">POLE</button>
                     </div>
                 </div>
 
-                <!-- Topología Compacta: Carriles y Sectores -->
-                <div class="flex items-center gap-1.5">
-                    <div class="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-sky-500/30">
-                        <span class="text-[9px] font-bold text-sky-400">PISTA:</span>
-                        <select id="headerLanesQuickSelect" onchange="setSystemTopology(parseInt(this.value, 10), null)" class="bg-transparent text-white font-black text-[10px] focus:outline-none cursor-pointer">
-                            <option value="1" class="bg-slate-950">1 Carril</option>
-                            <option value="2" selected class="bg-slate-950">2 Carriles</option>
-                            <option value="3" class="bg-slate-950">3 Carriles</option>
-                            <option value="4" class="bg-slate-950">4 Carriles</option>
-                            <option value="5" class="bg-slate-950">5 Carriles</option>
-                            <option value="6" class="bg-slate-950">6 Carriles</option>
-                            <option value="7" class="bg-slate-950">7 Carriles</option>
-                            <option value="8" class="bg-slate-950">8 Carriles</option>
-                            <option value="9" class="bg-slate-950">9 Carriles</option>
-                            <option value="10" class="bg-slate-950">10 Carriles</option>
-                        </select>
+                <!-- 2. Duración o Vueltas -->
+                <div class="bg-slate-900 px-2.5 py-1 rounded-lg border border-amber-500/40 flex flex-col justify-center">
+                    <span class="text-[9px] font-black text-amber-300 uppercase">2. DURACIÓN / META:</span>
+                    <div class="flex items-center justify-between gap-1 mt-0.5">
+                        <div id="quickTimeSelectorBox" class="flex items-center gap-1">
+                            <select id="headerTimePreset" onchange="applyQuickTimeMinutes(this.value)" class="bg-slate-950 px-1.5 py-0.5 rounded border border-slate-700 text-xs font-black text-amber-300 focus:outline-none cursor-pointer">
+                                <option value="1">1 min</option>
+                                <option value="3">3 min</option>
+                                <option value="5" selected>5 min</option>
+                                <option value="10">10 min</option>
+                                <option value="15">15 min</option>
+                                <option value="20">20 min</option>
+                                <option value="30">30 min</option>
+                                <option value="60">60 min</option>
+                            </select>
+                        </div>
+                        <div id="quickLapsSelectorBox" class="flex items-center gap-1">
+                            <input id="headerTargetLapsInput" type="number" min="1" max="9999" value="25" onchange="applyQuickTargetLaps(this.value)" class="w-11 bg-slate-950 rounded border border-slate-700 py-0.5 text-xs font-black text-emerald-300 text-center focus:outline-none"/>
+                            <span class="text-[9px] text-emerald-400 font-bold">Vueltas</span>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-0.5 bg-slate-900 p-0.5 rounded-lg border border-emerald-500/30" title="Número de Sectores en Pista">
-                        <button onclick="setSystemTopology(null, 1)" id="btnSec-1" class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">1S</button>
-                        <button onclick="setSystemTopology(null, 2)" id="btnSec-2" class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer">2S</button>
-                        <button onclick="setSystemTopology(null, 3)" id="btnSec-3" class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-emerald-600 text-white cursor-pointer">3S</button>
+                </div>
+
+                <!-- 3. Cuántos Carriles y Sectores -->
+                <div class="bg-slate-900 px-2.5 py-1 rounded-lg border border-sky-500/40 flex flex-col justify-center">
+                    <span class="text-[9px] font-black text-sky-300 uppercase">3. PISTA Y SENSORES:</span>
+                    <div class="flex items-center justify-between gap-1 mt-0.5">
+                        <select id="headerLanesQuickSelect" onchange="setSystemTopology(parseInt(this.value, 10), null)" class="bg-slate-950 px-1.5 py-0.5 rounded border border-slate-700 text-white font-black text-xs focus:outline-none cursor-pointer">
+                            <option value="1">1 Carril</option>
+                            <option value="2" selected>2 Carriles</option>
+                            <option value="3">3 Carriles</option>
+                            <option value="4">4 Carriles</option>
+                            <option value="6">6 Carriles</option>
+                            <option value="8">8 Carriles</option>
+                            <option value="10">10 Carriles</option>
+                        </select>
+                        <div class="flex items-center gap-0.5" title="Número de sensores en la pista">
+                            <button onclick="setSystemTopology(null, 1)" id="btnSec-1" class="px-1.5 py-0.5 text-[10px] font-black rounded bg-slate-800 text-slate-400 cursor-pointer">1S</button>
+                            <button onclick="setSystemTopology(null, 2)" id="btnSec-2" class="px-1.5 py-0.5 text-[10px] font-black rounded bg-slate-800 text-slate-400 cursor-pointer">2S</button>
+                            <button onclick="setSystemTopology(null, 3)" id="btnSec-3" class="px-1.5 py-0.5 text-[10px] font-black rounded bg-emerald-600 text-white cursor-pointer">3S</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- BLOQUE 2 (CENTRO): SEMÁFORO FIA START GANTRY + CRONÓMETRO MAESTRO -->
-        <div class="col-span-4 flex items-center justify-center gap-4 bg-gradient-to-b from-slate-900 via-slate-950 to-black px-4 py-2.5 rounded-2xl border-2 border-slate-700/90 shadow-2xl">
-            <div class="flex flex-col items-center">
-                <span class="text-[8px] font-mono uppercase tracking-widest text-slate-400 font-bold mb-1">FIA START GANTRY</span>
-                <div class="flex items-center gap-2 bg-black/90 px-3 py-1.5 rounded-xl border border-slate-800" id="f1Gantry">
-                    <div class="f1-light" id="f1L1"></div><div class="f1-light" id="f1L2"></div><div class="f1-light" id="f1L3"></div><div class="f1-light" id="f1L4"></div><div class="f1-light" id="f1L5"></div>
-                </div>
+        <!-- BLOQUE 2 (CENTRO): SEMÁFORO DE SALIDA Y RELOJ GIGANTE -->
+        <div class="col-span-3 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-slate-950 to-black px-3 py-2.5 rounded-2xl border-2 border-slate-700 shadow-2xl h-full">
+            <div class="flex items-center gap-2 bg-black/90 px-3 py-1.5 rounded-xl border border-slate-800 mb-1" id="f1Gantry">
+                <div class="f1-light" id="f1L1"></div><div class="f1-light" id="f1L2"></div><div class="f1-light" id="f1L3"></div><div class="f1-light" id="f1L4"></div><div class="f1-light" id="f1L5"></div>
             </div>
-            <div class="border-l-2 border-slate-800 pl-4 text-right min-w-[115px]">
-                <div id="masterClockLabel" class="text-[9px] font-mono uppercase tracking-widest text-amber-400 font-black">CRONO MANGA</div>
-                <div id="masterClock" class="text-2xl xl:text-3xl font-mono-num font-black text-white tracking-tight leading-none mt-1 drop-shadow-[0_0_10px_rgba(255,255,255,0.25)]">05:00.0</div>
+            <div class="text-center">
+                <div id="masterClockLabel" class="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-black">TIEMPO DE CARRERA</div>
+                <div id="masterClock" class="text-3xl xl:text-4xl font-mono-num font-black text-white tracking-tight leading-none mt-0.5">05:00.0</div>
             </div>
         </div>
 
-        <!-- BLOQUE 3 (DERECHA): BOTONERA DE DIRECCIÓN DE CARRERA Y ACCIONES RÁPIDAS -->
-        <div class="col-span-3 flex flex-col gap-1.5">
-            <!-- Controles Primarios de Pista -->
+        <!-- BLOQUE 3 (DERECHA): BOTONES GRANDES Y CLAROS DE MANDO DE CARRERA -->
+        <div class="col-span-4 flex flex-col gap-2">
+            <!-- Fila Principal: 4 Botones Grandes Muy Claros -->
             <div class="grid grid-cols-4 gap-1.5">
-                <button onclick="startF1Sequence()" class="py-2 px-1.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-emerald-300/50 cursor-pointer flex items-center justify-center gap-1"><i class="fa-solid fa-traffic-light"></i> SALIDA</button>
-                <button onclick="toggleTrackCall()" class="py-2 px-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-mono font-black text-[10px] rounded-xl shadow-lg border border-amber-200 cursor-pointer flex items-center justify-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> PAUSA</button>
-                <button onclick="toggleAutoDemo()" id="btnSimRaceTop" class="py-2 px-1.5 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-pink-300/60 cursor-pointer flex items-center justify-center gap-1" title="Simulación en vivo con 2 comentaristas"><i class="fa-solid fa-robot"></i> SIMULAR</button>
-                <button onclick="resetRaceSession()" class="py-2 px-1.5 bg-slate-800 hover:bg-red-900/70 text-slate-200 hover:text-white font-mono font-black text-[10px] rounded-xl border border-slate-700 cursor-pointer flex items-center justify-center gap-1"><i class="fa-solid fa-rotate-right"></i> RESET</button>
+                <button onclick="startF1Sequence()" class="py-2.5 px-2 bg-gradient-to-b from-emerald-500 to-emerald-700 hover:from-emerald-400 hover:to-emerald-600 text-white font-mono font-black text-xs rounded-xl shadow-lg border-2 border-emerald-300 cursor-pointer flex flex-col items-center justify-center gap-0.5">
+                    <i class="fa-solid fa-traffic-light text-base"></i>
+                    <span>1. DAR SALIDA</span>
+                </button>
+                <button onclick="toggleTrackCall()" class="py-2.5 px-2 bg-gradient-to-b from-amber-400 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-mono font-black text-xs rounded-xl shadow-lg border-2 border-amber-200 cursor-pointer flex flex-col items-center justify-center gap-0.5">
+                    <i class="fa-solid fa-pause text-base"></i>
+                    <span>2. PAUSAR</span>
+                </button>
+                <button onclick="resetRaceSession()" class="py-2.5 px-2 bg-slate-800 hover:bg-red-700 text-white font-mono font-black text-xs rounded-xl border-2 border-slate-600 cursor-pointer flex flex-col items-center justify-center gap-0.5">
+                    <i class="fa-solid fa-rotate-right text-base text-rose-400"></i>
+                    <span>3. PONER A CERO</span>
+                </button>
+                <button onclick="toggleAutoDemo()" id="btnSimRaceTop" class="py-2.5 px-2 bg-gradient-to-b from-pink-600 to-purple-700 hover:from-pink-500 hover:to-purple-600 text-white font-mono font-black text-xs rounded-xl shadow-lg border-2 border-pink-300 cursor-pointer flex flex-col items-center justify-center gap-0.5" title="Hace una carrera de prueba sola con voces">
+                    <i class="fa-solid fa-play text-base"></i>
+                    <span>DEMO AUTO</span>
+                </button>
             </div>
-            <!-- Herramientas de Comentaristas, Acta, USB y Pantalla -->
-            <div class="grid grid-cols-5 gap-1">
-                <button onclick="finishAndOpenOfficialReport()" class="py-1.5 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-300 font-mono font-black text-[9px] rounded-lg border border-emerald-400/40 cursor-pointer" title="Abrir Acta Oficial de Resultados"><i class="fa-solid fa-flag-checkered mr-0.5"></i> ACTA</button>
-                <button onclick="announceFullStandingsWithHumor()" class="py-1.5 bg-amber-500/20 hover:bg-amber-500/35 text-amber-300 font-mono font-bold text-[9px] rounded-lg border border-amber-400/40 cursor-pointer" title="Narrador 1: Cantar Podio"><i class="fa-solid fa-microphone-lines mr-0.5"></i> PODIO</button>
-                <button onclick="announceLiveSectorGapsAnalysis()" class="py-1.5 bg-pink-500/20 hover:bg-pink-500/35 text-pink-300 font-mono font-black text-[9px] rounded-lg border border-pink-400/50 cursor-pointer" title="Comentarista 2: Cantar Sectores"><i class="fa-solid fa-headset mr-0.5"></i> SECT</button>
-                <button onclick="toggleVoiceSpotter()" id="btnVoice" class="py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 font-mono font-bold text-[9px] rounded-lg border border-indigo-400/40 cursor-pointer" title="Activar/Silenciar Voces"><span id="voiceIcon"><i class="fa-solid fa-volume-high"></i> VOZ</span></button>
-                <button onclick="toggleFullScreenMode()" id="btnFullscreen" class="py-1.5 bg-sky-500/20 hover:bg-sky-500/35 text-sky-300 font-mono font-black text-[9px] rounded-lg border border-sky-400/50 cursor-pointer" title="Pantalla Completa"><i class="fa-solid fa-expand"></i> FULL</button>
+
+            <!-- Fila Secundaria: Botones con Palabras Claras (Sin abreviaturas confusas) -->
+            <div class="grid grid-cols-4 gap-1.5">
+                <button onclick="finishAndOpenOfficialReport()" class="py-1.5 px-2 bg-emerald-950 hover:bg-emerald-800 text-emerald-200 font-mono font-black text-[10px] rounded-lg border border-emerald-500/60 cursor-pointer flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-trophy text-amber-400"></i> VER GANADOR
+                </button>
+                <button onclick="announceFullStandingsWithHumor()" class="py-1.5 px-2 bg-amber-950 hover:bg-amber-800 text-amber-200 font-mono font-black text-[10px] rounded-lg border border-amber-500/60 cursor-pointer flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-bullhorn text-amber-400"></i> CANTAR POSICIONES
+                </button>
+                <button onclick="toggleVoiceSpotter()" id="btnVoice" class="py-1.5 px-2 bg-indigo-950 hover:bg-indigo-800 text-indigo-200 font-mono font-black text-[10px] rounded-lg border border-indigo-400/60 cursor-pointer flex items-center justify-center gap-1">
+                    <span id="voiceIcon"><i class="fa-solid fa-volume-high mr-1"></i>VOZ ACTIVADA</span>
+                </button>
+                <button onclick="toggleFullScreenMode()" id="btnFullscreen" class="py-1.5 px-2 bg-sky-950 hover:bg-sky-800 text-sky-200 font-mono font-black text-[10px] rounded-lg border border-sky-400/60 cursor-pointer flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-expand"></i> PANTALLA GRANDE
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- -->
     <!-- ========================================================================================
-         MENÚ DE NAVEGACIÓN PRINCIPAL Y PULSADORES RÁPIDOS DE TEST
+         MENÚ PRINCIPAL CON BOTONES GRANDES Y LENGUAJE SENCILLO PARA CUALQUIER EDAD
          ======================================================================================== -->
-    <nav class="flex items-center justify-between gap-2 mb-2 shrink-0 bg-slate-950/95 px-2.5 py-1.5 rounded-2xl border border-slate-800/90 shadow-md">
-        <!-- Pestañas numeradas y claras -->
-        <div class="flex items-center gap-1.5 overflow-x-auto">
-            <button onclick="switchTab('live')" id="tabBtn-live" class="nav-pill-active px-3 py-1.5 rounded-xl text-[11px] font-mono font-black border transition cursor-pointer shrink-0 flex items-center gap-1.5">
-                <i class="fa-solid fa-flag-checkered"></i> 1. CARRERA EN VIVO
+    <nav class="flex items-center justify-between gap-2 mb-2 shrink-0 bg-slate-950 px-3 py-2 rounded-2xl border-2 border-slate-800 shadow-lg">
+        <!-- Pestañas grandes y muy legibles -->
+        <div class="flex items-center gap-2 overflow-x-auto">
+            <button onclick="switchTab('live')" id="tabBtn-live" class="nav-pill-active px-3.5 py-2 rounded-xl text-xs font-mono font-black border transition cursor-pointer shrink-0 flex items-center gap-2">
+                <i class="fa-solid fa-flag-checkered text-sm"></i> 1. PANTALLA DE CARRERA
             </button>
-            <button onclick="switchTab('sectors')" id="tabBtn-sectors" class="px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0 flex items-center gap-1.5">
-                <i class="fa-solid fa-stopwatch-20 text-purple-400"></i> 2. SECTORES F1
+            <button onclick="switchTab('rotation')" id="tabBtn-rotation" class="px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-slate-900 text-amber-300 hover:text-white border border-amber-500/40 transition cursor-pointer shrink-0 flex items-center gap-2">
+                <i class="fa-solid fa-users text-amber-400 text-sm"></i> 2. PILOTOS Y CLASIFICACIÓN
             </button>
-            <button onclick="switchTab('analytics')" id="tabBtn-analytics" class="px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0 flex items-center gap-1.5">
-                <i class="fa-solid fa-chart-line text-sky-400"></i> 3. TELEMETRÍA
+            <button onclick="switchTab('mobile')" id="tabBtn-mobile" class="px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-slate-900 text-emerald-300 hover:text-white border border-emerald-500/40 transition cursor-pointer shrink-0 flex items-center gap-2">
+                <i class="fa-solid fa-qrcode text-emerald-400 text-sm"></i> 3. VER EN EL MÓVIL (QR)
             </button>
-            <button onclick="switchTab('rotation')" id="tabBtn-rotation" class="px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0 flex items-center gap-1.5">
-                <i class="fa-solid fa-trophy text-amber-400"></i> 4. BD CLUB &amp; ACTAS
+            <button onclick="switchTab('sectors')" id="tabBtn-sectors" class="px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-200 hover:text-white border border-slate-700 transition cursor-pointer shrink-0 flex items-center gap-2">
+                <i class="fa-solid fa-stopwatch-20 text-purple-400 text-sm"></i> 4. TIEMPOS POR SECTORES
             </button>
-            <button onclick="switchTab('mobile')" id="tabBtn-mobile" class="px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 text-emerald-300 hover:text-white border border-emerald-500/30 transition cursor-pointer shrink-0 flex items-center gap-1.5">
-                <i class="fa-solid fa-qrcode text-emerald-400"></i> 5. MÓVIL QR EN VIVO
+            <button onclick="switchTab('analytics')" id="tabBtn-analytics" class="px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-200 hover:text-white border border-slate-700 transition cursor-pointer shrink-0 flex items-center gap-2">
+                <i class="fa-solid fa-chart-line text-sky-400 text-sm"></i> 5. GRÁFICAS
             </button>
-            <button onclick="switchTab('config')" id="tabBtn-config" class="px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition cursor-pointer shrink-0 flex items-center gap-1.5">
-                <i class="fa-solid fa-sliders text-sky-300"></i> 6. AJUSTES &amp; USB
+            <button onclick="switchTab('config')" id="tabBtn-config" class="px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-slate-900 text-sky-300 hover:text-white border border-sky-500/40 transition cursor-pointer shrink-0 flex items-center gap-2">
+                <i class="fa-solid fa-gear text-sky-400 text-sm"></i> 6. CONFIGURAR PISTA Y CABLE USB
             </button>
-            <button onclick="switchTab('security')" id="tabBtn-security" class="px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 text-amber-300 hover:text-white border border-amber-500/30 transition cursor-pointer shrink-0 flex items-center gap-1.5">
-                <i class="fa-solid fa-shield-halved text-amber-400"></i> 7. LICENCIAS
+            <button onclick="switchTab('security')" id="tabBtn-security" class="px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-slate-900 text-slate-300 hover:text-white border border-slate-700 transition cursor-pointer shrink-0 flex items-center gap-2">
+                <i class="fa-solid fa-key text-amber-400 text-sm"></i> 7. LICENCIA
             </button>
         </div>
 
-        <!-- Controles Rápidos Derecha: Paso Manual por Carril + Cajón USB -->
+        <!-- Botones de ayuda rápida a la derecha -->
         <div class="flex items-center gap-2 shrink-0">
-            <div class="hidden lg:flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-xl border border-slate-800">
-                <span class="text-[9px] font-mono font-bold text-slate-400 uppercase mr-1" title="Simular paso manual por sensor"><i class="fa-solid fa-hand-pointer text-amber-400 mr-1"></i>PASO MANUAL:</span>
-                <div id="quickSimButtons" class="flex items-center gap-1"></div>
+            <div class="hidden xl:flex items-center gap-1.5 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-700">
+                <span class="text-[10px] font-mono font-black text-amber-300 uppercase"><i class="fa-solid fa-hand-pointer mr-1"></i>SUMAR VUELTA MANUAL:</span>
+                <div id="quickSimButtons" class="flex items-center gap-1.5"></div>
             </div>
-            <button onclick="toggleHardwareTestStrip()" id="btnToggleUsbStrip" class="px-2.5 py-1.5 rounded-xl text-[10px] font-mono font-black bg-slate-900 hover:bg-slate-800 text-sky-300 border border-sky-500/40 cursor-pointer flex items-center gap-1.5" title="Mostrar/Ocultar barra superior de diagnóstico USB">
-                <i class="fa-brands fa-usb"></i> <span class="hidden xl:inline">BARRA USB</span>
+            <button onclick="connectArduinoUSB()" class="px-3 py-2 rounded-xl text-xs font-mono font-black bg-sky-600 hover:bg-sky-500 text-white border border-sky-300 shadow cursor-pointer flex items-center gap-1.5" title="Conectar o probar el cable USB del Arduino">
+                <i class="fa-brands fa-usb"></i> <span>CONECTAR USB</span>
             </button>
         </div>
     </nav>
@@ -1055,7 +1079,7 @@
     <section id="view-sectors" class="hidden flex-1 min-h-0 flex flex-col glass-panel rounded-2xl p-4 overflow-hidden">
         <div class="flex justify-between items-center mb-3 shrink-0">
             <div>
-                <h2 class="text-sm font-bold text-purple-300 font-mono uppercase"><i class="fa-solid fa-stopwatch-20 mr-1.5 text-purple-400"></i>TABLA F1 DE MICRO-SECTORES, RÉCORDS PARCIALES Y VUELTA ÓPTIMA TEÓRICA</h2>
+                <h2 class="text-sm font-bold text-purple-300 font-mono uppercase"><i class="fa-solid fa-stopwatch-20 mr-1.5 text-purple-400"></i>TABLA OFICIAL F1 DE MICRO-SECTORES, RÉCORDS PARCIALES Y VUELTA ÓPTIMA TEÓRICA</h2>
                 <p class="text-xs text-slate-400">Calcula la Vuelta Ideal Teórica sumando los mejores sectores reales (S1 + S2 + S3) de cada piloto y el margen de mejora potencial.</p>
             </div>
         </div>
@@ -2580,8 +2604,8 @@
         function toggleVoiceSpotter() {
             appState.voiceEnabled = !appState.voiceEnabled;
             document.getElementById('voiceIcon').innerHTML = appState.voiceEnabled
-                ? '<i class="fa-solid fa-volume-high mr-1"></i>VOZ'
-                : '<i class="fa-solid fa-volume-xmark mr-1"></i>MUTE';
+                ? '<i class="fa-solid fa-volume-high mr-1"></i>VOZ ACTIVADA'
+                : '<i class="fa-solid fa-volume-xmark mr-1"></i>SIN VOZ';
             if (appState.voiceEnabled) speakSpotter("Ingeniero de pista activado.", true);
         }
 
@@ -2600,8 +2624,8 @@
                 const btn = document.getElementById(`btnMode-${m}`);
                 if (btn) {
                     btn.className = (m === format)
-                        ? 'px-2.5 py-0.5 text-[10px] font-mono font-black rounded bg-amber-500 text-slate-950 cursor-pointer shadow'
-                        : 'px-2.5 py-0.5 text-[10px] font-mono font-black rounded bg-slate-800 text-slate-400 hover:text-white cursor-pointer';
+                        ? 'flex-1 py-1 text-[10px] font-black rounded bg-amber-500 text-slate-950 cursor-pointer shadow'
+                        : 'flex-1 py-1 text-[10px] font-black rounded bg-slate-800 text-slate-300 hover:text-white cursor-pointer';
                 }
             });
             const sel = document.getElementById('cfgRaceModeSelect');
@@ -3351,11 +3375,11 @@
             const btnNav = document.getElementById('btnSimNav');
             if (btnTop) {
                 btnTop.innerHTML = isRunning
-                    ? '<i class="fa-solid fa-stop"></i> PARAR SIM'
-                    : '<i class="fa-solid fa-robot"></i> SIM 2 VOCES';
+                    ? '<i class="fa-solid fa-stop text-base"></i><span>PARAR DEMO</span>'
+                    : '<i class="fa-solid fa-play text-base"></i><span>DEMO AUTO</span>';
                 btnTop.className = isRunning
-                    ? 'py-2 px-1.5 bg-gradient-to-r from-red-600 to-rose-600 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-red-300 cursor-pointer animate-pulse'
-                    : 'py-2 px-1.5 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-mono font-black text-[10px] rounded-xl shadow-lg border border-pink-300/60 cursor-pointer';
+                    ? 'py-2.5 px-2 bg-gradient-to-b from-red-600 to-rose-700 text-white font-mono font-black text-xs rounded-xl shadow-lg border-2 border-red-300 cursor-pointer animate-pulse flex flex-col items-center justify-center gap-0.5'
+                    : 'py-2.5 px-2 bg-gradient-to-b from-pink-600 to-purple-700 hover:from-pink-500 hover:to-purple-600 text-white font-mono font-black text-xs rounded-xl shadow-lg border-2 border-pink-300 cursor-pointer flex flex-col items-center justify-center gap-0.5';
             }
             if (btnNav) {
                 btnNav.innerHTML = isRunning
@@ -3727,7 +3751,7 @@
                 const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
-                a.download = 'KRONOS_SLOT_PRO_v8_0_QR_VIVO.html';
+                a.download = 'KRONOS_SLOT_PRO_v8_3_QR_VIVO.html';
                 a.click();
             } catch (e) {}
         }
@@ -4280,7 +4304,6 @@
                 html += `<option value="${i}">CARRIL ${i} — ${l.name} (${l.club})</option>`;
             }
             if (selAnalytics) selAnalytics.innerHTML = html;
-            // En Móvil QR solo listamos pilotos individuales (cada piloto solo ve sus propios datos)
             if (selMobile) selMobile.innerHTML = html;
         }
 
@@ -4573,7 +4596,6 @@
             updateMobilePitWallView();
         }
 
-        // Fuerza el redibujado del QR únicamente cuando se cambia de piloto o de modo QR
         function forceRefreshPilotQrCode() {
             lastQrRenderedText = '';
             updateMobilePitWallView(true);
@@ -4620,7 +4642,6 @@
 ${allLapsText}`;
 
             if (mode === 'WHATSAPP_DIRECT') {
-                // Mensaje corto de menos de 140 caracteres en el QR para que la cámara lo lea en 0.2s
                 const shortWa = `🏁 KRONOS ${me.name} (CH${me.id}) P${tac.pos}/${tac.totalCars} | ${me.laps}V | Best:${bestStr} | Delante:${ahead ? ahead.name + ' ' + tac.gapToAhead : 'LIDER'} | Detras:${behind ? behind.name + ' ' + tac.gapToBehind : 'NADIE'}`;
                 return {
                     qrString: `https://wa.me/?text=${encodeURIComponent(shortWa)}`,
@@ -4628,12 +4649,10 @@ ${allLapsText}`;
                 };
             }
 
-            // Modo LIVE_URL: URL ULTRA-CORTA (< 85 caracteres) para lectura instantánea de cámara QR
             const customBase = (document.getElementById('customQrBaseUrlInput')?.value || '').trim();
             let baseUrl = customBase || window.location.href.split('?')[0].split('#')[0];
 
             if (baseUrl.startsWith('about:') || baseUrl.startsWith('blob:')) {
-                // Si se ejecuta dentro de un visor sin URL pública, genera un QR corto y limpio de lectura inmediata
                 const shortCard = `KRONOS LIVE PASS\nPILOTO: ${me.name} (CH${me.id})\nPOS: P${tac.pos}/${tac.totalCars} (${me.laps} V.)\nMEJOR: ${bestStr} | ULT: ${lastStr}\nDELANTE: ${ahead ? ahead.name + ' (' + tac.gapToAhead + ')' : 'LIDER P1'}\nDETRAS: ${behind ? behind.name + ' (' + tac.gapToBehind + ')' : 'SIN RIVAL'}`;
                 return {
                     qrString: shortCard,
@@ -4641,7 +4660,6 @@ ${allLapsText}`;
                 };
             }
 
-            // URL super corta con el carril bloqueado y el código de sala en vivo (no cambia en cada vuelta, fácil de escanear)
             const liveUrl = `${baseUrl}?pilot_live=${laneId}&room=${appState.liveSyncRoomId}&al=${appState.activeLanes}`;
 
             return {
@@ -4682,10 +4700,9 @@ ${allLapsText}`;
                     const isBest = Math.abs(t - me.bestLap) < 0.0005;
                     return `<span class="px-1.5 py-0.5 rounded border text-[9px] ${isBest ? 'bg-emerald-500/25 border-emerald-400 text-emerald-200 font-black' : 'bg-slate-950 border-slate-800 text-slate-300'}">V${vNum}: ${t.toFixed(3)}s</span>`;
                 }).join('')
-                : '<span class="text-[10px] text-slate-500 italic">Pulsa "SIM 2 VOCES" arriba para ver llegar los datos en vivo...</span>';
+                : '<span class="text-[10px] text-slate-500 italic">Pulsa "SIMULAR" arriba para ver llegar los datos en vivo...</span>';
 
             document.getElementById('mobilePhoneScreenContent').innerHTML = `
-                <!-- RIVAL POR DELANTE -->
                 <div class="bg-slate-900/95 p-2.5 rounded-xl border-l-4 border-l-rose-500 border border-slate-800 flex justify-between items-center">
                     <div>
                         <div class="text-[9px] text-rose-400 font-black uppercase"><i class="fa-solid fa-angles-up mr-1"></i>DELANTE (A CAZAR)</div>
@@ -4698,7 +4715,6 @@ ${allLapsText}`;
                     </div>
                 </div>
 
-                <!-- MI COCHE EN VIVO (EXCLUSIVO) -->
                 <div class="bg-slate-900 p-2.5 rounded-xl border-2 border-sky-400/80 space-y-2 shadow-lg">
                     <div class="flex justify-between items-center border-b border-slate-800 pb-1">
                         <div>
@@ -4733,7 +4749,6 @@ ${allLapsText}`;
                     </div>
                 </div>
 
-                <!-- RIVAL POR DETRÁS -->
                 <div class="bg-slate-900/95 p-2.5 rounded-xl border-l-4 border-l-emerald-500 border border-slate-800 flex justify-between items-center">
                     <div>
                         <div class="text-[9px] text-emerald-400 font-black uppercase"><i class="fa-solid fa-angles-down mr-1"></i>DETRÁS (PERSEGUIDOR)</div>
@@ -4746,7 +4761,6 @@ ${allLapsText}`;
                     </div>
                 </div>
 
-                <!-- VUELTAS GUARDADAS EN EL MÓVIL -->
                 <div class="bg-slate-900/90 p-2 rounded-xl border border-slate-800 space-y-1">
                     <div class="flex justify-between items-center text-[9px]">
                         <span class="text-sky-400 font-black">MIS VUELTAS (${me.history.length})</span>
@@ -4756,14 +4770,12 @@ ${allLapsText}`;
                 </div>
             `;
 
-            // Solo redibujar el QR si cambió el enlace o el piloto (evita parpadeos mientras la cámara enfoca)
             if (forceQrRedraw || qrString !== lastQrRenderedText) {
                 lastQrRenderedText = qrString;
                 renderRealScannableQrCode(qrString);
             }
         }
 
-        // Generador Oficial QR ISO/IEC 18004 de Baja Densidad (Nivel L, 156x156px) para lectura instantánea
         function renderRealScannableQrCode(qrPayload) {
             const box = document.getElementById('dynamicQrContainer');
             if (!box) return;
@@ -4823,7 +4835,6 @@ ${allLapsText}`;
             document.getElementById('pilotAppClubName').textContent = me.club || 'CLUB OFICIAL';
             document.getElementById('pilotAppPosition').textContent = `P${tac.pos}`;
 
-            // Actualizar mini reloj y estado de pista en vivo (STANDBY, RACING, TRACK_CALL, FINISHED)
             const clockMini = document.getElementById('pilotAppClockMini');
             if (clockMini) {
                 if (appState.raceFormat === 'LAPS') {
@@ -4862,7 +4873,6 @@ ${allLapsText}`;
                 }
             }
 
-            // Delante
             document.getElementById('pilotAppAheadName').textContent = ahead
                 ? `P${tac.pos - 1} · CH${ahead.id} ${ahead.name}`
                 : '¡ERES EL LÍDER DE LA CARRERA (P1)!';
@@ -4872,7 +4882,6 @@ ${allLapsText}`;
             document.getElementById('pilotAppAheadGap').textContent = tac.gapToAhead;
             document.getElementById('pilotAppAheadPaceDiff').textContent = tac.paceVsAhead;
 
-            // Mi Coche
             document.getElementById('pilotAppOptimalTag').textContent = `V. Óptima: ${optLap < Infinity ? optLap.toFixed(3) + 's' : '--.---s'}`;
             document.getElementById('pilotAppLaps').textContent = String(me.laps);
             document.getElementById('pilotAppLastLap').textContent = me.lastLap > 0 ? `${me.lastLap.toFixed(3)}s` : '0.000s';
@@ -4881,7 +4890,6 @@ ${allLapsText}`;
             document.getElementById('pilotAppS2').textContent = me.lastSectors[2] !== null ? `${me.lastSectors[2].toFixed(3)}s` : '--.---s';
             document.getElementById('pilotAppS3').textContent = me.lastSectors[3] !== null ? `${me.lastSectors[3].toFixed(3)}s` : '--.---s';
 
-            // Detrás
             document.getElementById('pilotAppBehindName').textContent = behind
                 ? `P${tac.pos + 1} · CH${behind.id} ${behind.name}`
                 : 'SIN PERSEGUIDOR DETRÁS';
@@ -4891,7 +4899,6 @@ ${allLapsText}`;
             document.getElementById('pilotAppBehindGap').textContent = tac.gapToBehind;
             document.getElementById('pilotAppBehindPaceDiff').textContent = tac.paceVsBehind;
 
-            // Historial completo
             document.getElementById('pilotAppMeanLap').textContent = `Media: ${meanLap > 0 ? meanLap.toFixed(3) + 's' : '--.---s'}`;
             const histBox = document.getElementById('pilotAppLapHistoryBox');
             if (me.history.length === 0) {
@@ -4911,7 +4918,6 @@ ${allLapsText}`;
             }
         }
 
-        // Descarga el "Pasaporte de Telemetría" EXCLUSIVO de ese piloto (sin tabla de otros coches)
         function downloadPilotTakeHomePass() {
             const laneId = appState.pilotOverlayActiveLane || (parseInt(document.getElementById('mobileDriverSelect')?.value, 10) || 1);
             const tac = getPilotTacticalContext(laneId);
@@ -4992,19 +4998,16 @@ ${allLapsText}`;
                     appState.voiceEnabled = false;
                     document.body.classList.add('pilot-mobile-mode-active');
 
-                    // Ocultar botón de volver a pantalla del club para que el piloto solo vea su propio coche
                     const btnBack = document.getElementById('btnBackToClubScreen');
                     if (btnBack) btnBack.classList.add('hidden');
                     const bottomGrid = document.getElementById('pilotAppBottomButtons');
                     if (bottomGrid) bottomGrid.className = 'grid grid-cols-1 gap-2 pt-1';
 
-                    // Cargar estado inicial si está en el mismo navegador
                     const snap = safeGetStorage('kronos_live_mobile_snapshot');
                     if (snap) {
                         try { applyIncomingLiveTelemetryPacket(JSON.parse(snap)); } catch (e) {}
                     }
 
-                    // Desbloquear automáticamente la síntesis de voz en el primer toque del piloto en su móvil
                     const unlockFirstTouch = () => {
                         if (!appState.pilotMobileVoiceUnlocked) {
                             togglePilotMobileAudio();
@@ -5030,8 +5033,10 @@ ${allLapsText}`;
             const textarea = document.getElementById('mobileReportTextarea');
             safeCopyText(textarea.value);
             const btn = document.getElementById('btnCopyMobile');
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
-            setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar'; }, 1800);
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
+                setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar'; }, 1800);
+            }
         }
 
         function refuelCar(laneId) {
@@ -5066,13 +5071,13 @@ ${allLapsText}`;
 
         function switchTab(tabId) {
             const tabMeta = {
-                live:      { icon: 'fa-flag-checkered text-white', label: '1. CARRERA EN VIVO', extra: 'text-slate-300 border-slate-800' },
-                sectors:   { icon: 'fa-stopwatch-20 text-purple-400', label: '2. SECTORES F1', extra: 'text-slate-300 border-slate-800' },
-                analytics: { icon: 'fa-chart-line text-sky-400', label: '3. TELEMETRÍA', extra: 'text-slate-300 border-slate-800' },
-                rotation:  { icon: 'fa-trophy text-amber-400', label: '4. BD CLUB & ACTAS', extra: 'text-slate-300 border-slate-800' },
-                mobile:    { icon: 'fa-qrcode text-emerald-400', label: '5. MÓVIL QR EN VIVO', extra: 'text-emerald-300 border-emerald-500/30' },
-                config:    { icon: 'fa-sliders text-sky-300', label: '6. AJUSTES & USB', extra: 'text-slate-300 border-slate-800' },
-                security:  { icon: 'fa-shield-halved text-amber-400', label: '7. LICENCIAS', extra: 'text-amber-300 border-amber-500/30' }
+                live:      { extra: 'text-slate-200 border-slate-700' },
+                rotation:  { extra: 'text-amber-300 border-amber-500/40' },
+                mobile:    { extra: 'text-emerald-300 border-emerald-500/40' },
+                sectors:   { extra: 'text-slate-200 border-slate-700' },
+                analytics: { extra: 'text-slate-200 border-slate-700' },
+                config:    { extra: 'text-sky-300 border-sky-500/40' },
+                security:  { extra: 'text-slate-300 border-slate-700' }
             };
 
             ['live', 'sectors', 'analytics', 'rotation', 'mobile', 'config', 'security'].forEach(id => {
@@ -5080,7 +5085,7 @@ ${allLapsText}`;
                 const btnEl = document.getElementById(`tabBtn-${id}`);
                 if (viewEl) viewEl.classList.add('hidden');
                 if (btnEl && tabMeta[id]) {
-                    btnEl.className = `px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold bg-slate-900 hover:text-white border transition cursor-pointer shrink-0 flex items-center gap-1.5 ${tabMeta[id].extra}`;
+                    btnEl.className = `px-3.5 py-2 rounded-xl text-xs font-mono font-bold bg-slate-900 hover:text-white border transition cursor-pointer shrink-0 flex items-center gap-2 ${tabMeta[id].extra}`;
                 }
             });
 
@@ -5089,7 +5094,7 @@ ${allLapsText}`;
 
             const activeBtn = document.getElementById(`tabBtn-${tabId}`);
             if (activeBtn) {
-                activeBtn.className = 'nav-pill-active px-3 py-1.5 rounded-xl text-[11px] font-mono font-black border transition cursor-pointer shrink-0 flex items-center gap-1.5';
+                activeBtn.className = 'nav-pill-active px-3.5 py-2 rounded-xl text-xs font-mono font-black border transition cursor-pointer shrink-0 flex items-center gap-2';
             }
 
             if (tabId === 'sectors') renderSectorAnalysisTable();
@@ -5392,20 +5397,29 @@ ${allLapsText}`;
             introVideoState.landscapeTimerRunning = false;
         }
 
+        function skipIntroNow() {
+            const overlay = document.getElementById('portraitWarningOverlay');
+            introVideoState.landscapeCompleted = true;
+            clearIntroLandscapeTimers();
+            if (overlay) {
+                overlay.classList.add('fade-out-intro');
+                setTimeout(() => {
+                    overlay.style.setProperty('display', 'none', 'important');
+                }, 400);
+            }
+        }
+
         function setIntroVideoLayoutMode(mode) {
             const overlay = document.getElementById('portraitWarningOverlay');
             const headerBar = document.getElementById('introHeaderBar');
-            const centerWrap = document.getElementById('introCenterWrapper');
-            const videoCard = document.getElementById('introVideoCard');
             const promptCard = document.getElementById('introPortraitPromptCard');
             const footerBar = document.getElementById('introFooterBar');
             const landscapeHud = document.getElementById('introLandscapeHud');
 
-            if (!overlay || !centerWrap || !videoCard) return;
+            if (!overlay) return;
 
             if (mode === 'PORTRAIT') {
-                overlay.classList.remove('fade-out-intro', 'p-0');
-                overlay.classList.add('p-6');
+                overlay.classList.remove('fade-out-intro');
                 if (headerBar) headerBar.classList.remove('hidden');
                 if (promptCard) promptCard.classList.remove('hidden');
                 if (footerBar) footerBar.classList.remove('hidden');
@@ -5413,20 +5427,14 @@ ${allLapsText}`;
                     landscapeHud.classList.add('hidden');
                     landscapeHud.classList.remove('flex');
                 }
-                centerWrap.className = 'my-auto w-full max-w-md flex flex-col items-center space-y-5 transition-all duration-700';
-                videoCard.className = 'relative w-full aspect-video rounded-3xl overflow-hidden border-2 border-sky-500/70 shadow-[0_0_50px_rgba(56,189,248,0.3)] bg-black flex items-center justify-center transition-all duration-700';
             } else if (mode === 'LANDSCAPE_FULLSCREEN') {
-                overlay.classList.remove('p-6');
-                overlay.classList.add('p-0');
-                if (headerBar) headerBar.classList.add('hidden');
+                if (headerBar) headerBar.classList.remove('hidden');
                 if (promptCard) promptCard.classList.add('hidden');
                 if (footerBar) footerBar.classList.add('hidden');
                 if (landscapeHud) {
                     landscapeHud.classList.remove('hidden');
                     landscapeHud.classList.add('flex');
                 }
-                centerWrap.className = 'w-screen h-screen max-w-none m-0 flex items-center justify-center transition-all duration-700';
-                videoCard.className = 'relative w-screen h-screen rounded-none overflow-hidden border-0 bg-black flex items-center justify-center transition-all duration-700';
             }
         }
 
@@ -5445,7 +5453,6 @@ ${allLapsText}`;
             const isPortrait = window.innerHeight > window.innerWidth;
 
             if (isPortrait) {
-                // Si el usuario vuelve a poner la tablet en vertical, cancelar cuenta atrás y mostrar aviso con vídeo en el centro
                 clearIntroLandscapeTimers();
                 overlay.style.setProperty('display', 'flex', 'important');
                 setIntroVideoLayoutMode('PORTRAIT');
@@ -5454,13 +5461,11 @@ ${allLapsText}`;
                     video.play().catch(() => {});
                 }
             } else {
-                // Está en HORIZONTAL
                 if (introVideoState.landscapeCompleted) {
                     overlay.style.setProperty('display', 'none', 'important');
                     return;
                 }
 
-                // Expandir el mismo vídeo a pantalla completa sin cortar su reproducción y contar 12 segundos
                 overlay.style.setProperty('display', 'flex', 'important');
                 setIntroVideoLayoutMode('LANDSCAPE_FULLSCREEN');
 
@@ -5473,19 +5478,18 @@ ${allLapsText}`;
                     introVideoState.landscapeTimerRunning = true;
                     introVideoState.secondsLeft = 12;
                     if (countdownText) {
-                        countdownText.textContent = `ENTRANDO EN ${introVideoState.secondsLeft}s...`;
+                        countdownText.textContent = `ABRIENDO PISTA EN ${introVideoState.secondsLeft} SEGUNDOS...`;
                     }
 
                     introVideoState.countdownIntervalId = setInterval(() => {
                         introVideoState.secondsLeft = Math.max(0, introVideoState.secondsLeft - 1);
                         if (countdownText) {
                             countdownText.textContent = introVideoState.secondsLeft > 0
-                                ? `ENTRANDO EN ${introVideoState.secondsLeft}s...`
-                                : `DIFUMINANDO...`;
+                                ? `ABRIENDO PISTA EN ${introVideoState.secondsLeft} SEGUNDOS...`
+                                : `ENTRANDO A LA PISTA...`;
                         }
                     }, 1000);
 
-                    // A los 12 segundos exactos en pantalla completa, aplicar el difuminado suave (blur + fade-out)
                     introVideoState.fadeTimeoutId = setTimeout(() => {
                         overlay.classList.add('fade-out-intro');
                         introVideoState.hideTimeoutId = setTimeout(() => {
